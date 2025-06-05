@@ -1,5 +1,5 @@
 from flask import Blueprint, request, render_template, redirect, url_for
-from services.recent_videos import analyze_recent_videos, format_number, format_date, format_duration
+from services.recent_videos import get_recent_videos, format_number, format_date, format_duration
 import logging
 
 recent_videos_bp = Blueprint('recent_videos', __name__, url_prefix='/recent-videos')
@@ -8,7 +8,6 @@ recent_videos_bp = Blueprint('recent_videos', __name__, url_prefix='/recent-vide
 def recent_videos():
     if request.method == 'POST':
         channel_url = request.form.get('channel_url', '').strip()
-        content_type = request.form.get('content_type', 'all')
         
         if not channel_url:
             return render_template('recent_videos/index.html', 
@@ -16,8 +15,7 @@ def recent_videos():
         
         try:
             return redirect(url_for('recent_videos.generate_report', 
-                                  channel_url=channel_url, 
-                                  content_type=content_type))
+                                  channel_url=channel_url))
         except Exception as e:
             error_msg = f"Error procesando la URL: {str(e)}"
             logging.error(error_msg)
@@ -25,10 +23,10 @@ def recent_videos():
     
     return render_template('recent_videos/index.html')
 
-@recent_videos_bp.route('/report/<path:channel_url>/<content_type>')
-def generate_report(channel_url, content_type):
+@recent_videos_bp.route('/report/<path:channel_url>')
+def generate_report(channel_url):
     try:
-        result = analyze_recent_videos(channel_url, content_type)
+        result = get_recent_videos(channel_url)
         
         return render_template('recent_videos/report.html',
                              result=result,
@@ -41,5 +39,4 @@ def generate_report(channel_url, content_type):
         logging.error(error_message)
         return render_template('recent_videos/error.html', 
                              error=error_message, 
-                             channel_url=channel_url,
-                             content_type=content_type)
+                             channel_url=channel_url)
