@@ -214,14 +214,9 @@ def prepare_mobile_view(top_videos, user_video):
     # Últimos 2 videos
     mobile_videos.extend(top_videos[2:4])
     
-    # Recortar títulos al 60% para móvil
+    # Mantener títulos completos para móvil
     for video in mobile_videos:
-        original_title = video['title']
-        if len(original_title) > 0:
-            cut_length = int(len(original_title) * 0.6)
-            video['mobile_title'] = original_title[:cut_length] + '...' if cut_length < len(original_title) else original_title
-        else:
-            video['mobile_title'] = original_title
+        video['mobile_title'] = video['title']
     
     return mobile_videos
 
