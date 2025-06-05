@@ -200,21 +200,20 @@ def prepare_desktop_view(top_videos, user_video):
     }
 
 def prepare_mobile_view(top_videos, user_video):
-    """Prepara la vista móvil con 1 columna de 5 videos, con el usuario integrado"""
-    # Tomar los primeros 2 videos, luego el del usuario, luego 2 más
+    """Prepara la vista móvil estilo YouTube - máximo 5 videos con scroll"""
     mobile_videos = []
     
-    # Primeros 2 videos
+    # Tomar los primeros 2 videos
     mobile_videos.extend(top_videos[:2])
     
     # Video del usuario en posición 3
     user_video_copy = user_video.copy()
     mobile_videos.append(user_video_copy)
     
-    # Últimos 2 videos
+    # Agregar 2 videos más para completar 5 (requiere scroll)
     mobile_videos.extend(top_videos[2:4])
     
-    # Mantener títulos completos para móvil
+    # Títulos completos para móvil
     for video in mobile_videos:
         video['mobile_title'] = video['title']
     
