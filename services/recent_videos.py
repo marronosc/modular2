@@ -25,7 +25,7 @@ def analyze_recent_videos(channel_url, content_type='all', max_results=20):
         dict: Análisis completo de los videos
     """
     if not youtube:
-        raise Exception("API de YouTube no configurada")
+        raise Exception("API de YouTube no configurada. Es necesario configurar la variable de entorno YOUTUBE_API_KEY para usar esta herramienta.")
     
     try:
         # Extraer channel ID usando el servicio existente

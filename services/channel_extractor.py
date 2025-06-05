@@ -60,8 +60,13 @@ def obtener_id_canal(url):
     if path_parts:
         # @usuario, /c/usuario, /user/usuario
         if path_parts[0].startswith('@'):
-            custom_name = path_parts[0]
-            logging.info(f"Handle encontrado: {custom_name}")
+            handle = path_parts[0]
+            logging.info(f"Handle encontrado: {handle}")
+            # Primero intentar con API si está disponible
+            channel_id = obtener_id_desde_handle_api(handle)
+            if channel_id:
+                return channel_id
+            # Fallback a scraping
             return obtener_id_desde_contenido_pagina(url)
         elif len(path_parts) >= 2 and path_parts[0] in ['c', 'user']:
             custom_name = path_parts[1]
@@ -108,6 +113,39 @@ def obtener_id_desde_video(video_id):
     url = f'https://www.youtube.com/watch?v={video_id}'
     logging.info(f"Fallback: obteniendo desde página del video: {url}")
     return obtener_id_desde_contenido_pagina(url)
+
+def obtener_id_desde_handle_api(handle):
+    """Obtiene el channel ID desde un handle (@usuario) usando la API de YouTube"""
+    api_key = os.environ.get('YOUTUBE_API_KEY')
+    
+    if not api_key:
+        logging.warning("API Key no disponible para resolver handle")
+        return None
+    
+    try:
+        from googleapiclient.discovery import build
+        youtube = build('youtube', 'v3', developerKey=api_key)
+        
+        # Buscar canal por handle/custom URL
+        request = youtube.search().list(
+            q=handle,
+            type='channel',
+            part='id',
+            maxResults=1
+        )
+        response = request.execute()
+        
+        if 'items' in response and len(response['items']) > 0:
+            channel_id = response['items'][0]['id']['channelId']
+            logging.info(f"Channel ID obtenido desde API para handle {handle}: {channel_id}")
+            return channel_id
+        else:
+            logging.warning(f"No se encontró canal con handle: {handle}")
+            return None
+            
+    except Exception as e:
+        logging.error(f"Error usando YouTube API para handle {handle}: {e}")
+        return None
 
 def obtener_id_desde_contenido_pagina(url):
     """Extrae el channel ID del HTML de la página"""
