@@ -448,31 +448,47 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
     
-    // Función para cambiar vista
+    // Función para cambiar vista con CSS forzado
     function changeView(viewType) {
         console.log('🔄 Cambiando a vista:', viewType);
         
         if (viewType === 'mobile') {
-            // Mostrar vista móvil
-            desktopView.style.display = 'none';
-            mobileView.style.display = 'block';
+            // Forzar ocultación de vista desktop
+            desktopView.style.setProperty('display', 'none', 'important');
+            desktopView.style.visibility = 'hidden';
+            
+            // Forzar mostrar vista móvil
+            mobileView.style.setProperty('display', 'block', 'important');
+            mobileView.style.visibility = 'visible';
             
             // Actualizar botones
             desktopBtn.classList.remove('active');
             mobileBtn.classList.add('active');
             
-            console.log('✅ Vista móvil activada');
+            console.log('✅ Vista móvil activada - Desktop hidden:', desktopView.style.display, 'Mobile shown:', mobileView.style.display);
         } else {
-            // Mostrar vista desktop
-            desktopView.style.display = 'block';
-            mobileView.style.display = 'none';
+            // Forzar mostrar vista desktop
+            desktopView.style.setProperty('display', 'block', 'important');
+            desktopView.style.visibility = 'visible';
+            
+            // Forzar ocultación de vista móvil
+            mobileView.style.setProperty('display', 'none', 'important');
+            mobileView.style.visibility = 'hidden';
             
             // Actualizar botones
             desktopBtn.classList.add('active');
             mobileBtn.classList.remove('active');
             
-            console.log('✅ Vista desktop activada');
+            console.log('✅ Vista desktop activada - Desktop shown:', desktopView.style.display, 'Mobile hidden:', mobileView.style.display);
         }
+        
+        // Debugging adicional
+        console.log('Estado final:', {
+            desktopDisplay: window.getComputedStyle(desktopView).display,
+            mobileDisplay: window.getComputedStyle(mobileView).display,
+            desktopVisible: window.getComputedStyle(desktopView).visibility,
+            mobileVisible: window.getComputedStyle(mobileView).visibility
+        });
     }
     
     // Event listeners
