@@ -124,7 +124,7 @@ def get_channel_videos(channel_id, content_type, max_results):
         videos = []
         next_page_token = None
         fetched = 0
-        max_fetch = max_results * 5  # Buscar más videos para asegurar suficientes después del filtrado
+        max_fetch = max_results * 3  # Buscar 3x más videos para asegurar suficientes después del filtrado
         
         logging.info(f"Buscando videos para canal: {channel_id}")
         
@@ -138,8 +138,8 @@ def get_channel_videos(channel_id, content_type, max_results):
                 order='date',  # Orden por fecha (más reciente primero)
                 type='video',
                 maxResults=page_size,
-                pageToken=next_page_token,
-                publishedAfter=(datetime.now() - timedelta(days=365)).isoformat() + 'Z'  # Solo último año
+                pageToken=next_page_token
+                # Eliminado filtro de 365 días - buscar en todo el historial
             )
             response = request.execute()
             
@@ -204,27 +204,17 @@ def get_video_details(video_id, snippet):
         # Determinar tipo de contenido
         is_live = 'actualStartTime' in live_details
         
-        # Detectar Shorts de manera más precisa
+        # Detectar Shorts de manera más conservadora
         is_short = False
         
-        # 1. Videos de menos de 60 segundos
+        # Solo considerar Short si es realmente muy corto (menos de 60 segundos)
         if duration <= timedelta(seconds=60):
             is_short = True
+            logging.info(f"Video marcado como Short por duración: {duration.total_seconds()}s")
             
-        # 2. URLs que contienen "shorts"
-        video_url = f"https://www.youtube.com/watch?v={video_id}"
-        if 'shorts' in video_url.lower():
-            is_short = True
-            
-        # 3. Título que menciona "short" 
-        if 'short' in snippet.get('title', '').lower():
-            is_short = True
-            
-        # 4. Videos muy cortos (menos de 3 minutos) con aspect ratio vertical (indicador de Short)
-        if duration <= timedelta(minutes=3):
-            # Para esta verificación adicional, podríamos usar más heurísticas
-            # pero por ahora nos quedamos con duración y título
-            pass
+        # Solo verificar URL si realmente contiene /shorts/ en la ruta
+        # (no solo la palabra "short" en el título)
+        # Nota: Las URLs de shorts tienen formato youtube.com/shorts/VIDEO_ID
         
         content_type = 'live' if is_live else ('short' if is_short else 'video')
         
@@ -252,7 +242,11 @@ def should_include_video(video, content_type_filter):
     if content_type_filter == 'all':
         return True
     elif content_type_filter == 'videos':
-        return not video['is_short'] and not video['is_live']
+        include = not video['is_short'] and not video['is_live']
+        if not include:
+            reason = "Short" if video['is_short'] else "Live"
+            logging.info(f"Video excluido por ser {reason}: {video['title'][:30]}... (duración: {video['duration']})")
+        return include
     elif content_type_filter == 'shorts':
         return video['is_short']
     elif content_type_filter == 'lives':
