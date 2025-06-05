@@ -30,13 +30,22 @@ def analyze_recent_videos(channel_url, content_type='all', max_results=20):
     try:
         # Extraer channel ID usando el servicio existente
         from services.channel_extractor import obtener_id_canal
+        
+        logging.info(f"Intentando extraer Channel ID de: {channel_url}")
         channel_id = obtener_id_canal(channel_url)
         
         if not channel_id:
-            raise Exception("No se pudo extraer el ID del canal")
+            logging.error(f"No se pudo extraer Channel ID de: {channel_url}")
+            raise Exception(f"No se pudo extraer el ID del canal desde la URL: {channel_url}. Verifica que sea una URL válida de YouTube.")
+        
+        logging.info(f"Channel ID extraído exitosamente: {channel_id}")
         
         # Obtener información del canal
         channel_info = get_channel_info(channel_id)
+        
+        if not channel_info:
+            logging.error(f"No se pudo obtener información del canal: {channel_id}")
+            raise Exception(f"El canal {channel_id} no existe o no es público")
         
         # Obtener videos del canal
         videos = get_channel_videos(channel_id, content_type, max_results)
@@ -75,6 +84,8 @@ def analyze_recent_videos(channel_url, content_type='all', max_results=20):
 def get_channel_info(channel_id):
     """Obtiene información básica del canal"""
     try:
+        logging.info(f"Obteniendo información del canal: {channel_id}")
+        
         request = youtube.channels().list(
             part='snippet,statistics',
             id=channel_id
@@ -86,7 +97,7 @@ def get_channel_info(channel_id):
             snippet = channel['snippet']
             statistics = channel.get('statistics', {})
             
-            return {
+            channel_info = {
                 'id': channel_id,
                 'title': snippet.get('title', 'Canal desconocido'),
                 'description': snippet.get('description', '')[:200] + '...' if len(snippet.get('description', '')) > 200 else snippet.get('description', ''),
@@ -96,27 +107,43 @@ def get_channel_info(channel_id):
                 'view_count': int(statistics.get('viewCount', 0)),
                 'published_at': datetime.strptime(snippet['publishedAt'], "%Y-%m-%dT%H:%M:%SZ") if 'publishedAt' in snippet else None
             }
+            
+            logging.info(f"Canal encontrado: {channel_info['title']} ({channel_info['subscriber_count']} suscriptores)")
+            return channel_info
+        else:
+            logging.warning(f"No se encontró información para el canal: {channel_id}")
+            return None
+            
     except Exception as e:
-        logging.error(f"Error obteniendo información del canal: {str(e)}")
-        raise Exception("Error obteniendo información del canal")
+        logging.error(f"Error obteniendo información del canal {channel_id}: {str(e)}")
+        return None
 
 def get_channel_videos(channel_id, content_type, max_results):
-    """Obtiene los videos más recientes del canal"""
+    """Obtiene los videos más recientes del canal en orden cronológico"""
     try:
         videos = []
         next_page_token = None
         fetched = 0
+        max_fetch = max_results * 5  # Buscar más videos para asegurar suficientes después del filtrado
         
-        while len(videos) < max_results and fetched < max_results * 3:  # Límite de seguridad
+        logging.info(f"Buscando videos para canal: {channel_id}")
+        
+        while len(videos) < max_results and fetched < max_fetch:
+            # Obtener más videos por página para reducir llamadas a la API
+            page_size = min(50, max_fetch - fetched)
+            
             request = youtube.search().list(
                 channelId=channel_id,
                 part='id,snippet',
-                order='date',
+                order='date',  # Orden por fecha (más reciente primero)
                 type='video',
-                maxResults=min(50, max_results * 3 - fetched),
-                pageToken=next_page_token
+                maxResults=page_size,
+                pageToken=next_page_token,
+                publishedAfter=(datetime.now() - timedelta(days=365)).isoformat() + 'Z'  # Solo último año
             )
             response = request.execute()
+            
+            logging.info(f"Obtenidos {len(response.get('items', []))} videos en esta página")
             
             for item in response.get('items', []):
                 video_id = item['id']['videoId']
@@ -126,21 +153,32 @@ def get_channel_videos(channel_id, content_type, max_results):
                 
                 if video_details and should_include_video(video_details, content_type):
                     videos.append(video_details)
+                    logging.info(f"Video incluido: {video_details['title'][:50]}... ({video_details['published_at']})")
                     
                     if len(videos) >= max_results:
                         break
+                else:
+                    if video_details:
+                        logging.info(f"Video excluido ({video_details['content_type']}): {video_details['title'][:50]}...")
                 
                 fetched += 1
             
             next_page_token = response.get('nextPageToken')
             if not next_page_token:
+                logging.info("No hay más páginas disponibles")
                 break
         
-        return videos[:max_results]
+        # Ordenar por fecha de publicación (más reciente primero) para asegurar orden correcto
+        videos.sort(key=lambda x: x['published_at'], reverse=True)
+        
+        result = videos[:max_results]
+        logging.info(f"Devolviendo {len(result)} videos finales")
+        
+        return result
         
     except Exception as e:
-        logging.error(f"Error obteniendo videos del canal: {str(e)}")
-        raise Exception("Error obteniendo videos del canal")
+        logging.error(f"Error obteniendo videos del canal {channel_id}: {str(e)}")
+        raise Exception(f"Error obteniendo videos del canal: {str(e)}")
 
 def get_video_details(video_id, snippet):
     """Obtiene detalles completos de un video"""
