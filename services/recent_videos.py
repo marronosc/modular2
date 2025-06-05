@@ -45,10 +45,18 @@ def get_recent_videos(channel_url, max_results=20):
         # Obtener videos del canal
         videos = get_channel_videos(channel_id, max_results)
         
+        # Calcular estadísticas y análisis
+        stats = calculate_basic_stats(videos) if videos else {}
+        highlights = identify_highlights(videos) if videos else {}
+        insights = generate_insights(videos) if videos else {}
+        
         return {
             'channel_info': channel_info,
             'videos': videos,
             'total_videos': len(videos),
+            'stats': stats,
+            'highlights': highlights,
+            'insights': insights,
             'analysis_date': datetime.now()
         }
         
@@ -159,18 +167,38 @@ def get_video_details(video_id, snippet):
         # Verificar si es live
         is_live = 'actualStartTime' in live_details
         
+        published_at = datetime.strptime(snippet['publishedAt'], "%Y-%m-%dT%H:%M:%SZ")
+        views = int(statistics.get('viewCount', 0))
+        likes = int(statistics.get('likeCount', 0))
+        comments = int(statistics.get('commentCount', 0))
+        
+        # Calcular métricas adicionales
+        age_days = (datetime.now() - published_at).days
+        engagement_rate = (likes / views * 100) if views > 0 else 0
+        views_per_day = (views / age_days) if age_days > 0 else views
+        weekday = published_at.strftime('%A')
+        weekday_es = translate_weekday(weekday)
+        
         return {
             'video_id': video_id,
             'title': snippet.get('title', 'Sin título'),
-            'published_at': datetime.strptime(snippet['publishedAt'], "%Y-%m-%dT%H:%M:%SZ"),
+            'published_at': published_at,
             'thumbnail': snippet.get('thumbnails', {}).get('medium', {}).get('url', ''),
             'duration': duration,
             'duration_formatted': format_duration(duration),
-            'views': int(statistics.get('viewCount', 0)),
-            'likes': int(statistics.get('likeCount', 0)),
+            'duration_seconds': int(duration.total_seconds()),
+            'views': views,
+            'likes': likes,
+            'comments': comments,
             'video_url': f"https://www.youtube.com/watch?v={video_id}",
             'is_live': is_live,
-            'is_short': duration <= timedelta(seconds=60)
+            'is_short': duration <= timedelta(seconds=60),
+            # Nuevas métricas
+            'age_days': age_days,
+            'engagement_rate': engagement_rate,
+            'views_per_day': views_per_day,
+            'weekday': weekday_es,
+            'age_formatted': format_age(age_days)
         }
         
     except Exception as e:
@@ -210,3 +238,201 @@ def format_date(value):
     if isinstance(value, datetime):
         return value.strftime("%d/%m/%Y")
     return str(value)
+
+def translate_weekday(weekday):
+    """Traduce días de la semana al español"""
+    translation = {
+        'Monday': 'Lunes',
+        'Tuesday': 'Martes', 
+        'Wednesday': 'Miércoles',
+        'Thursday': 'Jueves',
+        'Friday': 'Viernes',
+        'Saturday': 'Sábado',
+        'Sunday': 'Domingo'
+    }
+    return translation.get(weekday, weekday)
+
+def format_age(days):
+    """Formatea la edad del video en texto legible"""
+    if days == 0:
+        return "Hoy"
+    elif days == 1:
+        return "Ayer"
+    elif days < 7:
+        return f"Hace {days} días"
+    elif days < 30:
+        weeks = days // 7
+        return f"Hace {weeks} semana{'s' if weeks > 1 else ''}"
+    elif days < 365:
+        months = days // 30
+        return f"Hace {months} mes{'es' if months > 1 else ''}"
+    else:
+        years = days // 365
+        return f"Hace {years} año{'s' if years > 1 else ''}"
+
+def calculate_basic_stats(videos):
+    """Calcula estadísticas básicas de los videos"""
+    if not videos:
+        return {}
+    
+    total_views = sum(v['views'] for v in videos)
+    total_likes = sum(v['likes'] for v in videos)
+    total_comments = sum(v['comments'] for v in videos)
+    total_duration = sum(v['duration_seconds'] for v in videos)
+    
+    # Promedios
+    avg_views = total_views / len(videos)
+    avg_likes = total_likes / len(videos)
+    avg_comments = total_comments / len(videos)
+    avg_duration = total_duration / len(videos)
+    avg_engagement = sum(v['engagement_rate'] for v in videos) / len(videos)
+    
+    # Tendencia simple (últimos 5 vs anteriores)
+    if len(videos) >= 10:
+        recent_videos = videos[:5]  # Ya están ordenados por fecha desc
+        older_videos = videos[-5:]
+        
+        recent_avg_views = sum(v['views'] for v in recent_videos) / len(recent_videos)
+        older_avg_views = sum(v['views'] for v in older_videos) / len(older_videos)
+        
+        trend_percentage = ((recent_avg_views - older_avg_views) / older_avg_views * 100) if older_avg_views > 0 else 0
+        trend_direction = 'crecimiento' if trend_percentage > 5 else 'declive' if trend_percentage < -5 else 'estable'
+    else:
+        trend_percentage = 0
+        trend_direction = 'sin_datos'
+        recent_avg_views = avg_views
+        older_avg_views = avg_views
+    
+    return {
+        'total_views': total_views,
+        'total_likes': total_likes,
+        'total_comments': total_comments,
+        'avg_views': avg_views,
+        'avg_likes': avg_likes,
+        'avg_comments': avg_comments,
+        'avg_duration_seconds': avg_duration,
+        'avg_duration_formatted': format_duration(timedelta(seconds=avg_duration)),
+        'avg_engagement': avg_engagement,
+        'trend_direction': trend_direction,
+        'trend_percentage': abs(trend_percentage),
+        'recent_avg_views': recent_avg_views,
+        'older_avg_views': older_avg_views
+    }
+
+def identify_highlights(videos):
+    """Identifica videos destacados"""
+    if not videos:
+        return {}
+    
+    # Videos por rendimiento
+    best_video = max(videos, key=lambda x: x['views'])
+    worst_video = min(videos, key=lambda x: x['views'])
+    most_recent = videos[0]  # Ya están ordenados por fecha desc
+    
+    # Video con mejor engagement
+    best_engagement = max(videos, key=lambda x: x['engagement_rate'])
+    
+    # Video con mejor velocidad de crecimiento
+    best_growth = max(videos, key=lambda x: x['views_per_day'])
+    
+    return {
+        'best_performing': best_video,
+        'worst_performing': worst_video,
+        'most_recent': most_recent,
+        'best_engagement': best_engagement,
+        'fastest_growing': best_growth
+    }
+
+def generate_insights(videos):
+    """Genera insights automáticos"""
+    if not videos:
+        return {}
+    
+    # Análisis de días de publicación
+    weekday_performance = {}
+    for video in videos:
+        day = video['weekday']
+        if day not in weekday_performance:
+            weekday_performance[day] = {'count': 0, 'total_views': 0, 'total_engagement': 0}
+        
+        weekday_performance[day]['count'] += 1
+        weekday_performance[day]['total_views'] += video['views']
+        weekday_performance[day]['total_engagement'] += video['engagement_rate']
+    
+    # Calcular promedios por día
+    for day in weekday_performance:
+        count = weekday_performance[day]['count']
+        weekday_performance[day]['avg_views'] = weekday_performance[day]['total_views'] / count
+        weekday_performance[day]['avg_engagement'] = weekday_performance[day]['total_engagement'] / count
+    
+    # Mejor día por views
+    best_day_views = max(weekday_performance.keys(), key=lambda x: weekday_performance[x]['avg_views']) if weekday_performance else None
+    
+    # Análisis de duración óptima
+    duration_ranges = {
+        'corto': {'min': 0, 'max': 300, 'videos': []},      # 0-5 min
+        'medio': {'min': 300, 'max': 900, 'videos': []},    # 5-15 min  
+        'largo': {'min': 900, 'max': float('inf'), 'videos': []}  # 15+ min
+    }
+    
+    for video in videos:
+        duration = video['duration_seconds']
+        for range_name, range_data in duration_ranges.items():
+            if range_data['min'] <= duration < range_data['max']:
+                range_data['videos'].append(video)
+                break
+    
+    # Calcular rendimiento por rango de duración
+    duration_performance = {}
+    for range_name, range_data in duration_ranges.items():
+        if range_data['videos']:
+            avg_views = sum(v['views'] for v in range_data['videos']) / len(range_data['videos'])
+            avg_engagement = sum(v['engagement_rate'] for v in range_data['videos']) / len(range_data['videos'])
+            duration_performance[range_name] = {
+                'count': len(range_data['videos']),
+                'avg_views': avg_views,
+                'avg_engagement': avg_engagement
+            }
+    
+    # Mejor rango de duración
+    best_duration_range = max(duration_performance.keys(), key=lambda x: duration_performance[x]['avg_views']) if duration_performance else None
+    
+    # Análisis de patrones en títulos
+    title_patterns = analyze_title_patterns(videos)
+    
+    return {
+        'weekday_performance': weekday_performance,
+        'best_day_for_views': best_day_views,
+        'duration_performance': duration_performance,
+        'best_duration_range': best_duration_range,
+        'title_patterns': title_patterns
+    }
+
+def analyze_title_patterns(videos):
+    """Analiza patrones en títulos exitosos"""
+    if len(videos) < 5:
+        return {}
+    
+    # Obtener videos con mejor rendimiento (top 25%)
+    sorted_by_views = sorted(videos, key=lambda x: x['views'], reverse=True)
+    top_videos = sorted_by_views[:max(1, len(videos) // 4)]
+    
+    # Palabras comunes en títulos exitosos
+    successful_words = {}
+    for video in top_videos:
+        words = video['title'].lower().split()
+        for word in words:
+            # Filtrar palabras comunes/irrelevantes
+            if len(word) > 3 and word not in ['para', 'como', 'que', 'con', 'una', 'por', 'the', 'and', 'for']:
+                successful_words[word] = successful_words.get(word, 0) + 1
+    
+    # Obtener las 5 palabras más frecuentes
+    top_words = sorted(successful_words.items(), key=lambda x: x[1], reverse=True)[:5]
+    
+    # Análisis de longitud de título
+    avg_title_length = sum(len(v['title']) for v in top_videos) / len(top_videos)
+    
+    return {
+        'successful_words': dict(top_words),
+        'optimal_title_length': int(avg_title_length)
+    }

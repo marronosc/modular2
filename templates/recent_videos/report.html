@@ -50,6 +50,154 @@
 </div>
 
 {% if result.videos %}
+<!-- Estadísticas Generales -->
+{% if result.stats %}
+<div class="section">
+    <h2 class="section-title">
+        <span class="section-icon">📊</span>
+        Estadísticas Generales
+    </h2>
+    <div class="stats-grid">
+        <div class="stat-box">
+            <h4>Promedio de Views</h4>
+            <div class="stat-value">{{ format_number(result.stats.avg_views) }}</div>
+        </div>
+        <div class="stat-box">
+            <h4>Promedio de Likes</h4>
+            <div class="stat-value">{{ format_number(result.stats.avg_likes) }}</div>
+        </div>
+        <div class="stat-box">
+            <h4>Promedio de Comentarios</h4>
+            <div class="stat-value">{{ format_number(result.stats.avg_comments) }}</div>
+        </div>
+        <div class="stat-box">
+            <h4>Duración Promedio</h4>
+            <div class="stat-value">{{ result.stats.avg_duration_formatted }}</div>
+        </div>
+        <div class="stat-box">
+            <h4>Engagement Promedio</h4>
+            <div class="stat-value">{{ "%.2f"|format(result.stats.avg_engagement) }}%</div>
+        </div>
+        <div class="stat-box trend-{{ result.stats.trend_direction }}">
+            <h4>Tendencia</h4>
+            <div class="stat-value">
+                {% if result.stats.trend_direction == 'crecimiento' %}📈 +{{ "%.1f"|format(result.stats.trend_percentage) }}%
+                {% elif result.stats.trend_direction == 'declive' %}📉 -{{ "%.1f"|format(result.stats.trend_percentage) }}%
+                {% elif result.stats.trend_direction == 'estable' %}📊 Estable
+                {% else %}❓ Sin datos{% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Videos Destacados -->
+{% if result.highlights %}
+<div class="section">
+    <h2 class="section-title">
+        <span class="section-icon">🏆</span>
+        Videos Destacados
+    </h2>
+    <div class="highlights-grid">
+        <div class="highlight-card best">
+            <div class="highlight-badge">🏆 Más Visto</div>
+            <div class="highlight-thumbnail">
+                <img src="{{ result.highlights.best_performing.thumbnail }}" alt="Video más visto">
+            </div>
+            <div class="highlight-info">
+                <h4><a href="{{ result.highlights.best_performing.video_url }}" target="_blank">{{ result.highlights.best_performing.title }}</a></h4>
+                <div class="highlight-stats">
+                    <span>👁️ {{ format_number(result.highlights.best_performing.views) }}</span>
+                    <span>👍 {{ format_number(result.highlights.best_performing.likes) }}</span>
+                    <span>💬 {{ format_number(result.highlights.best_performing.comments) }}</span>
+                </div>
+                <div class="highlight-meta">{{ format_date(result.highlights.best_performing.published_at) }} • {{ result.highlights.best_performing.age_formatted }}</div>
+            </div>
+        </div>
+        
+        <div class="highlight-card engagement">
+            <div class="highlight-badge">💎 Mejor Engagement</div>
+            <div class="highlight-thumbnail">
+                <img src="{{ result.highlights.best_engagement.thumbnail }}" alt="Mejor engagement">
+            </div>
+            <div class="highlight-info">
+                <h4><a href="{{ result.highlights.best_engagement.video_url }}" target="_blank">{{ result.highlights.best_engagement.title }}</a></h4>
+                <div class="highlight-stats">
+                    <span>📊 {{ "%.2f"|format(result.highlights.best_engagement.engagement_rate) }}%</span>
+                    <span>👁️ {{ format_number(result.highlights.best_engagement.views) }}</span>
+                    <span>👍 {{ format_number(result.highlights.best_engagement.likes) }}</span>
+                </div>
+                <div class="highlight-meta">{{ format_date(result.highlights.best_engagement.published_at) }} • {{ result.highlights.best_engagement.age_formatted }}</div>
+            </div>
+        </div>
+        
+        <div class="highlight-card growth">
+            <div class="highlight-badge">🚀 Crecimiento Rápido</div>
+            <div class="highlight-thumbnail">
+                <img src="{{ result.highlights.fastest_growing.thumbnail }}" alt="Crecimiento rápido">
+            </div>
+            <div class="highlight-info">
+                <h4><a href="{{ result.highlights.fastest_growing.video_url }}" target="_blank">{{ result.highlights.fastest_growing.title }}</a></h4>
+                <div class="highlight-stats">
+                    <span>📈 {{ format_number(result.highlights.fastest_growing.views_per_day) }}/día</span>
+                    <span>👁️ {{ format_number(result.highlights.fastest_growing.views) }}</span>
+                    <span>👍 {{ format_number(result.highlights.fastest_growing.likes) }}</span>
+                </div>
+                <div class="highlight-meta">{{ format_date(result.highlights.fastest_growing.published_at) }} • {{ result.highlights.fastest_growing.age_formatted }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Insights Automáticos -->
+{% if result.insights %}
+<div class="section">
+    <h2 class="section-title">
+        <span class="section-icon">🧠</span>
+        Insights y Recomendaciones
+    </h2>
+    <div class="insights-grid">
+        {% if result.insights.best_day_for_views %}
+        <div class="insight-card">
+            <div class="insight-icon">📅</div>
+            <div class="insight-content">
+                <h4>Mejor día para publicar</h4>
+                <p><strong>{{ result.insights.best_day_for_views }}</strong> obtiene mejores resultados</p>
+                <small>Promedio: {{ format_number(result.insights.weekday_performance[result.insights.best_day_for_views].avg_views) }} views</small>
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if result.insights.best_duration_range %}
+        <div class="insight-card">
+            <div class="insight-icon">⏱️</div>
+            <div class="insight-content">
+                <h4>Duración óptima</h4>
+                <p>Videos <strong>{{ result.insights.best_duration_range }}s</strong> funcionan mejor</p>
+                <small>Promedio: {{ format_number(result.insights.duration_performance[result.insights.best_duration_range].avg_views) }} views</small>
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if result.insights.title_patterns.successful_words %}
+        <div class="insight-card">
+            <div class="insight-icon">📝</div>
+            <div class="insight-content">
+                <h4>Palabras exitosas</h4>
+                <p>
+                    {% for word, count in result.insights.title_patterns.successful_words.items() %}
+                        <span class="success-word">{{ word }}</span>{% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                </p>
+                <small>Longitud óptima: {{ result.insights.title_patterns.optimal_title_length }} caracteres</small>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
 <!-- Lista de Videos -->
 <div class="section">
     <h2 class="section-title">
@@ -75,12 +223,19 @@
                         <span>{{ format_number(video.likes) }}</span>
                     </div>
                     <div class="stat">
-                        <span class="stat-icon">⏱️</span>
-                        <span>{{ video.duration_formatted }}</span>
+                        <span class="stat-icon">💬</span>
+                        <span>{{ format_number(video.comments) }}</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-icon">📊</span>
+                        <span>{{ "%.2f"|format(video.engagement_rate) }}%</span>
                     </div>
                 </div>
                 <div class="video-meta">
-                    <span>📅 {{ format_date(video.published_at) }}</span>
+                    <span>📅 {{ format_date(video.published_at) }} ({{ video.weekday }})</span>
+                    <span>⏱️ {{ video.duration_formatted }}</span>
+                    <span>🕒 {{ video.age_formatted }}</span>
+                    <span>📈 {{ format_number(video.views_per_day) }}/día</span>
                 </div>
             </div>
         </div>
@@ -210,6 +365,177 @@
     font-size: 0.9rem;
 }
 
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-box {
+    background-color: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: var(--radius);
+    text-align: center;
+    border: 1px solid #e9ecef;
+}
+
+.stat-box h4 {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+    font-size: 1rem;
+}
+
+.stat-value {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.stat-box.trend-crecimiento .stat-value {
+    color: #28a745;
+}
+
+.stat-box.trend-declive .stat-value {
+    color: #dc3545;
+}
+
+.stat-box.trend-estable .stat-value {
+    color: #6c757d;
+}
+
+/* Highlights Grid */
+.highlights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.highlight-card {
+    background-color: #f8f9fa;
+    border-radius: var(--radius);
+    overflow: hidden;
+    position: relative;
+    box-shadow: var(--shadow);
+}
+
+.highlight-badge {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.8rem;
+    z-index: 2;
+}
+
+.highlight-card.best .highlight-badge {
+    background: #28a745;
+    color: white;
+}
+
+.highlight-card.engagement .highlight-badge {
+    background: #9c27b0;
+    color: white;
+}
+
+.highlight-card.growth .highlight-badge {
+    background: #ff9800;
+    color: white;
+}
+
+.highlight-thumbnail {
+    width: 100%;
+    height: 150px;
+    overflow: hidden;
+}
+
+.highlight-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.highlight-info {
+    padding: 1rem;
+}
+
+.highlight-info h4 {
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    line-height: 1.3;
+}
+
+.highlight-info h4 a {
+    color: var(--text-primary);
+    text-decoration: none;
+}
+
+.highlight-info h4 a:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
+}
+
+.highlight-stats {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.8rem;
+    flex-wrap: wrap;
+}
+
+.highlight-meta {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+/* Insights Grid */
+.insights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.insight-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border-left: 4px solid var(--primary-color);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.insight-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.insight-content h4 {
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.insight-content p {
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+}
+
+.insight-content small {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+}
+
+.success-word {
+    background: rgba(76, 175, 80, 0.1);
+    color: #2e7d32;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
 /* Videos Grid */
 .videos-grid {
     display: grid;
@@ -275,8 +601,9 @@
 }
 
 .video-stats {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
     margin-bottom: 0.5rem;
 }
 
@@ -294,6 +621,15 @@
 .video-meta {
     font-size: 0.75rem;
     color: #666;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.video-meta span {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
 }
 
 /* No Results */
