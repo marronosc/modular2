@@ -25,7 +25,7 @@
 <div class="form-section">
     <div class="form-header">
         <h2>Analizar Videos Recientes</h2>
-        <p>Descubre la estrategia de contenido de cualquier canal analizando sus últimos 20 videos</p>
+        <p>Descubre la estrategia de contenido de cualquier canal analizando sus últimos 20 videos regulares (excluye Shorts y directos)</p>
     </div>
 
     <form method="post">
@@ -36,31 +36,8 @@
             <div class="form-help">Puedes usar cualquier URL de YouTube relacionada con el canal</div>
         </div>
         
-        <div class="form-group">
-            <label class="form-label">Tipo de contenido a analizar:</label>
-            <div class="radio-group">
-                <label class="radio-option">
-                    <input type="radio" name="content_type" value="all" checked>
-                    <span class="radio-text">🎬 Todos los contenidos</span>
-                    <small>Videos, Shorts y directos</small>
-                </label>
-                <label class="radio-option">
-                    <input type="radio" name="content_type" value="videos">
-                    <span class="radio-text">📹 Solo videos regulares</span>
-                    <small>Excluye Shorts y directos</small>
-                </label>
-                <label class="radio-option">
-                    <input type="radio" name="content_type" value="shorts">
-                    <span class="radio-text">📱 Solo Shorts</span>
-                    <small>Videos de hasta 3 minutos</small>
-                </label>
-                <label class="radio-option">
-                    <input type="radio" name="content_type" value="lives">
-                    <span class="radio-text">🔴 Solo directos</span>
-                    <small>Transmisiones en vivo</small>
-                </label>
-            </div>
-        </div>
+        <!-- Tipo de contenido fijo a videos regulares -->
+        <input type="hidden" name="content_type" value="videos">
         
         <button type="submit" class="btn btn-primary">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -110,11 +87,11 @@
         <svg class="tips-icon" viewBox="0 0 24 24" fill="currentColor">
             <path d="M9 21c0 .5.4 1 1 1h4c.6 0 1-.5 1-1v-1H9v1zm3-19C8.1 2 5 5.1 5 9c0 2.4 1.2 4.5 3 5.7V17c0 .5.4 1 1 1h6c.6 0 1-.5 1-1v-2.3c1.8-1.3 3-3.4 3-5.7 0-3.9-3.1-7-7-7z" />
         </svg>
-        <span class="tips-title">💡 Consejos para el análisis de competencia</span>
+        <span class="tips-title">💡 Consejos para el análisis de videos regulares</span>
     </div>
     <ul class="tips-list">
-        <li><strong>Estrategia integral:</strong> Analiza "Todos los contenidos" para ver la estrategia completa</li>
-        <li><strong>Nichos específicos:</strong> Usa filtros para estudiar solo Shorts o videos largos</li>
+        <li><strong>Solo videos largos:</strong> Esta herramienta excluye automáticamente Shorts y directos</li>
+        <li><strong>Estrategia de contenido:</strong> Analiza la duración y formato de videos principales</li>
         <li><strong>Frecuencia:</strong> Observa los patrones de publicación para planificar tu calendario</li>
         <li><strong>Tendencias:</strong> Identifica si el canal está en crecimiento o declive</li>
         <li><strong>Benchmarking:</strong> Compara las métricas con tu propio rendimiento</li>

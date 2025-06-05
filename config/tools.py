@@ -87,13 +87,13 @@ TOOLS_CONFIG = {
     },
     'recent_videos': {
         'name': 'Últimos 20 Videos',
-        'description': 'Monitorea la actividad reciente de tus competidores',
+        'description': 'Monitorea la actividad reciente de tus competidores (solo videos regulares)',
         'url': '/recent-videos',
         'icon': 'clock',
         'category': 'analytics',
         'color': '#9e9e9e',
         'status': 'active',
-        'tags': ['Competencia', 'Recientes']
+        'tags': ['Competencia', 'Recientes', 'Sin Shorts']
     }
 }
 

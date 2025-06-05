@@ -165,11 +165,28 @@ def get_video_details(video_id, snippet):
         
         # Determinar tipo de contenido
         is_live = 'actualStartTime' in live_details
-        is_short = duration <= timedelta(minutes=3) and 'shorts' in snippet.get('title', '').lower()
         
-        # Detectar si es short por otros indicadores
-        if not is_short and duration <= timedelta(seconds=60):
+        # Detectar Shorts de manera más precisa
+        is_short = False
+        
+        # 1. Videos de menos de 60 segundos
+        if duration <= timedelta(seconds=60):
             is_short = True
+            
+        # 2. URLs que contienen "shorts"
+        video_url = f"https://www.youtube.com/watch?v={video_id}"
+        if 'shorts' in video_url.lower():
+            is_short = True
+            
+        # 3. Título que menciona "short" 
+        if 'short' in snippet.get('title', '').lower():
+            is_short = True
+            
+        # 4. Videos muy cortos (menos de 3 minutos) con aspect ratio vertical (indicador de Short)
+        if duration <= timedelta(minutes=3):
+            # Para esta verificación adicional, podríamos usar más heurísticas
+            # pero por ahora nos quedamos con duración y título
+            pass
         
         content_type = 'live' if is_live else ('short' if is_short else 'video')
         
