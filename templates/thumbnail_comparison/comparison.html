@@ -25,10 +25,10 @@
 
 <!-- Controles de vista -->
 <div class="view-controls">
-    <button id="desktopViewBtn" class="view-btn active">
+    <button id="desktopViewBtn" class="view-btn active" onclick="showView('desktop')">
         🖥️ Vista Desktop
     </button>
-    <button id="mobileViewBtn" class="view-btn">
+    <button id="mobileViewBtn" class="view-btn" onclick="showView('mobile')">
         📱 Vista Móvil
     </button>
 </div>
@@ -429,98 +429,27 @@
 
 {% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 Inicializando comparador de miniaturas...');
+function showView(viewType) {
+    console.log('🔄 Cambiando a vista:', viewType);
     
-    // Obtener elementos
     const desktopView = document.getElementById('desktopView');
     const mobileView = document.getElementById('mobileView');
     const desktopBtn = document.getElementById('desktopViewBtn');
     const mobileBtn = document.getElementById('mobileViewBtn');
     
-    // Verificar que todos los elementos existan
-    if (!desktopView || !mobileView || !desktopBtn || !mobileBtn) {
-        console.error('❌ No se encontraron todos los elementos necesarios');
-        console.log('Desktop view:', desktopView);
-        console.log('Mobile view:', mobileView);
-        console.log('Desktop btn:', desktopBtn);
-        console.log('Mobile btn:', mobileBtn);
-        return;
+    if (viewType === 'desktop') {
+        desktopView.style.display = 'block';
+        mobileView.style.display = 'none';
+        desktopBtn.classList.add('active');
+        mobileBtn.classList.remove('active');
+        console.log('✅ Vista desktop activada');
+    } else {
+        desktopView.style.display = 'none';
+        mobileView.style.display = 'block';
+        desktopBtn.classList.remove('active');
+        mobileBtn.classList.add('active');
+        console.log('✅ Vista móvil activada');
     }
-    
-    // Función para cambiar vista con CSS forzado
-    function changeView(viewType) {
-        console.log('🔄 Cambiando a vista:', viewType);
-        
-        if (viewType === 'mobile') {
-            // Forzar ocultación de vista desktop
-            desktopView.style.setProperty('display', 'none', 'important');
-            desktopView.style.visibility = 'hidden';
-            
-            // Forzar mostrar vista móvil
-            mobileView.style.setProperty('display', 'block', 'important');
-            mobileView.style.visibility = 'visible';
-            
-            // Actualizar botones
-            desktopBtn.classList.remove('active');
-            mobileBtn.classList.add('active');
-            
-            console.log('✅ Vista móvil activada - Desktop hidden:', desktopView.style.display, 'Mobile shown:', mobileView.style.display);
-        } else {
-            // Forzar mostrar vista desktop
-            desktopView.style.setProperty('display', 'block', 'important');
-            desktopView.style.visibility = 'visible';
-            
-            // Forzar ocultación de vista móvil
-            mobileView.style.setProperty('display', 'none', 'important');
-            mobileView.style.visibility = 'hidden';
-            
-            // Actualizar botones
-            desktopBtn.classList.add('active');
-            mobileBtn.classList.remove('active');
-            
-            console.log('✅ Vista desktop activada - Desktop shown:', desktopView.style.display, 'Mobile hidden:', mobileView.style.display);
-        }
-        
-        // Debugging adicional
-        console.log('Estado final:', {
-            desktopDisplay: window.getComputedStyle(desktopView).display,
-            mobileDisplay: window.getComputedStyle(mobileView).display,
-            desktopVisible: window.getComputedStyle(desktopView).visibility,
-            mobileVisible: window.getComputedStyle(mobileView).visibility
-        });
-    }
-    
-    // Event listeners
-    desktopBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        console.log('🖱️ Click en botón desktop');
-        changeView('desktop');
-    });
-    
-    mobileBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        console.log('🖱️ Click en botón móvil');
-        changeView('mobile');
-    });
-    
-    // Inicializar vista desktop por defecto
-    changeView('desktop');
-    
-    console.log('✅ Event listeners configurados correctamente');
-    
-    // Funciones globales para debugging
-    window.testMobile = function() {
-        console.log('🔧 Test: Cambiando a vista móvil');
-        changeView('mobile');
-    };
-    
-    window.testDesktop = function() {
-        console.log('🔧 Test: Cambiando a vista desktop');
-        changeView('desktop');
-    };
-    
-    console.log('📱 Comandos de debug disponibles: testMobile() y testDesktop()');
-});
+}
 </script>
 {% endblock %}
