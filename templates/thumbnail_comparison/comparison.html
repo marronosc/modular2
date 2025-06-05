@@ -303,11 +303,14 @@ function showView(viewType) {
     display: flex;
     flex-direction: column;
     gap: 0;
-    max-width: 100%;
-    margin: 0;
-    max-height: 70vh;
+    max-width: 375px; /* Ancho iPhone */
+    margin: 0 auto;
+    max-height: 50vh; /* Reducir altura para simular iPhone */
     overflow-y: auto;
     background-color: var(--background);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: var(--shadow-lg);
     scrollbar-width: thin;
     scrollbar-color: #ccc transparent;
 }
@@ -457,9 +460,11 @@ function showView(viewType) {
     }
     
     .mobile-thumbnails {
-        max-height: 60vh;
+        max-width: 100%;
+        max-height: 45vh;
         margin: 0;
         padding: 0;
+        border-radius: 8px;
     }
     
     .mobile-thumbnail-item {
@@ -478,6 +483,14 @@ function showView(viewType) {
     
     .thumbnail-wrapper {
         padding-bottom: 56.25%; /* Mantener aspect ratio en móvil */
+    }
+    
+    .mobile-thumbnails {
+        max-width: 100%;
+        max-height: 40vh;
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
     }
     
     .mobile-thumbnail-wrapper {
