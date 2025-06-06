@@ -321,7 +321,7 @@
             
             <!-- Exportación -->
             <div class="export-controls">
-                <a href="{{ url_for('recent_videos.export_csv', channel_url=request.view_args.channel_url) }}" class="btn btn-export" title="Descargar CSV">
+                <a href="{{ url_for('recent_videos.export_csv', channel_url=channel_url) }}" class="btn btn-export" title="Descargar CSV">
                     📊 CSV
                 </a>
             </div>
@@ -1167,11 +1167,15 @@ function changeSorting() {
     const value = select.value;
     const [sort, order] = value.split('-');
     
-    const currentUrl = new URL(window.location);
-    currentUrl.searchParams.set('sort', sort);
-    currentUrl.searchParams.set('order', order);
+    // Construir la URL manualmente para asegurar que funcione
+    const baseUrl = window.location.origin + window.location.pathname;
+    const newUrl = `${baseUrl}?sort=${sort}&order=${order}`;
     
-    window.location.href = currentUrl.toString();
+    window.location.href = newUrl;
 }
+
+// Debug: mostrar valores actuales en consola
+console.log('Sort actual:', '{{ current_sort }}');
+console.log('Order actual:', '{{ current_order }}');
 </script>
 {% endblock %}

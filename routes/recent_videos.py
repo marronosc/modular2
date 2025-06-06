@@ -47,6 +47,7 @@ def generate_report(channel_url):
                              chart_data=chart_data,
                              current_sort=sort_by,
                              current_order=order,
+                             channel_url=channel_url,
                              format_number=format_number,
                              format_date=format_date,
                              format_duration=format_duration)
