@@ -306,7 +306,7 @@
             <!-- Filtros/Ordenación -->
             <div class="sort-controls">
                 <label for="sort-select">Ordenar por:</label>
-                <select id="sort-select" onchange="window.location.href = window.location.pathname + '?sort=' + this.value.split('-')[0] + '&order=' + this.value.split('-')[1];">
+                <select id="sort-select" onchange="handleSortChange(this.value);">
                     <option value="date-desc" {{ 'selected' if current_sort == 'date' and current_order == 'desc' }}>Más reciente</option>
                     <option value="date-asc" {{ 'selected' if current_sort == 'date' and current_order == 'asc' }}>Más antiguo</option>
                     <option value="views-desc" {{ 'selected' if current_sort == 'views' and current_order == 'desc' }}>Más visto</option>
@@ -1162,7 +1162,32 @@
 
 {% block extra_js %}
 <script>
-// Filtro de ordenación funcionando con onchange inline
-console.log('✅ Filtro de ordenación activo');
+// Función para manejar el cambio de ordenación preservando scroll
+function handleSortChange(value) {
+    // Guardar posición actual del scroll
+    const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+    sessionStorage.setItem('scrollPosition', scrollPosition);
+    
+    // Construir nueva URL
+    const [sort, order] = value.split('-');
+    const newUrl = window.location.pathname + '?sort=' + sort + '&order=' + order;
+    
+    // Navegar a la nueva URL
+    window.location.href = newUrl;
+}
+
+// Restaurar posición del scroll cuando se carga la página
+document.addEventListener('DOMContentLoaded', function() {
+    const savedScrollPosition = sessionStorage.getItem('scrollPosition');
+    if (savedScrollPosition) {
+        // Restaurar posición después de que se cargue todo el contenido
+        setTimeout(function() {
+            window.scrollTo(0, parseInt(savedScrollPosition));
+            sessionStorage.removeItem('scrollPosition'); // Limpiar después de usar
+        }, 100);
+    }
+    
+    console.log('✅ Filtro de ordenación con preservación de scroll activo');
+});
 </script>
 {% endblock %}
