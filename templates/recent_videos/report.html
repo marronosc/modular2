@@ -1172,7 +1172,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
     
-    console.log('✅ Sort select found:', select);
+    console.log('✅ Sort select found');
     console.log('Current value:', select.value);
     
     // Añadir event listener
@@ -1190,7 +1190,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Construir nueva URL
         const currentPath = window.location.pathname;
-        const newUrl = `${currentPath}?sort=${sort}&order=${order}`;
+        const newUrl = currentPath + '?sort=' + sort + '&order=' + order;
         
         console.log('🚀 Redirecting to:', newUrl);
         
@@ -1201,10 +1201,8 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('✅ Event listener attached successfully');
 });
 
-// Debug info
-console.log('📝 Current sort state:');
-console.log('  - Sort:', '{{ current_sort }}');
-console.log('  - Order:', '{{ current_order }}');
-console.log('  - URL:', window.location.href);
+// Debug info básico
+console.log('📝 JavaScript loaded successfully');
+console.log('Current URL:', window.location.href);
 </script>
 {% endblock %}
