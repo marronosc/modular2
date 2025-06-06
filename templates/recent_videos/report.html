@@ -327,38 +327,48 @@
             </div>
         </div>
     </div>
-    <div class="videos-grid">
+    <div class="videos-list">
         {% for video in result.videos %}
-        <div class="video-card">
-            <div class="video-thumbnail">
+        <div class="video-row {{ 'even' if loop.index % 2 == 0 else 'odd' }}">
+            <div class="video-thumbnail-new">
                 <img src="{{ video.thumbnail }}" alt="Miniatura del video" loading="lazy">
-                <div class="video-duration">{{ video.duration_formatted }}</div>
+                <div class="video-duration-badge">{{ video.duration_formatted }}</div>
             </div>
-            <div class="video-info">
-                <h3><a href="{{ video.video_url }}" target="_blank" rel="noopener">{{ video.title }}</a></h3>
-                <div class="video-stats">
-                    <div class="stat">
-                        <span class="stat-icon">👁️</span>
-                        <span>{{ format_number(video.views) }}</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-icon">👍</span>
-                        <span>{{ format_number(video.likes) }}</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-icon">💬</span>
-                        <span>{{ format_number(video.comments) }}</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-icon">📊</span>
-                        <span>{{ "%.2f"|format(video.engagement_rate) }}%</span>
-                    </div>
+            <div class="video-content">
+                <div class="video-header">
+                    <h3><a href="{{ video.video_url }}" target="_blank" rel="noopener">{{ video.title }}</a></h3>
+                    <div class="video-date">{{ video.age_formatted }}</div>
                 </div>
-                <div class="video-meta">
-                    <span>📅 {{ format_date(video.published_at) }} ({{ video.weekday }})</span>
-                    <span>⏱️ {{ video.duration_formatted }}</span>
-                    <span>🕒 {{ video.age_formatted }}</span>
-                    <span>📈 {{ format_number(video.views_per_day) }}/día</span>
+                
+                <div class="video-metrics">
+                    <div class="metrics-row">
+                        <div class="metric-group">
+                            <span class="metric-label">Views:</span>
+                            <span class="metric-value">{{ format_number(video.views) }}</span>
+                        </div>
+                        <div class="metric-group">
+                            <span class="metric-label">Likes:</span>
+                            <span class="metric-value">{{ format_number(video.likes) }}</span>
+                        </div>
+                        <div class="metric-group">
+                            <span class="metric-label">Comentarios:</span>
+                            <span class="metric-value">{{ format_number(video.comments) }}</span>
+                        </div>
+                        <div class="metric-group">
+                            <span class="metric-label">Engagement:</span>
+                            <span class="metric-value highlight">{{ "%.2f"|format(video.engagement_rate) }}%</span>
+                        </div>
+                    </div>
+                    <div class="metrics-row">
+                        <div class="metric-group">
+                            <span class="metric-label">Publicado:</span>
+                            <span class="metric-value">{{ format_date(video.published_at) }} ({{ video.weekday }})</span>
+                        </div>
+                        <div class="metric-group">
+                            <span class="metric-label">Crecimiento:</span>
+                            <span class="metric-value">{{ format_number(video.views_per_day) }}/día</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -659,100 +669,197 @@
     font-weight: 500;
 }
 
-/* Videos Grid */
-.videos-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1.5rem;
-}
-
-.video-card {
-    background-color: #f8f9fa;
-    border-radius: var(--radius);
-    overflow: hidden;
-    box-shadow: var(--shadow);
-    transition: transform 0.3s ease;
-}
-
-.video-card:hover {
-    transform: translateY(-2px);
-}
-
-.video-thumbnail {
-    position: relative;
-    width: 100%;
-    height: 180px;
-    overflow: hidden;
-}
-
-.video-thumbnail img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.video-duration {
-    position: absolute;
-    bottom: 8px;
-    right: 8px;
-    background-color: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    font-weight: bold;
-}
-
-.video-info {
-    padding: 1rem;
-}
-
-.video-info h3 {
-    margin-bottom: 0.5rem;
-    font-size: 0.95rem;
-    line-height: 1.3;
-}
-
-.video-info h3 a {
-    color: var(--text-primary);
-    text-decoration: none;
-}
-
-.video-info h3 a:hover {
-    color: var(--primary-color);
-    text-decoration: underline;
-}
-
-.video-stats {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.5rem;
-    margin-bottom: 0.5rem;
-}
-
-.stat {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    font-size: 0.8rem;
-}
-
-.stat-icon {
-    font-size: 0.7rem;
-}
-
-.video-meta {
-    font-size: 0.75rem;
-    color: #666;
+/* Videos List */
+.videos-list {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: 0;
+    background: white;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow);
 }
 
-.video-meta span {
+.video-row {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    transition: background-color 0.2s ease;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.video-row:last-child {
+    border-bottom: none;
+}
+
+.video-row.even {
+    background-color: #fafafa;
+}
+
+.video-row.odd {
+    background-color: #ffffff;
+}
+
+.video-row:hover {
+    background-color: #f0f8ff;
+}
+
+/* Thumbnail optimizado */
+.video-thumbnail-new {
+    position: relative;
+    width: 200px;
+    height: 112px; /* Ratio 16:9 perfecto */
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.video-thumbnail-new img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Cubre todo sin márgenes negros */
+    object-position: center;
+}
+
+.video-duration-badge {
+    position: absolute;
+    bottom: 6px;
+    right: 6px;
+    background-color: rgba(0, 0, 0, 0.85);
+    color: white;
+    padding: 3px 6px;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-shadow: 0 1px 1px rgba(0,0,0,0.3);
+}
+
+/* Contenido del video */
+.video-content {
     display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 112px;
+}
+
+.video-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    gap: 1rem;
+}
+
+.video-header h3 {
+    flex: 1;
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.3;
+    font-weight: 600;
+}
+
+.video-header h3 a {
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.video-header h3 a:hover {
+    color: var(--primary-color);
+}
+
+.video-date {
+    flex-shrink: 0;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    background: #e3f2fd;
+    padding: 4px 8px;
+    border-radius: 12px;
+    min-width: fit-content;
+}
+
+/* Métricas organizadas */
+.video-metrics {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.metrics-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.metric-group {
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 0.25rem;
+    padding: 0.5rem;
+    background: rgba(0,0,0,0.02);
+    border-radius: 6px;
+    border-left: 3px solid #e0e0e0;
+}
+
+.metric-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.metric-value {
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.metric-value.highlight {
+    color: var(--primary-color);
+    background: rgba(255, 0, 0, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .video-row {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        padding: 1rem;
+    }
+    
+    .video-thumbnail-new {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 16/9;
+    }
+    
+    .video-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+    }
+    
+    .video-date {
+        align-self: flex-start;
+    }
+    
+    .metrics-row {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .video-row {
+        padding: 0.75rem;
+    }
+    
+    .metric-group {
+        padding: 0.4rem;
+    }
 }
 
 /* No Results */
@@ -806,9 +913,6 @@
         gap: 1rem;
     }
 
-    .videos-grid {
-        grid-template-columns: 1fr;
-    }
 }
 
 /* Frequency Cards */
