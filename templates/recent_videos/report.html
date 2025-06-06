@@ -1162,17 +1162,28 @@
 
 {% block extra_js %}
 <script>
-// Restaurar posición del scroll cuando se carga la página
-window.addEventListener('load', function() {
+// Restaurar scroll - múltiples intentos para asegurar que funcione
+function restoreScroll() {
     var savedScrollPosition = sessionStorage.getItem('scrollPosition');
     if (savedScrollPosition) {
-        setTimeout(function() {
-            window.scrollTo(0, parseInt(savedScrollPosition));
-            sessionStorage.removeItem('scrollPosition');
-        }, 200);
+        var position = parseInt(savedScrollPosition);
+        window.scrollTo(0, position);
+        console.log('📍 Scroll restaurado a posición:', position);
+        sessionStorage.removeItem('scrollPosition');
     }
+}
+
+// Intentar restaurar en diferentes momentos
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(restoreScroll, 50);
 });
 
-console.log('✅ Filtro con scroll preservado activo');
+window.addEventListener('load', function() {
+    setTimeout(restoreScroll, 100);
+    setTimeout(restoreScroll, 300);
+    setTimeout(restoreScroll, 500);
+});
+
+console.log('✅ Filtro con scroll preservado (múltiples intentos) activo');
 </script>
 {% endblock %}
