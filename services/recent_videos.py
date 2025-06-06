@@ -49,6 +49,7 @@ def get_recent_videos(channel_url, max_results=20):
         stats = calculate_basic_stats(videos) if videos else {}
         highlights = identify_highlights(videos) if videos else {}
         insights = generate_insights(videos) if videos else {}
+        frequency = calculate_publication_frequency(videos) if videos else {}
         
         return {
             'channel_info': channel_info,
@@ -57,6 +58,7 @@ def get_recent_videos(channel_url, max_results=20):
             'stats': stats,
             'highlights': highlights,
             'insights': insights,
+            'frequency': frequency,
             'analysis_date': datetime.now()
         }
         
@@ -435,4 +437,161 @@ def analyze_title_patterns(videos):
     return {
         'successful_words': dict(top_words),
         'optimal_title_length': int(avg_title_length)
+    }
+
+def calculate_publication_frequency(videos):
+    """Calcula estadísticas de frecuencia de publicación"""
+    if len(videos) < 2:
+        return {}
+    
+    # Ordenar por fecha de publicación (más reciente primero)
+    sorted_videos = sorted(videos, key=lambda x: x['published_at'], reverse=True)
+    
+    # Calcular intervalos entre publicaciones
+    intervals = []
+    for i in range(1, len(sorted_videos)):
+        diff = sorted_videos[i-1]['published_at'] - sorted_videos[i]['published_at']
+        intervals.append(diff.days)
+    
+    # Estadísticas básicas
+    avg_days_between = sum(intervals) / len(intervals) if intervals else 0
+    min_interval = min(intervals) if intervals else 0
+    max_interval = max(intervals) if intervals else 0
+    
+    # Frecuencia por semana/mes
+    videos_per_week = 7 / avg_days_between if avg_days_between > 0 else 0
+    videos_per_month = 30 / avg_days_between if avg_days_between > 0 else 0
+    
+    # Días desde el último video
+    days_since_last = (datetime.now() - sorted_videos[0]['published_at']).days
+    
+    # Predicción del próximo video (basado en promedio)
+    predicted_days = max(0, int(avg_days_between - days_since_last))
+    
+    # Análisis de consistencia
+    consistency_score = calculate_consistency_score(intervals)
+    
+    return {
+        'avg_days_between': avg_days_between,
+        'min_interval': min_interval,
+        'max_interval': max_interval,
+        'videos_per_week': videos_per_week,
+        'videos_per_month': videos_per_month,
+        'days_since_last': days_since_last,
+        'predicted_next_days': predicted_days,
+        'consistency_score': consistency_score,
+        'total_intervals': len(intervals)
+    }
+
+def calculate_consistency_score(intervals):
+    """Calcula un score de consistencia de publicación (0-100)"""
+    if len(intervals) < 3:
+        return 50  # Score neutral para pocos datos
+    
+    avg = sum(intervals) / len(intervals)
+    variance = sum((x - avg) ** 2 for x in intervals) / len(intervals)
+    std_dev = variance ** 0.5
+    
+    # Score basado en desviación estándar relativa
+    coefficient_variation = std_dev / avg if avg > 0 else 1
+    consistency = max(0, 100 - (coefficient_variation * 50))
+    
+    return min(100, consistency)
+
+def get_sorted_videos(videos, sort_by='date', order='desc'):
+    """Ordena videos según criterio especificado"""
+    sort_functions = {
+        'date': lambda x: x['published_at'],
+        'views': lambda x: x['views'],
+        'likes': lambda x: x['likes'],
+        'comments': lambda x: x['comments'],
+        'engagement': lambda x: x['engagement_rate'],
+        'duration': lambda x: x['duration_seconds'],
+        'growth': lambda x: x['views_per_day']
+    }
+    
+    if sort_by not in sort_functions:
+        sort_by = 'date'
+    
+    reverse = order == 'desc'
+    return sorted(videos, key=sort_functions[sort_by], reverse=reverse)
+
+def export_to_csv(result):
+    """Genera datos para exportar a CSV"""
+    import csv
+    from io import StringIO
+    
+    output = StringIO()
+    writer = csv.writer(output)
+    
+    # Headers
+    headers = [
+        'Título', 'Fecha Publicación', 'Día Semana', 'Views', 'Likes', 'Comentarios',
+        'Duración', 'Engagement %', 'Views/Día', 'Edad (días)', 'URL'
+    ]
+    writer.writerow(headers)
+    
+    # Data rows
+    for video in result['videos']:
+        row = [
+            video['title'],
+            video['published_at'].strftime('%Y-%m-%d'),
+            video['weekday'],
+            video['views'],
+            video['likes'],
+            video['comments'],
+            video['duration_formatted'],
+            f"{video['engagement_rate']:.2f}",
+            int(video['views_per_day']),
+            video['age_days'],
+            video['video_url']
+        ]
+        writer.writerow(row)
+    
+    return output.getvalue()
+
+def generate_chart_data(videos):
+    """Genera datos para gráficos"""
+    if not videos:
+        return {}
+    
+    # Datos para gráfico de views por video
+    views_data = {
+        'labels': [f"Video {i+1}" for i in range(len(videos))],
+        'views': [v['views'] for v in videos],
+        'titles': [v['title'][:30] + '...' if len(v['title']) > 30 else v['title'] for v in videos]
+    }
+    
+    # Datos para gráfico de engagement por video  
+    engagement_data = {
+        'labels': views_data['labels'],
+        'engagement': [v['engagement_rate'] for v in videos],
+        'titles': views_data['titles']
+    }
+    
+    # Datos para timeline de publicaciones
+    timeline_data = {
+        'dates': [v['published_at'].strftime('%Y-%m-%d') for v in videos],
+        'views': [v['views'] for v in videos],
+        'titles': views_data['titles']
+    }
+    
+    # Distribución de duración
+    duration_ranges = {'0-5min': 0, '5-15min': 0, '15-30min': 0, '30min+': 0}
+    for video in videos:
+        seconds = video['duration_seconds']
+        if seconds <= 300:
+            duration_ranges['0-5min'] += 1
+        elif seconds <= 900:
+            duration_ranges['5-15min'] += 1
+        elif seconds <= 1800:
+            duration_ranges['15-30min'] += 1
+        else:
+            duration_ranges['30min+'] += 1
+    
+    return {
+        'views_chart': views_data,
+        'engagement_chart': engagement_data,
+        'timeline_chart': timeline_data,
+        'duration_distribution': duration_ranges
     }
