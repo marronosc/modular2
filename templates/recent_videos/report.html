@@ -306,7 +306,7 @@
             <!-- Filtros/Ordenación -->
             <div class="sort-controls">
                 <label for="sort-select">Ordenar por:</label>
-                <select id="sort-select" onchange="changeSorting()">
+                <select id="sort-select">
                     <option value="date-desc" {{ 'selected' if current_sort == 'date' and current_order == 'desc' }}>Más reciente</option>
                     <option value="date-asc" {{ 'selected' if current_sort == 'date' and current_order == 'asc' }}>Más antiguo</option>
                     <option value="views-desc" {{ 'selected' if current_sort == 'views' and current_order == 'desc' }}>Más visto</option>
@@ -1162,20 +1162,49 @@
 
 {% block extra_js %}
 <script>
-function changeSorting() {
+// Esperar a que el DOM esté completamente cargado
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, setting up sort functionality');
+    
     const select = document.getElementById('sort-select');
-    const value = select.value;
-    const [sort, order] = value.split('-');
+    if (!select) {
+        console.error('❌ Sort select element not found!');
+        return;
+    }
     
-    // Construir la URL manualmente para asegurar que funcione
-    const baseUrl = window.location.origin + window.location.pathname;
-    const newUrl = `${baseUrl}?sort=${sort}&order=${order}`;
+    console.log('✅ Sort select found:', select);
+    console.log('Current value:', select.value);
     
-    window.location.href = newUrl;
-}
+    // Añadir event listener
+    select.addEventListener('change', function() {
+        console.log('🔄 Sort changed to:', this.value);
+        
+        const value = this.value;
+        if (!value || !value.includes('-')) {
+            console.error('❌ Invalid value format:', value);
+            return;
+        }
+        
+        const [sort, order] = value.split('-');
+        console.log('📊 Sorting by:', sort, 'order:', order);
+        
+        // Construir nueva URL
+        const currentPath = window.location.pathname;
+        const newUrl = `${currentPath}?sort=${sort}&order=${order}`;
+        
+        console.log('🚀 Redirecting to:', newUrl);
+        
+        // Redirigir
+        window.location.href = newUrl;
+    });
+    
+    console.log('✅ Event listener attached successfully');
+});
 
-// Debug: mostrar valores actuales en consola
-console.log('Sort actual:', '{{ current_sort }}');
-console.log('Order actual:', '{{ current_order }}');
+// Debug info
+console.log('📝 Current sort state:');
+console.log('  - Sort:', '{{ current_sort }}');
+console.log('  - Order:', '{{ current_order }}');
+console.log('  - URL:', window.location.href);
 </script>
 {% endblock %}
