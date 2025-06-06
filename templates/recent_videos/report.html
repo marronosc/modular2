@@ -306,7 +306,7 @@
             <!-- Filtros/Ordenación -->
             <div class="sort-controls">
                 <label for="sort-select">Ordenar por:</label>
-                <select id="sort-select" onchange="alert('Cambio detectado: ' + this.value); window.location.href = window.location.pathname + '?sort=' + this.value.split('-')[0] + '&order=' + this.value.split('-')[1];">
+                <select id="sort-select" onchange="window.location.href = window.location.pathname + '?sort=' + this.value.split('-')[0] + '&order=' + this.value.split('-')[1];">
                     <option value="date-desc" {{ 'selected' if current_sort == 'date' and current_order == 'desc' }}>Más reciente</option>
                     <option value="date-asc" {{ 'selected' if current_sort == 'date' and current_order == 'asc' }}>Más antiguo</option>
                     <option value="views-desc" {{ 'selected' if current_sort == 'views' and current_order == 'desc' }}>Más visto</option>
@@ -1162,7 +1162,7 @@
 
 {% block extra_js %}
 <script>
-console.log('🧪 TEST: JavaScript básico cargado');
-console.log('URL actual:', window.location.href);
+// Filtro de ordenación funcionando con onchange inline
+console.log('✅ Filtro de ordenación activo');
 </script>
 {% endblock %}
