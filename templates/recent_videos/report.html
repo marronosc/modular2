@@ -306,7 +306,7 @@
             <!-- Filtros/Ordenación -->
             <div class="sort-controls">
                 <label for="sort-select">Ordenar por:</label>
-                <select id="sort-select">
+                <select id="sort-select" onchange="alert('Cambio detectado: ' + this.value); window.location.href = window.location.pathname + '?sort=' + this.value.split('-')[0] + '&order=' + this.value.split('-')[1];">
                     <option value="date-desc" {{ 'selected' if current_sort == 'date' and current_order == 'desc' }}>Más reciente</option>
                     <option value="date-asc" {{ 'selected' if current_sort == 'date' and current_order == 'asc' }}>Más antiguo</option>
                     <option value="views-desc" {{ 'selected' if current_sort == 'views' and current_order == 'desc' }}>Más visto</option>
@@ -1162,47 +1162,7 @@
 
 {% block extra_js %}
 <script>
-// Esperar a que el DOM esté completamente cargado
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM loaded, setting up sort functionality');
-    
-    const select = document.getElementById('sort-select');
-    if (!select) {
-        console.error('❌ Sort select element not found!');
-        return;
-    }
-    
-    console.log('✅ Sort select found');
-    console.log('Current value:', select.value);
-    
-    // Añadir event listener
-    select.addEventListener('change', function() {
-        console.log('🔄 Sort changed to:', this.value);
-        
-        const value = this.value;
-        if (!value || !value.includes('-')) {
-            console.error('❌ Invalid value format:', value);
-            return;
-        }
-        
-        const [sort, order] = value.split('-');
-        console.log('📊 Sorting by:', sort, 'order:', order);
-        
-        // Construir nueva URL
-        const currentPath = window.location.pathname;
-        const newUrl = currentPath + '?sort=' + sort + '&order=' + order;
-        
-        console.log('🚀 Redirecting to:', newUrl);
-        
-        // Redirigir
-        window.location.href = newUrl;
-    });
-    
-    console.log('✅ Event listener attached successfully');
-});
-
-// Debug info básico
-console.log('📝 JavaScript loaded successfully');
-console.log('Current URL:', window.location.href);
+console.log('🧪 TEST: JavaScript básico cargado');
+console.log('URL actual:', window.location.href);
 </script>
 {% endblock %}
