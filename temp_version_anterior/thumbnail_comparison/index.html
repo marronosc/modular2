@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+
+{% block title %}Comparador de Miniaturas{% endblock %}
+
+{% block content %}
+<div class="thumbnail-comparison-container">
+    <div class="thumbnail-comparison-header">
+        <div class="logo">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14zm-10-7h9v6h-9z"/>
+                <path d="m4 6h4v4H4z"/>
+            </svg>
+        </div>
+        <h1>Comparador de Miniaturas</h1>
+        <p>Compara la miniatura de tu video con los videos mejor posicionados para una palabra clave específica</p>
+    </div>
+    
+    {% if error %}
+        <div class="error-message">
+            <h3>❌ Error</h3>
+            <p>{{ error }}</p>
+        </div>
+    {% endif %}
+    
+    <form method="post" class="thumbnail-comparison-form">
+        <div class="form-group">
+            <label for="keyword">Palabra clave para la comparación:</label>
+            <input type="text" name="keyword" id="keyword" placeholder="Ej: tutorial photoshop" required>
+            <small>Esta será la palabra clave con la que se buscarán los videos mejor posicionados</small>
+        </div>
+        
+        <div class="form-group">
+            <label for="video_url">URL de tu video:</label>
+            <input type="url" name="video_url" id="video_url" placeholder="https://www.youtube.com/watch?v=..." required>
+            <small>El video debe ser público o no listado (no puede ser privado)</small>
+        </div>
+        
+        <div class="form-group checkbox-group">
+            <label class="checkbox-label">
+                <input type="checkbox" name="show_titles" checked>
+                <span class="checkmark"></span>
+                Mostrar títulos de los videos
+            </label>
+        </div>
+        
+        <input type="submit" value="Comparar Miniaturas" class="button">
+    </form>
+    
+    <div class="info-section">
+        <h3>¿Cómo funciona el comparador?</h3>
+        <div class="analysis-features">
+            <div class="feature">
+                <div class="feature-icon">🖼️</div>
+                <div class="feature-content">
+                    <h4>Vista Desktop</h4>
+                    <p>Muestra las miniaturas en 3 columnas con los 11 videos mejor posicionados + tu video</p>
+                </div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">📱</div>
+                <div class="feature-content">
+                    <h4>Vista Móvil</h4>
+                    <p>Vista optimizada en una columna con 5 miniaturas para simular la experiencia móvil</p>
+                </div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🎯</div>
+                <div class="feature-content">
+                    <h4>Posicionamiento Real</h4>
+                    <p>Si tu video aparece en los resultados, se mostrará su posición real</p>
+                </div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">📊</div>
+                <div class="feature-content">
+                    <h4>Estadísticas</h4>
+                    <p>Views, likes y comentarios de cada video para analizar el rendimiento</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="tips-section">
+        <h3>💡 Consejos para optimizar tus miniaturas</h3>
+        <ul>
+            <li><strong>Contraste:</strong> Usa colores que destaquen frente a la competencia</li>
+            <li><strong>Texto legible:</strong> Si usas texto, que sea visible incluso en tamaño pequeño</li>
+            <li><strong>Rostros:</strong> Las caras humanas suelen generar más clics</li>
+            <li><strong>Curiosidad:</strong> Crea miniaturas que generen intriga sin ser clickbait</li>
+            <li><strong>Consistencia:</strong> Mantén un estilo coherente en tu canal</li>
+        </ul>
+    </div>
+    
+    <a href="/" class="home-link">← Volver a la página principal</a>
+</div>
+
+<style>
+.thumbnail-comparison-container {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 0 20px;
+}
+
+.thumbnail-comparison-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.thumbnail-comparison-form {
+    background-color: var(--card-background);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 3rem;
+    box-shadow: 0 4px 6px var(--shadow-color);
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+    color: var(--secondary-color);
+}
+
+.form-group input[type="text"],
+.form-group input[type="url"] {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.1);
+}
+
+.form-group small {
+    display: block;
+    margin-top: 0.5rem;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-weight: normal !important;
+    margin-bottom: 0 !important;
+}
+
+.checkbox-label input[type="checkbox"] {
+    margin-right: 0.5rem;
+    transform: scale(1.2);
+}
+
+.error-message {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    color: var(--error-color);
+}
+
+@media (max-width: 768px) {
+    .thumbnail-comparison-container {
+        padding: 0 15px;
+    }
+}
+</style>
+{% endblock %}

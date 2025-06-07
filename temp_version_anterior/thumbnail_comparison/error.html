@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Error - Comparador de Miniaturas{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <div class="error-header">
+        <div class="error-icon">⚠️</div>
+        <h1>Error en el Comparador de Miniaturas</h1>
+    </div>
+    
+    <div class="error-content">
+        <div class="error-message">
+            <h3>No se pudo completar la comparación</h3>
+            <p>Se ha producido un error al procesar la comparación para "<strong>{{ keyword }}</strong>" con el video proporcionado.</p>
+        </div>
+        
+        <div class="error-details">
+            <details>
+                <summary>Ver detalles del error</summary>
+                <pre>{{ error }}</pre>
+            </details>
+        </div>
+        
+        <div class="error-suggestions">
+            <h4>Posibles soluciones:</h4>
+            <ul>
+                <li>🔑 <strong>API Key:</strong> Verifica que la API key de YouTube esté configurada correctamente</li>
+                <li>🎥 <strong>Video público:</strong> Asegúrate de que el video sea público o no listado (no privado)</li>
+                <li>🔗 <strong>URL válida:</strong> Verifica que la URL del video sea correcta y funcione</li>
+                <li>📝 <strong>Palabra clave:</strong> Intenta con una palabra clave diferente</li>
+                <li>🔄 <strong>Reintentar:</strong> El problema podría ser temporal, intenta de nuevo</li>
+                <li>🌐 <strong>Conexión:</strong> Verifica tu conexión a internet</li>
+                <li>📊 <strong>Límites de API:</strong> Puede que hayas alcanzado el límite diario de la API de YouTube</li>
+            </ul>
+        </div>
+        
+        <div class="error-actions">
+            <a href="/thumbnail-comparison" class="button">🔄 Intentar de nuevo</a>
+            <a href="/" class="button secondary">🏠 Volver al inicio</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
