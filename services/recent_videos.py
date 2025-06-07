@@ -97,58 +97,67 @@ def get_channel_info(channel_id):
         return None
 
 def get_channel_videos(channel_id, max_results):
-    """Obtiene los videos más recientes del canal"""
+    """Obtiene los videos más recientes del canal usando uploads playlist"""
     try:
+        # Primero obtener el uploads playlist ID del canal
+        channel_request = youtube.channels().list(
+            part='contentDetails',
+            id=channel_id
+        )
+        channel_response = channel_request.execute()
+        
+        if not channel_response.get('items'):
+            raise Exception(f"No se pudo obtener información del canal: {channel_id}")
+        
+        uploads_playlist_id = channel_response['items'][0]['contentDetails']['relatedPlaylists']['uploads']
+        logging.info(f"Usando uploads playlist: {uploads_playlist_id}")
+        
         videos = []
         next_page_token = None
         total_fetched = 0
-        max_iterations = 10  # Límite de iteraciones para evitar bucles infinitos
+        max_iterations = 10
         iterations = 0
-        
-        logging.info(f"Buscando videos para canal: {channel_id}")
         
         while len(videos) < max_results and iterations < max_iterations:
             iterations += 1
             
-            request = youtube.search().list(
-                channelId=channel_id,
-                part='id,snippet',
-                order='date',
-                type='video',
-                maxResults=50,  # Máximo por página
+            # Usar playlistItems para obtener videos en orden cronológico exacto
+            request = youtube.playlistItems().list(
+                part='snippet',
+                playlistId=uploads_playlist_id,
+                maxResults=50,
                 pageToken=next_page_token
             )
             response = request.execute()
             
             items = response.get('items', [])
             if not items:
-                logging.info("No hay más videos disponibles")
+                logging.info("No hay más videos en la playlist")
                 break
             
-            logging.info(f"Iteración {iterations}: procesando {len(items)} videos")
+            logging.info(f"Iteración {iterations}: procesando {len(items)} videos de playlist")
             
             for item in items:
-                video_id = item['id']['videoId']
+                video_id = item['snippet']['resourceId']['videoId']
                 video_details = get_video_details(video_id, item['snippet'])
                 
                 total_fetched += 1
                 
                 if video_details:
-                    # TEMPORAL: Sin filtros para debugging
                     videos.append(video_details)
                     video_type = "Short" if video_details['is_short'] else "Live" if video_details['is_live'] else "Regular"
                     logging.info(f"Video {len(videos)} [{video_type}]: {video_details['title'][:50]}... (Fecha: {video_details['published_at'].strftime('%Y-%m-%d')})")
                     
                     if len(videos) >= max_results:
-                        logging.info(f"Se encontraron {max_results} videos (sin filtrar)")
+                        logging.info(f"Se encontraron {max_results} videos desde playlist")
                         break
             
             next_page_token = response.get('nextPageToken')
             if not next_page_token:
-                logging.info("No hay más páginas disponibles")
+                logging.info("No hay más páginas en la playlist")
                 break
         
-        logging.info(f"Total procesado: {total_fetched} videos, encontrados: {len(videos)} regulares")
+        logging.info(f"Total procesado: {total_fetched} videos, encontrados: {len(videos)} desde playlist")
         # Ordenar por fecha (más reciente primero)
         videos.sort(key=lambda x: x['published_at'], reverse=True)
         
