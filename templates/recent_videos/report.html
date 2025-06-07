@@ -210,8 +210,8 @@
 {% if result.insights %}
 <div class="section">
     <h2 class="section-title">
-        <span class="section-icon">🧠</span>
-        Insights y Recomendaciones
+        <span class="section-icon">📊</span>
+        Análisis de Datos
     </h2>
     <div class="insights-grid">
         {% if result.insights.best_day_for_views %}
@@ -240,27 +240,32 @@
         <div class="insight-card">
             <div class="insight-icon">📝</div>
             <div class="insight-content">
-                <h4>Palabras exitosas</h4>
+                <h4>Keywords exitosas</h4>
                 <p>
                     {% for word, count in result.insights.title_patterns.successful_words.items() %}
                         <span class="success-word">{{ word }}</span>{% if not loop.last %}, {% endif %}
                     {% endfor %}
                 </p>
-                
-                {% if result.insights.title_patterns.title_length_analysis %}
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if result.insights.title_patterns.title_length_analysis %}
+        <div class="insight-card">
+            <div class="insight-icon">📏</div>
+            <div class="insight-content">
+                <h4>Estrategia de títulos</h4>
                 <div class="title-length-stats">
-                    <strong>Análisis de longitud de títulos:</strong><br>
                     <small>
-                        Extensión media: {{ result.insights.title_patterns.title_length_analysis.avg_length }} caracteres<br>
-                        Cortos (&lt;50%): {{ result.insights.title_patterns.title_length_analysis.short_titles.percentage }}% 
+                        <strong>Extensión media:</strong> {{ result.insights.title_patterns.title_length_analysis.avg_length }} caracteres<br>
+                        <strong>Cortos (&lt;50%):</strong> {{ result.insights.title_patterns.title_length_analysis.short_titles.percentage }}% 
                         ({{ result.insights.title_patterns.title_length_analysis.short_titles.count }} videos)<br>
-                        Medios (50-75%): {{ result.insights.title_patterns.title_length_analysis.medium_titles.percentage }}%
+                        <strong>Medios (50-75%):</strong> {{ result.insights.title_patterns.title_length_analysis.medium_titles.percentage }}%
                         ({{ result.insights.title_patterns.title_length_analysis.medium_titles.count }} videos)<br>
-                        Largos (&gt;75%): {{ result.insights.title_patterns.title_length_analysis.long_titles.percentage }}%
+                        <strong>Largos (&gt;75%):</strong> {{ result.insights.title_patterns.title_length_analysis.long_titles.percentage }}%
                         ({{ result.insights.title_patterns.title_length_analysis.long_titles.count }} videos)
                     </small>
                 </div>
-                {% endif %}
             </div>
         </div>
         {% endif %}
@@ -285,9 +290,9 @@
         
         {% if result.insights.title_patterns.phrase_patterns.common_phrases %}
         <div class="insight-card">
-            <div class="insight-icon">💬</div>
+            <div class="insight-icon">🔗</div>
             <div class="insight-content">
-                <h4>Patrones de frases comunes</h4>
+                <h4>Keywords combinadas</h4>
                 <p>
                     {% for phrase, count in result.insights.title_patterns.phrase_patterns.common_phrases.items() %}
                         <span class="phrase-pattern">"{{ phrase }}" ({{ count }})</span>{% if not loop.last %}, {% endif %}
