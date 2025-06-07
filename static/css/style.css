@@ -1635,3 +1635,59 @@ input[type="text"]:focus {
     transform: translateY(-5px);
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
 }
+
+/* Estilos para análisis de títulos mejorado */
+.success-word {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 16px;
+    font-size: 0.85em;
+    font-weight: 500;
+    display: inline-block;
+    margin: 2px;
+}
+
+.keyword-tag {
+    background: linear-gradient(135deg, #17a2b8, #6f42c1);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 18px;
+    font-size: 0.8em;
+    font-weight: 500;
+    display: inline-block;
+    margin: 2px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.phrase-pattern {
+    background: linear-gradient(135deg, #fd7e14, #e83e8c);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.8em;
+    font-weight: 500;
+    display: inline-block;
+    margin: 2px;
+    font-style: italic;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.title-length-stats {
+    margin-top: 12px;
+    padding: 10px;
+    background: rgba(23, 162, 184, 0.1);
+    border-radius: 8px;
+    border-left: 4px solid var(--accent-color);
+}
+
+.title-length-stats strong {
+    color: var(--accent-color);
+    margin-bottom: 6px;
+    display: block;
+}
+
+.title-length-stats small {
+    line-height: 1.4;
+    color: #5a6c7d;
+}

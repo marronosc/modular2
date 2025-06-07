@@ -246,7 +246,54 @@
                         <span class="success-word">{{ word }}</span>{% if not loop.last %}, {% endif %}
                     {% endfor %}
                 </p>
-                <small>Longitud óptima: {{ result.insights.title_patterns.optimal_title_length }} caracteres</small>
+                
+                {% if result.insights.title_patterns.title_length_analysis %}
+                <div class="title-length-stats">
+                    <strong>Análisis de longitud de títulos:</strong><br>
+                    <small>
+                        Extensión media: {{ result.insights.title_patterns.title_length_analysis.avg_length }} caracteres<br>
+                        Cortos (&lt;50%): {{ result.insights.title_patterns.title_length_analysis.short_titles.percentage }}% 
+                        ({{ result.insights.title_patterns.title_length_analysis.short_titles.count }} videos)<br>
+                        Medios (50-75%): {{ result.insights.title_patterns.title_length_analysis.medium_titles.percentage }}%
+                        ({{ result.insights.title_patterns.title_length_analysis.medium_titles.count }} videos)<br>
+                        Largos (&gt;75%): {{ result.insights.title_patterns.title_length_analysis.long_titles.percentage }}%
+                        ({{ result.insights.title_patterns.title_length_analysis.long_titles.count }} videos)
+                    </small>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if result.insights.title_patterns.all_keywords %}
+        <div class="insight-card">
+            <div class="insight-icon">🔍</div>
+            <div class="insight-content">
+                <h4>Keywords más usadas</h4>
+                <p>
+                    {% for word, count in result.insights.title_patterns.all_keywords.most_used.items() %}
+                        <span class="keyword-tag">{{ word }} ({{ count }})</span>{% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                </p>
+                <small>
+                    Total palabras únicas: {{ result.insights.title_patterns.all_keywords.total_unique }} |
+                    Total palabras: {{ result.insights.title_patterns.all_keywords.total_words }}
+                </small>
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if result.insights.title_patterns.phrase_patterns.common_phrases %}
+        <div class="insight-card">
+            <div class="insight-icon">💬</div>
+            <div class="insight-content">
+                <h4>Patrones de frases comunes</h4>
+                <p>
+                    {% for phrase, count in result.insights.title_patterns.phrase_patterns.common_phrases.items() %}
+                        <span class="phrase-pattern">"{{ phrase }}" ({{ count }})</span>{% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                </p>
+                <small>Patrones detectados: {{ result.insights.title_patterns.phrase_patterns.total_patterns }}</small>
             </div>
         </div>
         {% endif %}
