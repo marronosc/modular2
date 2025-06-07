@@ -150,7 +150,6 @@ def get_channel_videos(channel_id, max_results):
                 break
         
         logging.info(f"Total procesado: {total_fetched} videos, encontrados: {len(videos)} regulares")
-        
         # Ordenar por fecha (más reciente primero)
         videos.sort(key=lambda x: x['published_at'], reverse=True)
         
