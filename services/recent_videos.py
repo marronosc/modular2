@@ -143,21 +143,24 @@ def get_channel_videos(channel_id, max_results):
                 
                 total_fetched += 1
                 
-                if video_details:
+                if video_details and is_regular_video(video_details):
                     videos.append(video_details)
-                    video_type = "Short" if video_details['is_short'] else "Live" if video_details['is_live'] else "Regular"
-                    logging.info(f"Video {len(videos)} [{video_type}]: {video_details['title'][:50]}... (Fecha: {video_details['published_at'].strftime('%Y-%m-%d')})")
+                    logging.info(f"Video {len(videos)} incluido: {video_details['title'][:50]}... (Fecha: {video_details['published_at'].strftime('%Y-%m-%d')})")
                     
                     if len(videos) >= max_results:
-                        logging.info(f"Se encontraron {max_results} videos desde playlist")
+                        logging.info(f"Se encontraron {max_results} videos regulares")
                         break
+                else:
+                    if video_details:
+                        video_type = "Short" if video_details['is_short'] else "Live" if video_details['is_live'] else "Unknown"
+                        logging.info(f"Video filtrado ({video_type}): {video_details['title'][:30]}...")
             
             next_page_token = response.get('nextPageToken')
             if not next_page_token:
                 logging.info("No hay más páginas en la playlist")
                 break
         
-        logging.info(f"Total procesado: {total_fetched} videos, encontrados: {len(videos)} desde playlist")
+        logging.info(f"Total procesado: {total_fetched} videos, encontrados: {len(videos)} videos regulares")
         # Ordenar por fecha (más reciente primero)
         videos.sort(key=lambda x: x['published_at'], reverse=True)
         
