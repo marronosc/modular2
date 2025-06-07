@@ -444,39 +444,24 @@ def analyze_title_patterns(videos):
     sorted_by_views = sorted(videos, key=lambda x: x['views'], reverse=True)
     top_videos = sorted_by_views[:max(1, len(videos) // 4)]
     
-    # Análisis completo de longitud de títulos (todos los videos)
-    title_length_analysis = analyze_title_lengths(videos)
-    
-    # Palabras comunes filtradas (preposiciones, artículos, etc.)
-    stop_words = {
-        'a', 'al', 'ante', 'bajo', 'con', 'contra', 'de', 'del', 'desde', 'durante', 'en', 'entre', 'hacia', 'hasta', 'mediante', 'para', 'por', 'según', 'sin', 'sobre', 'tras',
-        'el', 'la', 'los', 'las', 'un', 'una', 'unos', 'unas', 'este', 'esta', 'estos', 'estas', 'ese', 'esa', 'esos', 'esas', 'aquel', 'aquella', 'aquellos', 'aquellas',
-        'y', 'o', 'pero', 'sino', 'aunque', 'porque', 'que', 'si', 'como', 'cuando', 'donde', 'mientras', 'aunque',
-        'muy', 'más', 'menos', 'tan', 'tanto', 'mucho', 'poco', 'algo', 'nada', 'todo', 'cada', 'otro', 'mismo', 'propio',
-        'the', 'and', 'for', 'with', 'this', 'that', 'from', 'they', 'are', 'you', 'not', 'can', 'will', 'all', 'any', 'may', 'use', 'her', 'him', 'his', 'had', 'has'
-    }
-    
-    # Análisis de keywords más usadas (todos los videos)
-    all_keywords = analyze_keywords(videos, stop_words)
-    
-    # Análisis de patrones de frases comunes
-    phrase_patterns = analyze_phrase_patterns(videos)
-    
-    # Palabras comunes en títulos exitosos (solo top videos)
+    # Palabras comunes en títulos exitosos
     successful_words = {}
     for video in top_videos:
-        words = clean_title_words(video['title'], stop_words)
+        words = video['title'].lower().split()
         for word in words:
-            successful_words[word] = successful_words.get(word, 0) + 1
+            # Filtrar palabras comunes/irrelevantes
+            if len(word) > 3 and word not in ['para', 'como', 'que', 'con', 'una', 'por', 'the', 'and', 'for']:
+                successful_words[word] = successful_words.get(word, 0) + 1
     
-    # Obtener las 5 palabras más frecuentes en videos exitosos
+    # Obtener las 5 palabras más frecuentes
     top_words = sorted(successful_words.items(), key=lambda x: x[1], reverse=True)[:5]
+    
+    # Análisis de longitud de título
+    avg_title_length = sum(len(v['title']) for v in top_videos) / len(top_videos)
     
     return {
         'successful_words': dict(top_words),
-        'title_length_analysis': title_length_analysis,
-        'all_keywords': all_keywords,
-        'phrase_patterns': phrase_patterns
+        'optimal_title_length': int(avg_title_length)
     }
 
 def calculate_publication_frequency(videos):
@@ -635,107 +620,3 @@ def generate_chart_data(videos):
         'timeline_chart': timeline_data,
         'duration_distribution': duration_ranges
     }
-
-def analyze_title_lengths(videos):
-    """Analiza la distribución de longitudes de títulos"""
-    if not videos:
-        return {}
-    
-    lengths = [len(video['title']) for video in videos]
-    
-    # Calcular estadísticas
-    avg_length = sum(lengths) / len(lengths)
-    max_length = max(lengths)
-    min_length = min(lengths)
-    
-    # Categorizar por porcentajes de 100 caracteres
-    short_count = sum(1 for length in lengths if length < 50)  # < 50%
-    medium_count = sum(1 for length in lengths if 50 <= length <= 75)  # 50-75%
-    long_count = sum(1 for length in lengths if length > 75)  # > 75%
-    
-    total = len(lengths)
-    short_percentage = (short_count / total * 100) if total > 0 else 0
-    medium_percentage = (medium_count / total * 100) if total > 0 else 0
-    long_percentage = (long_count / total * 100) if total > 0 else 0
-    
-    return {
-        'avg_length': round(avg_length, 1),
-        'max_length': max_length,
-        'min_length': min_length,
-        'short_titles': {'count': short_count, 'percentage': round(short_percentage, 1)},
-        'medium_titles': {'count': medium_count, 'percentage': round(medium_percentage, 1)},
-        'long_titles': {'count': long_count, 'percentage': round(long_percentage, 1)}
-    }
-
-def clean_title_words(title, stop_words):
-    """Limpia las palabras del título eliminando stop words y caracteres especiales"""
-    import re
-    # Convertir a minúsculas y extraer solo palabras
-    words = re.findall(r'\b[a-záéíóúñü]+\b', title.lower())
-    # Filtrar stop words y palabras muy cortas
-    return [word for word in words if len(word) > 2 and word not in stop_words]
-
-def analyze_keywords(videos, stop_words):
-    """Analiza todas las keywords más usadas en todos los videos"""
-    keyword_count = {}
-    
-    for video in videos:
-        words = clean_title_words(video['title'], stop_words)
-        for word in words:
-            keyword_count[word] = keyword_count.get(word, 0) + 1
-    
-    # Obtener las 10 keywords más frecuentes
-    top_keywords = sorted(keyword_count.items(), key=lambda x: x[1], reverse=True)[:10]
-    
-    return {
-        'most_used': dict(top_keywords),
-        'total_unique': len(keyword_count),
-        'total_words': sum(keyword_count.values())
-    }
-
-def analyze_phrase_patterns(videos):
-    """Analiza patrones de frases comunes en los títulos"""
-    import re
-    
-    # Patrones comunes a buscar (2-4 palabras)
-    phrase_patterns = {}
-    
-    for video in videos:
-        title = video['title'].lower()
-        
-        # Buscar frases de 2-4 palabras
-        words = re.findall(r'\b[a-záéíóúñü]+\b', title)
-        
-        # Generar frases de 2 palabras
-        for i in range(len(words) - 1):
-            phrase = f"{words[i]} {words[i+1]}"
-            if should_include_phrase(phrase):
-                phrase_patterns[phrase] = phrase_patterns.get(phrase, 0) + 1
-        
-        # Generar frases de 3 palabras
-        for i in range(len(words) - 2):
-            phrase = f"{words[i]} {words[i+1]} {words[i+2]}"
-            if should_include_phrase(phrase):
-                phrase_patterns[phrase] = phrase_patterns.get(phrase, 0) + 1
-    
-    # Filtrar frases que aparecen al menos 2 veces
-    common_phrases = {phrase: count for phrase, count in phrase_patterns.items() if count >= 2}
-    
-    # Obtener las 10 frases más comunes
-    top_phrases = sorted(common_phrases.items(), key=lambda x: x[1], reverse=True)[:10]
-    
-    return {
-        'common_phrases': dict(top_phrases),
-        'total_patterns': len(common_phrases)
-    }
-
-def should_include_phrase(phrase):
-    """Determina si una frase debe incluirse en el análisis"""
-    # Lista de patrones irrelevantes
-    skip_patterns = ['de la', 'en el', 'para el', 'con el', 'por el', 'a la', 'de los', 'en las']
-    
-    return (
-        len(phrase) > 5 and  # Mínimo 5 caracteres
-        phrase not in skip_patterns and
-        not any(word in ['muy', 'más', 'menos', 'tan'] for word in phrase.split())
-    )
