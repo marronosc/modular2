@@ -133,16 +133,15 @@ def get_channel_videos(channel_id, max_results):
                 
                 total_fetched += 1
                 
-                if video_details and is_regular_video(video_details):
+                if video_details:
+                    # TEMPORAL: Sin filtros para debugging
                     videos.append(video_details)
-                    logging.info(f"Video {len(videos)} incluido: {video_details['title'][:50]}... (Fecha: {video_details['published_at'].strftime('%Y-%m-%d')})")
+                    video_type = "Short" if video_details['is_short'] else "Live" if video_details['is_live'] else "Regular"
+                    logging.info(f"Video {len(videos)} [{video_type}]: {video_details['title'][:50]}... (Fecha: {video_details['published_at'].strftime('%Y-%m-%d')})")
                     
                     if len(videos) >= max_results:
-                        logging.info(f"Se encontraron {max_results} videos regulares")
+                        logging.info(f"Se encontraron {max_results} videos (sin filtrar)")
                         break
-                else:
-                    if video_details:
-                        logging.info(f"Video filtrado (Short/Live): {video_details['title'][:30]}...")
             
             next_page_token = response.get('nextPageToken')
             if not next_page_token:
