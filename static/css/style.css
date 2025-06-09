@@ -1693,11 +1693,25 @@ input[type="text"]:focus {
 }
 
 /* Mejoras para videos destacados */
+.highlight-thumbnail {
+    width: 100%;
+    height: 180px;
+    overflow: hidden;
+    border-radius: 12px;
+    position: relative;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
 .highlight-thumbnail img {
     width: 100%;
-    height: 150px;
+    height: 100%;
     object-fit: cover;
-    border-radius: 8px;
+    border-radius: 12px;
+    transition: transform 0.3s ease;
+}
+
+.highlight-card:hover .highlight-thumbnail img {
+    transform: scale(1.05);
 }
 
 .highlight-meta {
@@ -1739,4 +1753,120 @@ input[type="text"]:focus {
     font-weight: 500;
     z-index: 2;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Highlight Cards Base Styles */
+.highlight-card {
+    background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.highlight-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.16);
+}
+
+.highlight-badge {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.8rem;
+    z-index: 2;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.highlight-card.best .highlight-badge {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+}
+
+.highlight-card.engagement .highlight-badge {
+    background: linear-gradient(135deg, #9c27b0, #e91e63);
+    color: white;
+}
+
+.highlight-card.growth .highlight-badge {
+    background: linear-gradient(135deg, #ff9800, #ff5722);
+    color: white;
+}
+
+.highlight-info {
+    padding: 1.5rem;
+}
+
+.highlight-info h4 {
+    margin-bottom: 0.75rem;
+    font-size: 1rem;
+    line-height: 1.3;
+    color: var(--text-primary);
+}
+
+.highlight-info h4 a {
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.highlight-info h4 a:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
+}
+
+.highlight-stats {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.85rem;
+    flex-wrap: wrap;
+}
+
+.highlight-stats span {
+    background: rgba(0, 0, 0, 0.05);
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+/* Botón PDF */
+.btn-pdf {
+    background: #dc3545;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-pdf:hover {
+    background: #c82333;
+    transform: translateY(-1px);
+}
+
+/* Estilos para impresión PDF */
+@media print {
+    .export-controls,
+    .sort-controls,
+    .back-link {
+        display: none !important;
+    }
+    
+    .section {
+        break-inside: avoid;
+        margin-bottom: 1rem;
+    }
+    
+    .highlight-card {
+        break-inside: avoid;
+    }
+    
+    body {
+        font-size: 12pt;
+        line-height: 1.4;
+    }
 }

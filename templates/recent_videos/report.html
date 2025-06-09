@@ -116,7 +116,6 @@
                     <span>📅 {{ format_date(result.highlights.best_performing.published_at) }} ({{ result.highlights.best_performing.weekday }})</span>
                     <span>⏱️ {{ result.highlights.best_performing.duration_formatted }}</span>
                     <span>🏷️ {{ result.highlights.best_performing.category }}</span>
-                    <span>📈 {{ format_number(result.highlights.best_performing.success_index) }} pts</span>
                 </div>
                 <div class="highlight-age">{{ result.highlights.best_performing.age_formatted }}</div>
             </div>
@@ -139,7 +138,6 @@
                     <span>📅 {{ format_date(result.highlights.best_engagement.published_at) }} ({{ result.highlights.best_engagement.weekday }})</span>
                     <span>⏱️ {{ result.highlights.best_engagement.duration_formatted }}</span>
                     <span>🏷️ {{ result.highlights.best_engagement.category }}</span>
-                    <span>📈 {{ format_number(result.highlights.best_engagement.success_index) }} pts</span>
                 </div>
                 <div class="highlight-age">{{ result.highlights.best_engagement.age_formatted }}</div>
             </div>
@@ -162,7 +160,6 @@
                     <span>📅 {{ format_date(result.highlights.fastest_growing.published_at) }} ({{ result.highlights.fastest_growing.weekday }})</span>
                     <span>⏱️ {{ result.highlights.fastest_growing.duration_formatted }}</span>
                     <span>🏷️ {{ result.highlights.fastest_growing.category }}</span>
-                    <span>📈 {{ format_number(result.highlights.fastest_growing.success_index) }} pts</span>
                 </div>
                 <div class="highlight-age">{{ result.highlights.fastest_growing.age_formatted }}</div>
             </div>
@@ -411,6 +408,9 @@
                 <a href="{{ url_for('recent_videos.export_csv', channel_url=channel_url) }}" class="btn btn-export" title="Descargar CSV">
                     📊 CSV
                 </a>
+                <button onclick="window.print()" class="btn btn-pdf" title="Exportar a PDF">
+                    📄 PDF
+                </button>
             </div>
         </div>
     </div>
