@@ -1,6 +1,5 @@
 import os
 import logging
-import math
 from datetime import datetime, timedelta
 import isodate
 from googleapiclient.discovery import build
@@ -207,9 +206,6 @@ def get_video_details(video_id, snippet):
         weekday = published_at.strftime('%A')
         weekday_es = translate_weekday(weekday)
         
-        # Calcular índice de éxito usando la nueva fórmula logarítmica
-        success_index = calculate_success_index(views, age_days)
-        
         return {
             'video_id': video_id,
             'title': snippet.get('title', 'Sin título'),
@@ -229,8 +225,7 @@ def get_video_details(video_id, snippet):
             'engagement_rate': engagement_rate,
             'views_per_day': views_per_day,
             'weekday': weekday_es,
-            'age_formatted': format_age(age_days),
-            'success_index': success_index
+            'age_formatted': format_age(age_days)
         }
         
     except Exception as e:
@@ -302,41 +297,6 @@ def format_age(days):
         years = days // 365
         return f"Hace {years} año{'s' if years > 1 else ''}"
 
-def calculate_success_index(visualizaciones, dias_desde_publicacion):
-    """
-    Calcula el índice de éxito de un video usando fórmula logarítmica.
-    
-    Objetivo:
-    Calcular un valor que represente el éxito relativo de un video, 
-    ajustando las visualizaciones al tiempo que lleva publicado.
-    
-    Variables:
-    - V: visualizaciones totales del video
-    - D: días desde la publicación (hoy - fecha de publicación)
-    
-    Fórmula recomendada (ponderada por tiempo):
-    ÍndiceÉxito = V / log(D + 1)
-    
-    Ventajas del índice logarítmico:
-    - Penaliza menos a los videos antiguos
-    - Da más relevancia a los videos que acumulan muchas vistas rápidamente
-    - Escala mejor entre videos recientes y evergreen
-    
-    Parámetros:
-    - visualizaciones: número total de visualizaciones del video
-    - dias_desde_publicacion: días transcurridos desde publicación
-    
-    Retorna:
-    - Índice de éxito (visualizaciones ajustadas al tiempo con logaritmo)
-    """
-    try:
-        dias = max(dias_desde_publicacion, 1)  # Evitar división por 0
-        indice_exito = visualizaciones / math.log(dias + 1)
-        return round(indice_exito, 2)
-    except Exception as e:
-        logging.error(f"Error al calcular el índice de éxito: {e}")
-        return 0.0
-
 def calculate_basic_stats(videos):
     """Calcula estadísticas básicas de los videos"""
     if not videos:
@@ -354,22 +314,16 @@ def calculate_basic_stats(videos):
     avg_duration = total_duration / len(videos)
     avg_engagement = sum(v['engagement_rate'] for v in videos) / len(videos)
     
-    # Tendencia usando índices de éxito (últimos 5 vs anteriores)
+    # Tendencia simple (últimos 5 vs anteriores)
     if len(videos) >= 10:
         recent_videos = videos[:5]  # Ya están ordenados por fecha desc
         older_videos = videos[-5:]
         
-        # Calcular promedios de índices de éxito en lugar de views
-        recent_avg_index = sum(v['success_index'] for v in recent_videos) / len(recent_videos)
-        older_avg_index = sum(v['success_index'] for v in older_videos) / len(older_videos)
-        
-        # Tendencia basada en índices de éxito normalizada
-        trend_percentage = ((recent_avg_index - older_avg_index) / older_avg_index * 100) if older_avg_index > 0 else 0
-        trend_direction = 'crecimiento' if trend_percentage > 5 else 'declive' if trend_percentage < -5 else 'estable'
-        
-        # Mantener para compatibilidad (aunque ahora menos relevante)
         recent_avg_views = sum(v['views'] for v in recent_videos) / len(recent_videos)
         older_avg_views = sum(v['views'] for v in older_videos) / len(older_videos)
+        
+        trend_percentage = ((recent_avg_views - older_avg_views) / older_avg_views * 100) if older_avg_views > 0 else 0
+        trend_direction = 'crecimiento' if trend_percentage > 5 else 'declive' if trend_percentage < -5 else 'estable'
     else:
         trend_percentage = 0
         trend_direction = 'sin_datos'
@@ -408,16 +362,12 @@ def identify_highlights(videos):
     # Video con mejor velocidad de crecimiento
     best_growth = max(videos, key=lambda x: x['views_per_day'])
     
-    # Video con mejor índice de éxito (nueva métrica)
-    best_success_index = max(videos, key=lambda x: x['success_index'])
-    
     return {
         'best_performing': best_video,
         'worst_performing': worst_video,
         'most_recent': most_recent,
         'best_engagement': best_engagement,
-        'fastest_growing': best_growth,
-        'best_success_index': best_success_index
+        'fastest_growing': best_growth
     }
 
 def generate_insights(videos):
