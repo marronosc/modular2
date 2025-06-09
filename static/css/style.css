@@ -1794,21 +1794,24 @@ input[type="text"]:focus {
     font-size: 0.7rem;
     z-index: 3;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    background: #666;
+    color: white;
+    display: inline-block;
 }
 
 .highlight-video.best .highlight-badge {
-    background: linear-gradient(135deg, #28a745, #20c997);
-    color: white;
+    background: linear-gradient(135deg, #28a745, #20c997) !important;
+    color: white !important;
 }
 
 .highlight-video.engagement .highlight-badge {
-    background: linear-gradient(135deg, #9c27b0, #e91e63);
-    color: white;
+    background: linear-gradient(135deg, #9c27b0, #e91e63) !important;
+    color: white !important;
 }
 
 .highlight-video.growth .highlight-badge {
-    background: linear-gradient(135deg, #ff9800, #ff5722);
-    color: white;
+    background: linear-gradient(135deg, #ff9800, #ff5722) !important;
+    color: white !important;
 }
 
 /* Los estilos de highlight-info, highlight-stats ya no son necesarios 
