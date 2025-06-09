@@ -249,7 +249,7 @@ def get_video_details(video_id, snippet):
             'comments': comments,
             'video_url': f"https://www.youtube.com/watch?v={video_id}",
             'is_live': is_live,
-            'is_short': duration <= timedelta(seconds=60),
+            'is_short': duration <= timedelta(seconds=90),
             # Nuevas métricas
             'age_days': age_days,
             'engagement_rate': engagement_rate,
