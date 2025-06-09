@@ -1691,3 +1691,52 @@ input[type="text"]:focus {
     line-height: 1.4;
     color: #5a6c7d;
 }
+
+/* Mejoras para videos destacados */
+.highlight-thumbnail img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.highlight-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 8px;
+    font-size: 0.85em;
+    color: #666;
+}
+
+.highlight-meta span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.highlight-age {
+    margin-top: 6px;
+    padding: 4px 8px;
+    background: linear-gradient(135deg, #ffc107, #ff9800);
+    color: white;
+    border-radius: 12px;
+    font-size: 0.8em;
+    text-align: center;
+    font-weight: 500;
+}
+
+/* Banners para categorías en lista de videos */
+.video-category-banner {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background: linear-gradient(135deg, #6f42c1, #e83e8c);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.7em;
+    font-weight: 500;
+    z-index: 2;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}

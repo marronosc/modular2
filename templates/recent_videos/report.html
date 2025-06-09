@@ -110,8 +110,15 @@
                     <span>👁️ {{ format_number(result.highlights.best_performing.views) }}</span>
                     <span>👍 {{ format_number(result.highlights.best_performing.likes) }}</span>
                     <span>💬 {{ format_number(result.highlights.best_performing.comments) }}</span>
+                    <span>📊 {{ "%.2f"|format(result.highlights.best_performing.engagement_rate) }}%</span>
                 </div>
-                <div class="highlight-meta">{{ format_date(result.highlights.best_performing.published_at) }} • {{ result.highlights.best_performing.age_formatted }}</div>
+                <div class="highlight-meta">
+                    <span>📅 {{ format_date(result.highlights.best_performing.published_at) }} ({{ result.highlights.best_performing.weekday }})</span>
+                    <span>⏱️ {{ result.highlights.best_performing.duration_formatted }}</span>
+                    <span>🏷️ {{ result.highlights.best_performing.category }}</span>
+                    <span>📈 {{ format_number(result.highlights.best_performing.success_index) }} pts</span>
+                </div>
+                <div class="highlight-age">{{ result.highlights.best_performing.age_formatted }}</div>
             </div>
         </div>
         
@@ -126,8 +133,15 @@
                     <span>📊 {{ "%.2f"|format(result.highlights.best_engagement.engagement_rate) }}%</span>
                     <span>👁️ {{ format_number(result.highlights.best_engagement.views) }}</span>
                     <span>👍 {{ format_number(result.highlights.best_engagement.likes) }}</span>
+                    <span>💬 {{ format_number(result.highlights.best_engagement.comments) }}</span>
                 </div>
-                <div class="highlight-meta">{{ format_date(result.highlights.best_engagement.published_at) }} • {{ result.highlights.best_engagement.age_formatted }}</div>
+                <div class="highlight-meta">
+                    <span>📅 {{ format_date(result.highlights.best_engagement.published_at) }} ({{ result.highlights.best_engagement.weekday }})</span>
+                    <span>⏱️ {{ result.highlights.best_engagement.duration_formatted }}</span>
+                    <span>🏷️ {{ result.highlights.best_engagement.category }}</span>
+                    <span>📈 {{ format_number(result.highlights.best_engagement.success_index) }} pts</span>
+                </div>
+                <div class="highlight-age">{{ result.highlights.best_engagement.age_formatted }}</div>
             </div>
         </div>
         
@@ -142,8 +156,15 @@
                     <span>📈 {{ format_number(result.highlights.fastest_growing.views_per_day) }}/día</span>
                     <span>👁️ {{ format_number(result.highlights.fastest_growing.views) }}</span>
                     <span>👍 {{ format_number(result.highlights.fastest_growing.likes) }}</span>
+                    <span>💬 {{ format_number(result.highlights.fastest_growing.comments) }}</span>
                 </div>
-                <div class="highlight-meta">{{ format_date(result.highlights.fastest_growing.published_at) }} • {{ result.highlights.fastest_growing.age_formatted }}</div>
+                <div class="highlight-meta">
+                    <span>📅 {{ format_date(result.highlights.fastest_growing.published_at) }} ({{ result.highlights.fastest_growing.weekday }})</span>
+                    <span>⏱️ {{ result.highlights.fastest_growing.duration_formatted }}</span>
+                    <span>🏷️ {{ result.highlights.fastest_growing.category }}</span>
+                    <span>📈 {{ format_number(result.highlights.fastest_growing.success_index) }} pts</span>
+                </div>
+                <div class="highlight-age">{{ result.highlights.fastest_growing.age_formatted }}</div>
             </div>
         </div>
     </div>
@@ -328,9 +349,23 @@
         </div>
     </div>
     
+    <!-- Distribución por Día de la Semana -->
+    <div class="chart-container">
+        <h4>Distribución por Día de la Semana</h4>
+        <div class="duration-bars">
+            {% for day, count in chart_data.weekday_distribution.items() %}
+            <div class="duration-bar">
+                <div class="bar-fill" style="height: {{ (count / chart_data.weekday_distribution.values() | max * 100) | round(1) if chart_data.weekday_distribution.values() | max > 0 else 0 }}%"></div>
+                <span class="bar-label">{{ day }}</span>
+                <span class="bar-count">{{ count }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
     <!-- Timeline Simple -->
     <div class="chart-container">
-        <h4>Timeline de Publicaciones</h4>
+        <h4>Visualizaciones por Vídeo</h4>
         <div class="timeline-chart">
             {% for video in result.videos[:10] %}
             <div class="timeline-item">
@@ -385,6 +420,7 @@
             <div class="video-thumbnail-new">
                 <img src="{{ video.thumbnail }}" alt="Miniatura del video" loading="lazy">
                 <div class="video-duration-badge">{{ video.duration_formatted }}</div>
+                <div class="video-category-banner">{{ video.category }}</div>
             </div>
             <div class="video-content">
                 <div class="video-header">
@@ -419,6 +455,10 @@
                         <div class="metric-group">
                             <span class="metric-label">Crecimiento:</span>
                             <span class="metric-value">{{ format_number(video.views_per_day) }}/día</span>
+                        </div>
+                        <div class="metric-group">
+                            <span class="metric-label">Índice Éxito:</span>
+                            <span class="metric-value highlight">{{ format_number(video.success_index) }} pts</span>
                         </div>
                     </div>
                 </div>

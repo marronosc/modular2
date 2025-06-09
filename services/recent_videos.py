@@ -171,11 +171,32 @@ def get_channel_videos(channel_id, max_results):
         logging.error(f"Error obteniendo videos del canal {channel_id}: {str(e)}")
         raise Exception(f"Error obteniendo videos del canal: {str(e)}")
 
+def get_category_name(category_id):
+    """Convierte el ID de categoría de YouTube a nombre legible"""
+    categories = {
+        '1': 'Cine y animación',
+        '2': 'Coches y vehículos',
+        '10': 'Música',
+        '15': 'Mascotas y animales',
+        '17': 'Deportes',
+        '19': 'Viajes y eventos',
+        '20': 'Videojuegos',
+        '22': 'Gente y blogs',
+        '23': 'Comedia',
+        '24': 'Entretenimiento',
+        '25': 'Noticias y política',
+        '26': 'Guías y estilo',
+        '27': 'Educación',
+        '28': 'Ciencia y tecnología',
+        '29': 'Sin fines de lucro y activismo'
+    }
+    return categories.get(str(category_id), 'Categoría desconocida')
+
 def get_video_details(video_id, snippet):
     """Obtiene detalles de un video específico"""
     try:
         request = youtube.videos().list(
-            part='contentDetails,statistics,liveStreamingDetails',
+            part='contentDetails,statistics,liveStreamingDetails,snippet',
             id=video_id
         )
         response = request.execute()
@@ -187,6 +208,7 @@ def get_video_details(video_id, snippet):
         content_details = video['contentDetails']
         statistics = video.get('statistics', {})
         live_details = video.get('liveStreamingDetails', {})
+        video_snippet = video.get('snippet', {})
         
         # Parsear duración
         duration_str = content_details['duration']
@@ -199,6 +221,10 @@ def get_video_details(video_id, snippet):
         views = int(statistics.get('viewCount', 0))
         likes = int(statistics.get('likeCount', 0))
         comments = int(statistics.get('commentCount', 0))
+        
+        # Obtener categoría del video
+        category_id = video_snippet.get('categoryId', '0')
+        category_name = get_category_name(category_id)
         
         # Calcular métricas adicionales
         age_days = (datetime.now() - published_at).days
@@ -230,7 +256,8 @@ def get_video_details(video_id, snippet):
             'views_per_day': views_per_day,
             'weekday': weekday_es,
             'age_formatted': format_age(age_days),
-            'success_index': success_index
+            'success_index': success_index,
+            'category': category_name
         }
         
     except Exception as e:
@@ -679,11 +706,22 @@ def generate_chart_data(videos):
         else:
             duration_ranges['30min+'] += 1
     
+    # Distribución por día de la semana
+    weekday_distribution = {
+        'Lunes': 0, 'Martes': 0, 'Miércoles': 0, 'Jueves': 0,
+        'Viernes': 0, 'Sábado': 0, 'Domingo': 0
+    }
+    for video in videos:
+        weekday = video['weekday']
+        if weekday in weekday_distribution:
+            weekday_distribution[weekday] += 1
+    
     return {
         'views_chart': views_data,
         'engagement_chart': engagement_data,
         'timeline_chart': timeline_data,
-        'duration_distribution': duration_ranges
+        'duration_distribution': duration_ranges,
+        'weekday_distribution': weekday_distribution
     }
 
 def analyze_title_lengths(videos):
