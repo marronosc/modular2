@@ -1788,34 +1788,62 @@ input[type="text"]:focus {
     position: absolute;
     top: 0.5rem;
     left: 0.5rem;
-    padding: 0.4rem 0.8rem;
-    border-radius: 15px;
-    font-weight: bold;
-    font-size: 0.7rem;
-    z-index: 3;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
-    background: linear-gradient(135deg, #666, #888);
-    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.75rem;
+    z-index: 10;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(135deg, #666, #888) !important;
+    color: white !important;
     display: inline-block;
-    backdrop-filter: blur(4px);
+    backdrop-filter: blur(8px);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
-.highlight-video.best .highlight-badge {
+/* Estilos específicos para cada tipo de badge */
+.video-row.best .highlight-badge {
     background: linear-gradient(135deg, #28a745, #20c997) !important;
     color: white !important;
-    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.4) !important;
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.5) !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
 }
 
-.highlight-video.engagement .highlight-badge {
+.video-row.engagement .highlight-badge {
     background: linear-gradient(135deg, #9c27b0, #e91e63) !important;
     color: white !important;
-    box-shadow: 0 2px 8px rgba(156, 39, 176, 0.4) !important;
+    box-shadow: 0 4px 12px rgba(156, 39, 176, 0.5) !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
 }
 
-.highlight-video.growth .highlight-badge {
+.video-row.growth .highlight-badge {
     background: linear-gradient(135deg, #ff9800, #ff5722) !important;
     color: white !important;
-    box-shadow: 0 2px 8px rgba(255, 152, 0, 0.4) !important;
+    box-shadow: 0 4px 12px rgba(255, 152, 0, 0.5) !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Backup selectors para mayor compatibilidad */
+.highlight-video.best .highlight-badge,
+.best .highlight-badge {
+    background: linear-gradient(135deg, #28a745, #20c997) !important;
+    color: white !important;
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.5) !important;
+}
+
+.highlight-video.engagement .highlight-badge,
+.engagement .highlight-badge {
+    background: linear-gradient(135deg, #9c27b0, #e91e63) !important;
+    color: white !important;
+    box-shadow: 0 4px 12px rgba(156, 39, 176, 0.5) !important;
+}
+
+.highlight-video.growth .highlight-badge,
+.growth .highlight-badge {
+    background: linear-gradient(135deg, #ff9800, #ff5722) !important;
+    color: white !important;
+    box-shadow: 0 4px 12px rgba(255, 152, 0, 0.5) !important;
 }
 
 /* Los estilos de highlight-info, highlight-stats ya no son necesarios 
