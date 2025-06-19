@@ -137,8 +137,8 @@
                             <span class="metric-value">{{ format_date(result.highlights.best_performing.published_at) }} ({{ result.highlights.best_performing.weekday }})</span>
                         </div>
                         <div class="metric-group">
-                            <span class="metric-label">Crecimiento:</span>
-                            <span class="metric-value">{{ format_number(result.highlights.best_performing.views_per_day) }}/día</span>
+                            <span class="metric-label">Visualizaciones por Día:</span>
+                            <span class="metric-value">{{ format_number(result.highlights.best_performing.views_per_day) }}</span>
                         </div>
                     </div>
                 </div>
@@ -183,8 +183,8 @@
                             <span class="metric-value">{{ format_date(result.highlights.best_engagement.published_at) }} ({{ result.highlights.best_engagement.weekday }})</span>
                         </div>
                         <div class="metric-group">
-                            <span class="metric-label">Crecimiento:</span>
-                            <span class="metric-value">{{ format_number(result.highlights.best_engagement.views_per_day) }}/día</span>
+                            <span class="metric-label">Visualizaciones por Día:</span>
+                            <span class="metric-value">{{ format_number(result.highlights.best_engagement.views_per_day) }}</span>
                         </div>
                     </div>
                 </div>
@@ -207,8 +207,8 @@
                 <div class="video-metrics">
                     <div class="metrics-row">
                         <div class="metric-group">
-                            <span class="metric-label">Crecimiento:</span>
-                            <span class="metric-value highlight">{{ format_number(result.highlights.fastest_growing.views_per_day) }}/día</span>
+                            <span class="metric-label">Visualizaciones por Día:</span>
+                            <span class="metric-value highlight">{{ format_number(result.highlights.fastest_growing.views_per_day) }}</span>
                         </div>
                         <div class="metric-group">
                             <span class="metric-label">Views:</span>
@@ -508,6 +508,14 @@
                             <span class="metric-value">{{ format_number(video.views) }}</span>
                         </div>
                         <div class="metric-group">
+                            <span class="metric-label">Visualizaciones por Día:</span>
+                            <span class="metric-value">{{ format_number(video.views_per_day) }}</span>
+                        </div>
+                        <div class="metric-group">
+                            <span class="metric-label">Engagement:</span>
+                            <span class="metric-value highlight">{{ "%.2f"|format(video.engagement_rate) }}%</span>
+                        </div>
+                        <div class="metric-group">
                             <span class="metric-label">Likes:</span>
                             <span class="metric-value">{{ format_number(video.likes) }}</span>
                         </div>
@@ -515,19 +523,11 @@
                             <span class="metric-label">Comentarios:</span>
                             <span class="metric-value">{{ format_number(video.comments) }}</span>
                         </div>
-                        <div class="metric-group">
-                            <span class="metric-label">Engagement:</span>
-                            <span class="metric-value highlight">{{ "%.2f"|format(video.engagement_rate) }}%</span>
-                        </div>
                     </div>
                     <div class="metrics-row">
                         <div class="metric-group">
                             <span class="metric-label">Publicado:</span>
                             <span class="metric-value">{{ format_date(video.published_at) }} ({{ video.weekday }})</span>
-                        </div>
-                        <div class="metric-group">
-                            <span class="metric-label">Crecimiento:</span>
-                            <span class="metric-value">{{ format_number(video.views_per_day) }}/día</span>
                         </div>
                         <div class="metric-group">
                             <span class="metric-label">Categoría:</span>
