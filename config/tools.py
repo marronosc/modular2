@@ -1,6 +1,6 @@
 # config/tools.py
 """
-Configuración centralizada de todas las herramientas de YouTube Tools
+Configuración centralizada de todas las herramientas de TubeTools
 """
 
 TOOLS_CONFIG = {
