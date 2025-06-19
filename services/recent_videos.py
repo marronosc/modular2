@@ -12,13 +12,14 @@ if api_key:
 else:
     youtube = None
 
-def get_recent_videos(channel_url, max_results=20):
+def get_recent_videos(channel_url, max_results=20, duration_filter=0):
     """
     Obtiene los últimos videos regulares de un canal de YouTube
     
     Args:
         channel_url (str): URL del canal o video
         max_results (int): Número de videos a obtener (default: 20)
+        duration_filter (int): Filtro de duración en segundos. 0 = todos, 60 = >1min, etc.
     
     Returns:
         dict: Información del canal y lista de videos
@@ -44,7 +45,7 @@ def get_recent_videos(channel_url, max_results=20):
             raise Exception(f"El canal {channel_id} no existe o no es público")
         
         # Obtener videos del canal
-        videos = get_channel_videos(channel_id, max_results)
+        videos = get_channel_videos(channel_id, max_results, duration_filter)
         
         # Calcular estadísticas y análisis
         stats = calculate_basic_stats(videos) if videos else {}
@@ -97,7 +98,7 @@ def get_channel_info(channel_id):
         logging.error(f"Error obteniendo información del canal {channel_id}: {str(e)}")
         return None
 
-def get_channel_videos(channel_id, max_results):
+def get_channel_videos(channel_id, max_results, duration_filter=0):
     """Obtiene los videos más recientes del canal usando uploads playlist"""
     try:
         # Primero obtener el uploads playlist ID del canal
@@ -144,17 +145,17 @@ def get_channel_videos(channel_id, max_results):
                 
                 total_fetched += 1
                 
-                if video_details and is_regular_video(video_details):
+                if video_details and should_include_video(video_details, duration_filter):
                     videos.append(video_details)
                     logging.info(f"Video {len(videos)} incluido: {video_details['title'][:50]}... (Fecha: {video_details['published_at'].strftime('%Y-%m-%d')})")
                     
                     if len(videos) >= max_results:
-                        logging.info(f"Se encontraron {max_results} videos regulares")
+                        logging.info(f"Se encontraron {max_results} videos válidos")
                         break
                 else:
                     if video_details:
-                        video_type = "Short" if video_details['is_short'] else "Live" if video_details['is_live'] else "Unknown"
-                        logging.info(f"Video filtrado ({video_type}): {video_details['title'][:30]}...")
+                        reason = get_filter_reason(video_details, duration_filter)
+                        logging.info(f"Video filtrado ({reason}): {video_details['title'][:30]}...")
             
             next_page_token = response.get('nextPageToken')
             if not next_page_token:
@@ -267,6 +268,35 @@ def get_video_details(video_id, snippet):
 def is_regular_video(video):
     """Verifica si es un video regular (no Short ni live)"""
     return not video['is_short'] and not video['is_live']
+
+def should_include_video(video, duration_filter):
+    """Verifica si un video debe incluirse según los filtros aplicados"""
+    # Filtrar lives
+    if video['is_live']:
+        return False
+    
+    # Si duration_filter es 0, incluir todos los videos (incluso shorts)
+    if duration_filter == 0:
+        return True
+    
+    # Aplicar filtro de duración
+    video_duration_seconds = video.get('duration_seconds', 0)
+    return video_duration_seconds >= duration_filter
+
+def get_filter_reason(video, duration_filter):
+    """Obtiene la razón por la cual se filtró un video"""
+    if video['is_live']:
+        return "Live"
+    
+    if duration_filter == 0:
+        return "Unknown"
+    
+    video_duration_seconds = video.get('duration_seconds', 0)
+    if video_duration_seconds < duration_filter:
+        filter_minutes = duration_filter // 60
+        return f"Corto (<{filter_minutes}min)"
+    
+    return "Unknown"
 
 def format_duration(duration):
     """Formatea duración para mostrar en formato MM:SS o HH:MM:SS"""

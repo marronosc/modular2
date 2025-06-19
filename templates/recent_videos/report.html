@@ -478,7 +478,7 @@
             
             <!-- Exportación -->
             <div class="export-controls">
-                <a href="{{ url_for('recent_videos.export_csv', channel_url=channel_url) }}" class="btn btn-export" title="Descargar CSV">
+                <a href="{{ url_for('recent_videos.export_csv', channel_url=channel_url, duration_filter=duration_filter) }}" class="btn btn-export" title="Descargar CSV">
                     📊 CSV
                 </a>
                 <button onclick="window.print()" class="btn btn-pdf" title="Exportar a PDF">

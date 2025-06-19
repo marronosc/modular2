@@ -35,6 +35,17 @@
                    placeholder="https://www.youtube.com/channel/UC... o https://www.youtube.com/watch?v=..." required>
             <div class="form-help">Puedes usar cualquier URL de YouTube relacionada con el canal</div>
         </div>
+
+        <div class="form-group">
+            <label for="duration_filter" class="form-label">Excluir Shorts</label>
+            <p class="form-help" style="margin-bottom: 1rem;">Si el canal crea shorts y no quieres que aparezcan en el informe puedes filtrar por duración, puedes empezar por un minuto, y si ves que aparecen otros más largos, puedes volver a realizar la búsqueda cambiando la duración</p>
+            <select name="duration_filter" id="duration_filter" class="form-input">
+                <option value="0">Mostrar todos los videos (incluir Shorts)</option>
+                <option value="60">Excluir videos de menos de 1 minuto</option>
+                <option value="120">Excluir videos de menos de 2 minutos</option>
+                <option value="180">Excluir videos de menos de 3 minutos</option>
+            </select>
+        </div>
         
         <!-- Tipo de contenido fijo a videos regulares -->
         <input type="hidden" name="content_type" value="videos">

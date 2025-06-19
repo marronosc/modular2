@@ -11,6 +11,7 @@ recent_videos_bp = Blueprint('recent_videos', __name__, url_prefix='/recent-vide
 def recent_videos():
     if request.method == 'POST':
         channel_url = request.form.get('channel_url', '').strip()
+        duration_filter = request.form.get('duration_filter', '0')
         
         if not channel_url:
             return render_template('recent_videos/index.html', 
@@ -18,7 +19,8 @@ def recent_videos():
         
         try:
             return redirect(url_for('recent_videos.generate_report', 
-                                  channel_url=channel_url))
+                                  channel_url=channel_url,
+                                  duration_filter=duration_filter))
         except Exception as e:
             error_msg = f"Error procesando la URL: {str(e)}"
             logging.error(error_msg)
@@ -32,8 +34,9 @@ def generate_report(channel_url):
         # Obtener parámetros de filtro/ordenación de la URL
         sort_by = request.args.get('sort', 'date')
         order = request.args.get('order', 'desc')
+        duration_filter = int(request.args.get('duration_filter', '0'))
         
-        result = get_recent_videos(channel_url)
+        result = get_recent_videos(channel_url, duration_filter=duration_filter)
         
         # Aplicar ordenación si se especifica
         if sort_by != 'date' or order != 'desc':
@@ -48,6 +51,7 @@ def generate_report(channel_url):
                              current_sort=sort_by,
                              current_order=order,
                              channel_url=channel_url,
+                             duration_filter=duration_filter,
                              format_number=format_number,
                              format_date=format_date,
                              format_duration=format_duration)
@@ -62,7 +66,8 @@ def generate_report(channel_url):
 @recent_videos_bp.route('/export/<path:channel_url>')
 def export_csv(channel_url):
     try:
-        result = get_recent_videos(channel_url)
+        duration_filter = int(request.args.get('duration_filter', '0'))
+        result = get_recent_videos(channel_url, duration_filter=duration_filter)
         csv_data = export_to_csv(result)
         
         response = make_response(csv_data)
