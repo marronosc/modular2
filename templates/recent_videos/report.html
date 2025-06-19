@@ -436,10 +436,11 @@
     <div class="chart-container">
         <h4>Visualizaciones por Vídeo</h4>
         <div class="timeline-chart">
+            {% set max_views = result.videos[:10] | map(attribute='views') | max %}
             {% for video in result.videos[:10] %}
             <div class="timeline-item">
                 <div class="timeline-date">{{ format_date(video.published_at) }}</div>
-                <div class="timeline-bar" style="width: {{ (video.views / result.stats.avg_views * 100) | round(1) if result.stats.avg_views > 0 else 0 }}%">
+                <div class="timeline-bar" style="width: {{ (video.views / max_views * 100) | round(1) if max_views > 0 else 0 }}%">
                     <span class="timeline-views">{{ format_number(video.views) }}</span>
                 </div>
             </div>
