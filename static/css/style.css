@@ -1772,6 +1772,13 @@ input[type="text"]:focus {
     border-left: 4px solid transparent;
 }
 
+/* Contenedor de miniatura para badges */
+.video-thumbnail-new {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+}
+
 .highlight-video.best {
     border-left-color: #28a745;
 }
