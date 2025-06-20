@@ -300,9 +300,9 @@
     <div class="videos-list">
         {% for video in result.videos %}
         <div class="video-row">
-            <div class="video-thumbnail">
+            <div class="video-thumbnail-new">
                 <img src="{{ video.thumbnail }}" alt="Miniatura del video" loading="lazy">
-                <div class="video-duration">{{ video.duration_formatted }}</div>
+                <div class="video-duration-badge">{{ video.duration_formatted }}</div>
                 <div class="rank-badge">#{{ loop.index }}</div>
             </div>
             <div class="video-content">
