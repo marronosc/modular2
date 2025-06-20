@@ -380,6 +380,264 @@ function applySorting() {
 
 {% block extra_css %}
 <style>
+.back-section {
+    margin: 2rem 0;
+}
+
+.back-link {
+    display: inline-block;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+.back-link:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
+}
+
+.section {
+    background-color: var(--background);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow);
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--primary-color);
+}
+
+.section-icon {
+    font-size: 1.2rem;
+}
+
+/* Channel Overview */
+.channel-overview {
+    display: flex;
+    align-items: flex-start;
+    gap: 2rem;
+    background-color: #f8f9fa;
+    padding: 2rem;
+    border-radius: var(--radius);
+}
+
+.channel-avatar {
+    flex-shrink: 0;
+    width: 120px;
+}
+
+.channel-avatar img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.channel-details {
+    flex: 1;
+    min-width: 0;
+    word-wrap: break-word;
+}
+
+.channel-details h3 {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+.channel-description {
+    color: #666;
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+}
+
+.channel-stats {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.channel-stat {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-box {
+    background-color: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: var(--radius);
+    text-align: center;
+    border: 1px solid #e9ecef;
+}
+
+.stat-box h4 {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+    font-size: 1rem;
+}
+
+.stat-value {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.stat-box.trend-crecimiento .stat-value {
+    color: #28a745;
+}
+
+.stat-box.trend-declive .stat-value {
+    color: #dc3545;
+}
+
+.stat-box.trend-estable .stat-value {
+    color: #6c757d;
+}
+
+/* Highlights List */
+.highlights-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Highlight Video Rows */
+.highlight-video {
+    position: relative;
+    border-left: 4px solid transparent;
+}
+
+.highlight-video.best {
+    border-left-color: #28a745;
+}
+
+.highlight-video.engagement {
+    border-left-color: #9c27b0;
+}
+
+.highlight-video.growth {
+    border-left-color: #ff9800;
+}
+
+/* Títulos destacados */
+.highlight-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+    border-bottom: 2px solid transparent;
+}
+
+.highlight-video.best .highlight-title {
+    border-bottom-color: #28a745;
+}
+
+.highlight-video.engagement .highlight-title {
+    border-bottom-color: #9c27b0;
+}
+
+.highlight-video.growth .highlight-title {
+    border-bottom-color: #ff9800;
+}
+
+/* Videos List */
+.videos-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    background: white;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+}
+
+.video-row {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    transition: background-color 0.2s ease;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.video-row:last-child {
+    border-bottom: none;
+}
+
+.video-row.even {
+    background-color: #fafafa;
+}
+
+.video-row.odd {
+    background-color: #ffffff;
+}
+
+.video-row:hover {
+    background-color: #f0f8ff;
+}
+
+/* Thumbnail optimizado */
+.video-thumbnail-new {
+    position: relative;
+    width: 200px;
+    height: 112px; /* Ratio 16:9 perfecto */
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.video-thumbnail-new img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Cubre todo sin márgenes negros */
+    object-position: center;
+}
+
+.video-duration-badge {
+    position: absolute;
+    bottom: 6px;
+    right: 6px;
+    background-color: rgba(0, 0, 0, 0.85);
+    color: white;
+    padding: 3px 6px;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-shadow: 0 1px 1px rgba(0,0,0,0.3);
+}
+
+.video-category-banner {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    background-color: rgba(103, 58, 183, 0.9);
+    color: white;
+    padding: 3px 6px;
+    border-radius: 3px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    text-shadow: 0 1px 1px rgba(0,0,0,0.3);
+}
+
+/* Rank badge para top videos */
 .rank-badge {
     position: absolute;
     top: 8px;
@@ -395,6 +653,94 @@ function applySorting() {
     border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
+/* Contenido del video */
+.video-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 112px;
+}
+
+.video-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    gap: 1rem;
+}
+
+.video-header h3 {
+    flex: 1;
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.3;
+    font-weight: 600;
+}
+
+.video-header h3 a {
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.video-header h3 a:hover {
+    color: var(--primary-color);
+}
+
+.video-date {
+    flex-shrink: 0;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    background: #e3f2fd;
+    padding: 4px 8px;
+    border-radius: 12px;
+    min-width: fit-content;
+}
+
+/* Métricas organizadas */
+.video-metrics {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.metrics-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.metric-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+    background: rgba(0,0,0,0.02);
+    border-radius: 6px;
+    border-left: 3px solid #e0e0e0;
+}
+
+.metric-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.metric-value {
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.metric-value.highlight {
+    color: var(--primary-color);
+    background: rgba(255, 0, 0, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+/* Sort controls */
 .sort-controls {
     display: flex;
     justify-content: space-between;
@@ -460,6 +806,20 @@ function applySorting() {
     transform: translateY(-1px);
 }
 
+/* Chart Containers */
+.chart-container {
+    background-color: #f8f9fa;
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.chart-container h4 {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+/* Timeline Chart */
 .timeline-chart {
     display: flex;
     flex-direction: column;
@@ -501,7 +861,42 @@ function applySorting() {
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
+/* No Videos */
+.no-videos {
+    text-align: center;
+    padding: 3rem;
+    color: var(--text-secondary);
+}
+
+/* Responsive */
 @media (max-width: 768px) {
+    .video-row {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        padding: 1rem;
+    }
+    
+    .video-thumbnail-new {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 16/9;
+    }
+    
+    .video-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+    }
+    
+    .video-date {
+        align-self: flex-start;
+    }
+    
+    .metrics-row {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+    
     .sort-controls {
         flex-direction: column;
         gap: 1rem;
@@ -521,6 +916,39 @@ function applySorting() {
     .timeline-date {
         min-width: auto;
         text-align: center;
+    }
+    
+    .channel-overview {
+        flex-direction: column;
+        text-align: center;
+        gap: 1.5rem;
+    }
+
+    .channel-avatar {
+        align-self: center;
+    }
+
+    .channel-stats {
+        justify-content: center;
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .video-row {
+        padding: 0.75rem;
+    }
+    
+    .metric-group {
+        padding: 0.4rem;
+    }
+    
+    .section {
+        padding: 1.5rem;
+    }
+
+    .channel-overview {
+        padding: 1.5rem;
     }
 }
 </style>
