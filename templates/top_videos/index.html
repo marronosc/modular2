@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+
+{% block title %}Top 20 Videos - TubeTools{% endblock %}
+{% block breadcrumb %}Top 20 Videos{% endblock %}
+
+{% set current_tool = tools_config.top_videos %}
+{% block tool_color %}{{ current_tool.color }}{% endblock %}
+{% block tool_icon %}<svg viewBox="0 0 24 24">{{ icons[current_tool.icon]|safe }}</svg>{% endblock %}
+{% block tool_title %}{{ current_tool.name }}{% endblock %}
+{% block tool_description %}{{ current_tool.description }}{% endblock %}
+{% block tool_tags %}
+{% for tag in current_tool.tags %}
+<span class="tool-tag {% if loop.first %}primary{% endif %}">{{ tag }}</span>
+{% endfor %}
+{% endblock %}
+
+{% block content %}
+{% if error %}
+<div class="error-message">
+    <h3>❌ Error</h3>
+    <p>{{ error }}</p>
+</div>
+{% endif %}
+
+<div class="form-section">
+    <div class="form-header">
+        <h2>Analizar Top Videos</h2>
+        <p>Descubre los 20 videos más exitosos de cualquier canal ordenados por visualizaciones totales</p>
+    </div>
+
+    <form method="post">
+        <div class="form-group">
+            <label for="channel_url" class="form-label">URL del canal o video:</label>
+            <input type="text" name="channel_url" id="channel_url" class="form-input" 
+                   placeholder="https://www.youtube.com/channel/UC... o https://www.youtube.com/watch?v=..." required>
+            <div class="form-help">Puedes usar cualquier URL de YouTube relacionada con el canal</div>
+        </div>
+
+        <div class="form-group">
+            <label for="duration_filter" class="form-label">Excluir Shorts</label>
+            <p class="form-help" style="margin-bottom: 1rem;">Si el canal crea shorts y no quieres que aparezcan en el informe puedes filtrar por duración, puedes empezar por un minuto, y si ves que aparecen otros más largos, puedes volver a realizar la búsqueda cambiando la duración</p>
+            <select name="duration_filter" id="duration_filter" class="form-input">
+                <option value="0">Mostrar todos los videos (incluir Shorts)</option>
+                <option value="60">Excluir videos de menos de 1 minuto</option>
+                <option value="120">Excluir videos de menos de 2 minutos</option>
+                <option value="180">Excluir videos de menos de 3 minutos</option>
+            </select>
+        </div>
+        
+        <!-- Tipo de contenido fijo a videos regulares -->
+        <input type="hidden" name="content_type" value="videos">
+        
+        <button type="submit" class="btn btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                {{ icons[current_tool.icon]|safe }}
+            </svg>
+            Analizar Top Videos
+        </button>
+    </form>
+</div>
+
+<div class="info-grid">
+    <div class="info-card">
+        <div class="info-card-header">
+            <div class="info-card-icon">📊</div>
+            <h3>Videos Más Exitosos</h3>
+        </div>
+        <p>Analiza los videos con mayor número de visualizaciones para entender qué funciona mejor</p>
+    </div>
+
+    <div class="info-card">
+        <div class="info-card-header">
+            <div class="info-card-icon">🏆</div>
+            <h3>Benchmarks de Éxito</h3>
+        </div>
+        <p>Identifica patrones en títulos, miniaturas y contenido de los videos más exitosos</p>
+    </div>
+
+    <div class="info-card">
+        <div class="info-card-header">
+            <div class="info-card-icon">📈</div>
+            <h3>Métricas de Rendimiento</h3>
+        </div>
+        <p>Compara engagement, likes y comentarios de los videos top del canal</p>
+    </div>
+
+    <div class="info-card">
+        <div class="info-card-header">
+            <div class="info-card-icon">🎯</div>
+            <h3>Estrategia de Contenido</h3>
+        </div>
+        <p>Descubre qué temas y formatos generan más visualizaciones en el canal</p>
+    </div>
+</div>
+
+<div class="tips-section">
+    <div class="tips-header">
+        <svg class="tips-icon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M9 21c0 .5.4 1 1 1h4c.6 0 1-.5 1-1v-1H9v1zm3-19C8.1 2 5 5.1 5 9c0 2.4 1.2 4.5 3 5.7V17c0 .5.4 1 1 1h6c.6 0 1-.5 1-1v-2.3c1.8-1.3 3-3.4 3-5.7 0-3.9-3.1-7-7-7z" />
+        </svg>
+        <span class="tips-title">💡 Consejos para el análisis de top videos</span>
+    </div>
+    <ul class="tips-list">
+        <li><strong>Contenido viral:</strong> Analiza qué elementos tienen en común los videos más exitosos</li>
+        <li><strong>Títulos efectivos:</strong> Observa los patrones en títulos que generan más visualizaciones</li>
+        <li><strong>Duración óptima:</strong> Identifica la duración promedio de los videos más exitosos</li>
+        <li><strong>Temporalidad:</strong> Descubre si los videos más exitosos son recientes o antiguos</li>
+        <li><strong>Replicación:</strong> Usa estos insights para crear contenido similar que funcione</li>
+    </ul>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.error-message {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    color: var(--error);
+}
+
+.form-help {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    margin-top: 6px;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+.info-card {
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    transition: transform 0.2s ease;
+}
+
+.info-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.info-card-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.info-card-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius);
+    background: rgba(103, 58, 183, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.info-card h3 {
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.info-card p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin: 0;
+}
+
+.tips-section {
+    background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+    border: 1px solid #ffe082;
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    margin: 2rem 0;
+}
+
+.tips-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.tips-icon {
+    width: 28px;
+    height: 28px;
+    color: #f57f17;
+}
+
+.tips-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #f57f17;
+}
+
+.tips-list {
+    list-style: none;
+    margin: 0;
+}
+
+.tips-list li {
+    padding: 0.75rem 0;
+    color: #f57f17;
+    font-size: 0.95rem;
+    position: relative;
+    padding-left: 2rem;
+    line-height: 1.4;
+}
+
+.tips-list li::before {
+    content: "💡";
+    position: absolute;
+    left: 0;
+    top: 0.75rem;
+    font-size: 1.2rem;
+}
+
+@media (max-width: 768px) {
+    .info-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .tips-section {
+        padding: 1.5rem;
+    }
+}
+</style>
+{% endblock %}

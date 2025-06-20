@@ -82,7 +82,7 @@ TOOLS_CONFIG = {
         'icon': 'star',
         'category': 'analytics',
         'color': '#9e9e9e',
-        'status': 'coming_soon',
+        'status': 'active',
         'tags': ['Competencia', 'Rankings']
     },
     'recent_videos': {

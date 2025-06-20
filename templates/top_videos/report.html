@@ -1,0 +1,528 @@
+{% extends "base.html" %}
+
+{% block title %}Top Videos: {{ result.channel_info.title }} - TubeTools{% endblock %}
+{% block breadcrumb %}Top 20 Videos - Resultados{% endblock %}
+
+{% set current_tool = tools_config.top_videos %}
+{% block tool_color %}{{ current_tool.color }}{% endblock %}
+{% block tool_icon %}<svg viewBox="0 0 24 24">{{ icons[current_tool.icon]|safe }}</svg>{% endblock %}
+{% block tool_title %}Top Videos de: "{{ result.channel_info.title }}"{% endblock %}
+{% block tool_description %}{{ result.total_videos }} videos más exitosos del canal (de {{ result.total_videos_analyzed }} analizados){% endblock %}
+{% block tool_tags %}
+<span class="tool-tag primary">{{ result.total_videos }} Top Videos</span>
+<span class="tool-tag">Por Visualizaciones</span>
+{% endblock %}
+
+{% block content %}
+<div class="back-section">
+    <a href="/top-videos" class="back-link">← Realizar nuevo análisis</a>
+</div>
+
+<!-- Información del Canal -->
+<div class="section">
+    <h2 class="section-title">
+        <span class="section-icon">📺</span>
+        Información del Canal
+    </h2>
+    <div class="channel-overview">
+        <div class="channel-avatar">
+            <img src="{{ result.channel_info.thumbnail }}" alt="Avatar del canal" onerror="this.style.display='none'">
+        </div>
+        <div class="channel-details">
+            <h3>{{ result.channel_info.title }}</h3>
+            <p class="channel-description">{{ result.channel_info.description }}</p>
+            <div class="channel-stats">
+                <div class="channel-stat">
+                    <span class="stat-icon">👥</span>
+                    <span>{{ format_number(result.channel_info.subscriber_count) }} suscriptores</span>
+                </div>
+                <div class="channel-stat">
+                    <span class="stat-icon">🎥</span>
+                    <span>{{ format_number(result.channel_info.video_count) }} videos totales</span>
+                </div>
+                <div class="channel-stat">
+                    <span class="stat-icon">👁️</span>
+                    <span>{{ format_number(result.channel_info.view_count) }} visualizaciones</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Estadísticas Generales -->
+{% if result.stats %}
+<div class="section">
+    <h2 class="section-title">
+        <span class="section-icon">📊</span>
+        Estadísticas de Top Videos
+    </h2>
+    <div class="stats-grid">
+        <div class="stat-box total-box">
+            <h4>Total de Visualizaciones</h4>
+            <div class="stat-value">{{ format_number(result.stats.total_views) }}</div>
+        </div>
+        <div class="stat-box">
+            <h4>Promedio por Video</h4>
+            <div class="stat-value">{{ format_number(result.stats.avg_views) }}</div>
+        </div>
+        <div class="stat-box">
+            <h4>Engagement Promedio</h4>
+            <div class="stat-value">{{ "%.2f"|format(result.stats.avg_engagement) }}%</div>
+        </div>
+        <div class="stat-box">
+            <h4>Videos Analizados</h4>
+            <div class="stat-value">{{ result.total_videos_analyzed }}</div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Videos Destacados -->
+{% if result.highlights and (result.highlights.best_performing or result.highlights.best_engagement or result.highlights.fastest_growing) %}
+<div class="section">
+    <h2 class="section-title">
+        <span class="section-icon">🏆</span>
+        Videos Destacados
+    </h2>
+    <div class="highlights-list">
+        <div class="video-row highlight-video best">
+            <div class="video-thumbnail-new">
+                <img src="{{ result.highlights.best_performing.thumbnail }}" alt="Video más visto" loading="lazy">
+                <div class="video-duration-badge">{{ result.highlights.best_performing.duration_formatted }}</div>
+                <div class="video-category-banner">{{ result.highlights.best_performing.category }}</div>
+            </div>
+            <div class="video-content">
+                <div class="highlight-title">🏆 Más Visto</div>
+                <div class="video-header">
+                    <h3><a href="{{ result.highlights.best_performing.video_url }}" target="_blank" rel="noopener">{{ result.highlights.best_performing.title }}</a></h3>
+                    <div class="video-date">{{ result.highlights.best_performing.age_formatted }}</div>
+                </div>
+                
+                <div class="video-metrics">
+                    <div class="metrics-row">
+                        <div class="metric-group">
+                            <span class="metric-label">Views:</span>
+                            <span class="metric-value">{{ format_number(result.highlights.best_performing.views) }}</span>
+                        </div>
+                        <div class="metric-group">
+                            <span class="metric-label">Visualizaciones por Día:</span>
+                            <span class="metric-value">{{ format_number(result.highlights.best_performing.views_per_day) }}</span>
+                        </div>
+                        <div class="metric-group">
+                            <span class="metric-label">Engagement:</span>
+                            <span class="metric-value highlight">{{ "%.2f"|format(result.highlights.best_performing.engagement_rate) }}%</span>
+                        </div>
+                        <div class="metric-group">
+                            <span class="metric-label">Likes:</span>
+                            <span class="metric-value">{{ format_number(result.highlights.best_performing.likes) }}</span>
+                        </div>
+                        <div class="metric-group">
+                            <span class="metric-label">Comentarios:</span>
+                            <span class="metric-value">{{ format_number(result.highlights.best_performing.comments) }}</span>
+                        </div>
+                    </div>
+                    <div class="metrics-row">
+                        <div class="metric-group">
+                            <span class="metric-label">Publicado:</span>
+                            <span class="metric-value">{{ format_date(result.highlights.best_performing.published_at) }} ({{ result.highlights.best_performing.weekday }})</span>
+                        </div>
+                        <div class="metric-group">
+                            <span class="metric-label">Categoría:</span>
+                            <span class="metric-value">{{ result.highlights.best_performing.category }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="video-row highlight-video engagement">
+            <div class="video-thumbnail-new">
+                <img src="{{ result.highlights.best_engagement.thumbnail }}" alt="Mejor engagement" loading="lazy">
+                <div class="video-duration-badge">{{ result.highlights.best_engagement.duration_formatted }}</div>
+                <div class="video-category-banner">{{ result.highlights.best_engagement.category }}</div>
+            </div>
+            <div class="video-content">
+                <div class="highlight-title">💎 Mejor Engagement</div>
+                <div class="video-header">
+                    <h3><a href="{{ result.highlights.best_engagement.video_url }}" target="_blank" rel="noopener">{{ result.highlights.best_engagement.title }}</a></h3>
+                    <div class="video-date">{{ result.highlights.best_engagement.age_formatted }}</div>
+                </div>
+                
+                <div class="video-metrics">
+                    <div class="metrics-row">
+                        <div class="metric-group">
+                            <span class="metric-label">Views:</span>
+                            <span class="metric-value">{{ format_number(result.highlights.best_engagement.views) }}</span>
+                        </div>
+                        <div class="metric-group">
+                            <span class="metric-label">Visualizaciones por Día:</span>
+                            <span class="metric-value">{{ format_number(result.highlights.best_engagement.views_per_day) }}</span>
+                        </div>
+                        <div class="metric-group">
+                            <span class="metric-label">Engagement:</span>
+                            <span class="metric-value highlight">{{ "%.2f"|format(result.highlights.best_engagement.engagement_rate) }}%</span>
+                        </div>
+                        <div class="metric-group">
+                            <span class="metric-label">Likes:</span>
+                            <span class="metric-value">{{ format_number(result.highlights.best_engagement.likes) }}</span>
+                        </div>
+                        <div class="metric-group">
+                            <span class="metric-label">Comentarios:</span>
+                            <span class="metric-value">{{ format_number(result.highlights.best_engagement.comments) }}</span>
+                        </div>
+                    </div>
+                    <div class="metrics-row">
+                        <div class="metric-group">
+                            <span class="metric-label">Publicado:</span>
+                            <span class="metric-value">{{ format_date(result.highlights.best_engagement.published_at) }} ({{ result.highlights.best_engagement.weekday }})</span>
+                        </div>
+                        <div class="metric-group">
+                            <span class="metric-label">Categoría:</span>
+                            <span class="metric-value">{{ result.highlights.best_engagement.category }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="video-row highlight-video growth">
+            <div class="video-thumbnail-new">
+                <img src="{{ result.highlights.fastest_growing.thumbnail }}" alt="Crecimiento rápido" loading="lazy">
+                <div class="video-duration-badge">{{ result.highlights.fastest_growing.duration_formatted }}</div>
+                <div class="video-category-banner">{{ result.highlights.fastest_growing.category }}</div>
+            </div>
+            <div class="video-content">
+                <div class="highlight-title">🚀 Crecimiento Rápido</div>
+                <div class="video-header">
+                    <h3><a href="{{ result.highlights.fastest_growing.video_url }}" target="_blank" rel="noopener">{{ result.highlights.fastest_growing.title }}</a></h3>
+                    <div class="video-date">{{ result.highlights.fastest_growing.age_formatted }}</div>
+                </div>
+                
+                <div class="video-metrics">
+                    <div class="metrics-row">
+                        <div class="metric-group">
+                            <span class="metric-label">Visualizaciones por Día:</span>
+                            <span class="metric-value highlight">{{ format_number(result.highlights.fastest_growing.views_per_day) }}</span>
+                        </div>
+                        <div class="metric-group">
+                            <span class="metric-label">Views:</span>
+                            <span class="metric-value">{{ format_number(result.highlights.fastest_growing.views) }}</span>
+                        </div>
+                        <div class="metric-group">
+                            <span class="metric-label">Engagement:</span>
+                            <span class="metric-value">{{ "%.2f"|format(result.highlights.fastest_growing.engagement_rate) }}%</span>
+                        </div>
+                        <div class="metric-group">
+                            <span class="metric-label">Likes:</span>
+                            <span class="metric-value">{{ format_number(result.highlights.fastest_growing.likes) }}</span>
+                        </div>
+                        <div class="metric-group">
+                            <span class="metric-label">Comentarios:</span>
+                            <span class="metric-value">{{ format_number(result.highlights.fastest_growing.comments) }}</span>
+                        </div>
+                    </div>
+                    <div class="metrics-row">
+                        <div class="metric-group">
+                            <span class="metric-label">Publicado:</span>
+                            <span class="metric-value">{{ format_date(result.highlights.fastest_growing.published_at) }} ({{ result.highlights.fastest_growing.weekday }})</span>
+                        </div>
+                        <div class="metric-group">
+                            <span class="metric-label">Categoría:</span>
+                            <span class="metric-value">{{ result.highlights.fastest_growing.category }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Gráficos y Análisis -->
+{% if result.videos %}
+<div class="section">
+    <h2 class="section-title">
+        <span class="section-icon">📈</span>
+        Análisis Visual
+    </h2>
+    
+    <!-- Controles de ordenación -->
+    <div class="sort-controls">
+        <div class="sort-group">
+            <label for="sort-select">Ordenar por:</label>
+            <select id="sort-select" onchange="applySorting()">
+                <option value="views-desc" {% if current_sort == 'views' and current_order == 'desc' %}selected{% endif %}>Visualizaciones (mayor a menor)</option>
+                <option value="views-asc" {% if current_sort == 'views' and current_order == 'asc' %}selected{% endif %}>Visualizaciones (menor a mayor)</option>
+                <option value="engagement-desc" {% if current_sort == 'engagement' and current_order == 'desc' %}selected{% endif %}>Engagement (mayor a menor)</option>
+                <option value="engagement-asc" {% if current_sort == 'engagement' and current_order == 'asc' %}selected{% endif %}>Engagement (menor a mayor)</option>
+                <option value="date-desc" {% if current_sort == 'date' and current_order == 'desc' %}selected{% endif %}>Fecha (más reciente)</option>
+                <option value="date-asc" {% if current_sort == 'date' and current_order == 'asc' %}selected{% endif %}>Fecha (más antiguo)</option>
+            </select>
+        </div>
+        
+        <!-- Exportación -->
+        <div class="export-controls">
+            <a href="{{ url_for('top_videos.export_csv', channel_url=channel_url, duration_filter=duration_filter) }}" class="btn btn-export" title="Descargar CSV">
+                📊 CSV
+            </a>
+            <button onclick="window.print()" class="btn btn-pdf" title="Exportar a PDF">
+                📄 PDF
+            </button>
+        </div>
+    </div>
+    
+    <!-- Timeline Simple -->
+    <div class="chart-container">
+        <h4>Visualizaciones por Video</h4>
+        <div class="timeline-chart">
+            {% set max_views = result.videos[:10] | map(attribute='views') | max %}
+            {% for video in result.videos[:10] %}
+            <div class="timeline-item">
+                <div class="timeline-date">{{ format_date(video.published_at) }}</div>
+                <div class="timeline-bar" style="width: {{ (video.views / max_views * 100) | round(1) if max_views > 0 else 0 }}%">
+                    <span class="timeline-views">{{ format_number(video.views) }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Lista de Videos -->
+<div class="section">
+    <div class="section-header">
+        <h2 class="section-title">
+            <span class="section-icon">🎥</span>
+            Top {{ result.videos|length }} Videos
+        </h2>
+    </div>
+    
+    <div class="videos-list">
+        {% for video in result.videos %}
+        <div class="video-row">
+            <div class="video-thumbnail">
+                <img src="{{ video.thumbnail }}" alt="Miniatura del video" loading="lazy">
+                <div class="video-duration">{{ video.duration_formatted }}</div>
+                <div class="rank-badge">#{{ loop.index }}</div>
+            </div>
+            <div class="video-content">
+                <div class="video-header">
+                    <h3><a href="{{ video.video_url }}" target="_blank" rel="noopener">{{ video.title }}</a></h3>
+                    <div class="video-date">{{ video.age_formatted }}</div>
+                </div>
+                
+                <div class="video-metrics">
+                    <div class="metrics-row">
+                        <div class="metric-group">
+                            <span class="metric-label">Views:</span>
+                            <span class="metric-value">{{ format_number(video.views) }}</span>
+                        </div>
+                        <div class="metric-group">
+                            <span class="metric-label">Visualizaciones por Día:</span>
+                            <span class="metric-value">{{ format_number(video.views_per_day) }}</span>
+                        </div>
+                        <div class="metric-group">
+                            <span class="metric-label">Engagement:</span>
+                            <span class="metric-value highlight">{{ "%.2f"|format(video.engagement_rate) }}%</span>
+                        </div>
+                        <div class="metric-group">
+                            <span class="metric-label">Likes:</span>
+                            <span class="metric-value">{{ format_number(video.likes) }}</span>
+                        </div>
+                        <div class="metric-group">
+                            <span class="metric-label">Comentarios:</span>
+                            <span class="metric-value">{{ format_number(video.comments) }}</span>
+                        </div>
+                    </div>
+                    <div class="metrics-row">
+                        <div class="metric-group">
+                            <span class="metric-label">Publicado:</span>
+                            <span class="metric-value">{{ format_date(video.published_at) }} ({{ video.weekday }})</span>
+                        </div>
+                        <div class="metric-group">
+                            <span class="metric-label">Categoría:</span>
+                            <span class="metric-value">{{ video.category }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% else %}
+<!-- Sin Videos -->
+<div class="section">
+    <h2 class="section-title">
+        <span class="section-icon">😕</span>
+        Sin Videos
+    </h2>
+    <div class="no-videos">
+        <p>No se encontraron videos que cumplan con los criterios especificados.</p>
+        <p>Intenta ajustar el filtro de duración o verifica que el canal tenga videos públicos.</p>
+    </div>
+</div>
+{% endif %}
+
+<script>
+function applySorting() {
+    const select = document.getElementById('sort-select');
+    const [sort, order] = select.value.split('-');
+    const url = new URL(window.location);
+    url.searchParams.set('sort', sort);
+    url.searchParams.set('order', order);
+    window.location.href = url.toString();
+}
+</script>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.rank-badge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    color: #333;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.7em;
+    font-weight: 700;
+    z-index: 2;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.sort-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: var(--background-secondary);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+}
+
+.sort-group label {
+    margin-right: 0.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.sort-group select {
+    padding: 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--background);
+    color: var(--text-primary);
+}
+
+.export-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-export {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-export:hover {
+    background: #218838;
+    transform: translateY(-1px);
+}
+
+.btn-pdf {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-pdf:hover {
+    background: #c82333;
+    transform: translateY(-1px);
+}
+
+.timeline-chart {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: var(--background);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+}
+
+.timeline-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.timeline-date {
+    min-width: 120px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.timeline-bar {
+    height: 24px;
+    background: linear-gradient(90deg, var(--primary-color), #ff4444);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    padding: 0 0.5rem;
+    min-width: 60px;
+    position: relative;
+}
+
+.timeline-views {
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+@media (max-width: 768px) {
+    .sort-controls {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+    }
+    
+    .export-controls {
+        justify-content: center;
+    }
+    
+    .timeline-item {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.25rem;
+    }
+    
+    .timeline-date {
+        min-width: auto;
+        text-align: center;
+    }
+}
+</style>
+{% endblock %}
