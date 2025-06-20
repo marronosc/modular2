@@ -1793,12 +1793,14 @@ input[type="text"]:focus {
 
 /* Títulos de videos destacados */
 .highlight-title {
-    font-size: 1.1rem;
-    font-weight: 700;
-    margin-bottom: 0.75rem;
-    padding: 0.5rem 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    padding: 0.25rem 0;
     color: var(--text-primary);
     border-bottom: 2px solid transparent;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .video-row.best .highlight-title {
