@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
-{% block title %}Top Videos: {{ result.channel_info.title }} - TubeTools{% endblock %}
-{% block breadcrumb %}Top 20 Videos - Resultados{% endblock %}
+{% block title %}Análisis: {{ result.channel_info.title }} - TubeTools{% endblock %}
+{% block breadcrumb %}Top Videos por Visualizaciones - Resultados{% endblock %}
 
 {% set current_tool = tools_config.top_videos %}
 {% block tool_color %}{{ current_tool.color }}{% endblock %}
@@ -9,7 +9,7 @@
 {% block tool_title %}Top Videos de: "{{ result.channel_info.title }}"{% endblock %}
 {% block tool_description %}{{ result.total_videos }} videos más exitosos del canal (de {{ result.total_videos_analyzed }} analizados){% endblock %}
 {% block tool_tags %}
-<span class="tool-tag primary">{{ result.total_videos }} Top Videos</span>
+<span class="tool-tag primary">{{ result.total_videos }} Videos</span>
 <span class="tool-tag">Por Visualizaciones</span>
 {% endblock %}
 
@@ -49,6 +49,7 @@
     </div>
 </div>
 
+{% if result.videos %}
 <!-- Estadísticas Generales -->
 {% if result.stats %}
 <div class="section">
@@ -78,7 +79,7 @@
 {% endif %}
 
 <!-- Videos Destacados -->
-{% if result.highlights and (result.highlights.best_performing or result.highlights.best_engagement or result.highlights.fastest_growing) %}
+{% if result.highlights %}
 <div class="section">
     <h2 class="section-title">
         <span class="section-icon">🏆</span>
@@ -238,42 +239,201 @@
 </div>
 {% endif %}
 
-<!-- Gráficos y Análisis -->
-{% if result.videos %}
+<!-- Frecuencia de Publicación -->
+{% if result.frequency %}
 <div class="section">
     <h2 class="section-title">
-        <span class="section-icon">📈</span>
+        <span class="section-icon">📅</span>
+        Frecuencia de Publicación
+    </h2>
+    <div class="frequency-grid">
+        <div class="frequency-card">
+            <div class="frequency-icon">📊</div>
+            <div class="frequency-content">
+                <h4>Promedio entre videos</h4>
+                <div class="frequency-value">{{ "%.1f"|format(result.frequency.avg_days_between) }} días</div>
+                <small>Rango: {{ result.frequency.min_interval }}-{{ result.frequency.max_interval }} días</small>
+            </div>
+        </div>
+        
+        <div class="frequency-card">
+            <div class="frequency-icon">📈</div>
+            <div class="frequency-content">
+                <h4>Videos por semana</h4>
+                <div class="frequency-value">{{ "%.1f"|format(result.frequency.videos_per_week) }}</div>
+                <small>{{ "%.1f"|format(result.frequency.videos_per_month) }} por mes</small>
+            </div>
+        </div>
+        
+        <div class="frequency-card">
+            <div class="frequency-icon">🕒</div>
+            <div class="frequency-content">
+                <h4>Último video</h4>
+                <div class="frequency-value">Hace {{ result.frequency.days_since_last }} días</div>
+                {% if result.frequency.predicted_next_days > 0 %}
+                <small>Próximo en ~{{ result.frequency.predicted_next_days }} días</small>
+                {% else %}
+                <small>Ya es hora del próximo</small>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="frequency-card">
+            <div class="frequency-icon">🎯</div>
+            <div class="frequency-content">
+                <h4>Consistencia</h4>
+                <div class="frequency-value">{{ "%.0f"|format(result.frequency.consistency_score) }}%</div>
+                <small>
+                    {% if result.frequency.consistency_score >= 80 %}Muy consistente
+                    {% elif result.frequency.consistency_score >= 60 %}Consistente
+                    {% elif result.frequency.consistency_score >= 40 %}Irregular
+                    {% else %}Muy irregular{% endif %}
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Insights Automáticos -->
+{% if result.insights %}
+<div class="section">
+    <h2 class="section-title">
+        <span class="section-icon">📊</span>
+        Análisis de Datos
+    </h2>
+    <div class="insights-grid">
+        {% if result.insights.best_day_for_views %}
+        <div class="insight-card">
+            <div class="insight-icon">📅</div>
+            <div class="insight-content">
+                <h4>Mejor día para publicar</h4>
+                <p><strong>{{ result.insights.best_day_for_views }}</strong> obtiene mejores resultados</p>
+                <small>Promedio: {{ format_number(result.insights.weekday_performance[result.insights.best_day_for_views].avg_views) }} views</small>
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if result.insights.best_duration_range %}
+        <div class="insight-card">
+            <div class="insight-icon">⏱️</div>
+            <div class="insight-content">
+                <h4>Duración óptima</h4>
+                <p>Videos <strong>{{ result.insights.best_duration_range }}s</strong> funcionan mejor</p>
+                <small>Promedio: {{ format_number(result.insights.duration_performance[result.insights.best_duration_range].avg_views) }} views</small>
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if result.insights.title_patterns.successful_words %}
+        <div class="insight-card">
+            <div class="insight-icon">📝</div>
+            <div class="insight-content">
+                <h4>Keywords exitosas</h4>
+                <p>
+                    {% for word, count in result.insights.title_patterns.successful_words.items() %}
+                        <span class="success-word">{{ word }}</span>{% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                </p>
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if result.insights.title_patterns.title_length_analysis %}
+        <div class="insight-card">
+            <div class="insight-icon">📏</div>
+            <div class="insight-content">
+                <h4>Estrategia de títulos</h4>
+                <div class="title-length-stats">
+                    <small>
+                        <strong>Extensión media:</strong> {{ result.insights.title_patterns.title_length_analysis.avg_length }} caracteres<br>
+                        <strong>Cortos (&lt;50%):</strong> {{ result.insights.title_patterns.title_length_analysis.short_titles.percentage }}% 
+                        ({{ result.insights.title_patterns.title_length_analysis.short_titles.count }} videos)<br>
+                        <strong>Medios (50-75%):</strong> {{ result.insights.title_patterns.title_length_analysis.medium_titles.percentage }}%
+                        ({{ result.insights.title_patterns.title_length_analysis.medium_titles.count }} videos)<br>
+                        <strong>Largos (&gt;75%):</strong> {{ result.insights.title_patterns.title_length_analysis.long_titles.percentage }}%
+                        ({{ result.insights.title_patterns.title_length_analysis.long_titles.count }} videos)
+                    </small>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if result.insights.title_patterns.all_keywords %}
+        <div class="insight-card">
+            <div class="insight-icon">🔍</div>
+            <div class="insight-content">
+                <h4>Keywords más usadas</h4>
+                <p>
+                    {% for word, count in result.insights.title_patterns.all_keywords.most_used.items() %}
+                        <span class="keyword-tag">{{ word }} ({{ count }})</span>{% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                </p>
+                <small>
+                    Total palabras únicas: {{ result.insights.title_patterns.all_keywords.total_unique }} |
+                    Total palabras: {{ result.insights.title_patterns.all_keywords.total_words }}
+                </small>
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if result.insights.title_patterns.phrase_patterns.common_phrases %}
+        <div class="insight-card">
+            <div class="insight-icon">🔗</div>
+            <div class="insight-content">
+                <h4>Keywords combinadas</h4>
+                <p>
+                    {% for phrase, count in result.insights.title_patterns.phrase_patterns.common_phrases.items() %}
+                        <span class="phrase-pattern">"{{ phrase }}" ({{ count }})</span>{% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                </p>
+                <small>Patrones detectados: {{ result.insights.title_patterns.phrase_patterns.total_patterns }}</small>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Gráficos Visuales -->
+{% if chart_data %}
+<div class="section">
+    <h2 class="section-title">
+        <span class="section-icon">📊</span>
         Análisis Visual
     </h2>
     
-    <!-- Controles de ordenación -->
-    <div class="sort-controls">
-        <div class="sort-group">
-            <label for="sort-select">Ordenar por:</label>
-            <select id="sort-select" onchange="applySorting()">
-                <option value="views-desc" {% if current_sort == 'views' and current_order == 'desc' %}selected{% endif %}>Visualizaciones (mayor a menor)</option>
-                <option value="views-asc" {% if current_sort == 'views' and current_order == 'asc' %}selected{% endif %}>Visualizaciones (menor a mayor)</option>
-                <option value="engagement-desc" {% if current_sort == 'engagement' and current_order == 'desc' %}selected{% endif %}>Engagement (mayor a menor)</option>
-                <option value="engagement-asc" {% if current_sort == 'engagement' and current_order == 'asc' %}selected{% endif %}>Engagement (menor a mayor)</option>
-                <option value="date-desc" {% if current_sort == 'date' and current_order == 'desc' %}selected{% endif %}>Fecha (más reciente)</option>
-                <option value="date-asc" {% if current_sort == 'date' and current_order == 'asc' %}selected{% endif %}>Fecha (más antiguo)</option>
-            </select>
+    <!-- Distribución de Duración -->
+    <div class="chart-container">
+        <h4>Distribución por Duración</h4>
+        <div class="duration-bars">
+            {% for range, count in chart_data.duration_distribution.items() %}
+            <div class="duration-bar">
+                <div class="bar-fill" style="height: {{ (count / chart_data.duration_distribution.values() | max * 100) | round(1) if chart_data.duration_distribution.values() | max > 0 else 0 }}%"></div>
+                <span class="bar-label">{{ range }}</span>
+                <span class="bar-count">{{ count }}</span>
+            </div>
+            {% endfor %}
         </div>
-        
-        <!-- Exportación -->
-        <div class="export-controls">
-            <a href="{{ url_for('top_videos.export_csv', channel_url=channel_url, duration_filter=duration_filter) }}" class="btn btn-export" title="Descargar CSV">
-                📊 CSV
-            </a>
-            <button onclick="window.print()" class="btn btn-pdf" title="Exportar a PDF">
-                📄 PDF
-            </button>
+    </div>
+    
+    <!-- Distribución por Día de la Semana -->
+    <div class="chart-container">
+        <h4>Distribución por Día de la Semana</h4>
+        <div class="duration-bars">
+            {% for day, count in chart_data.weekday_distribution.items() %}
+            <div class="duration-bar">
+                <div class="bar-fill" style="height: {{ (count / chart_data.weekday_distribution.values() | max * 100) | round(1) if chart_data.weekday_distribution.values() | max > 0 else 0 }}%"></div>
+                <span class="bar-label">{{ day }}</span>
+                <span class="bar-count">{{ count }}</span>
+            </div>
+            {% endfor %}
         </div>
     </div>
     
     <!-- Timeline Simple -->
     <div class="chart-container">
-        <h4>Visualizaciones por Video</h4>
+        <h4>Visualizaciones por Vídeo</h4>
         <div class="timeline-chart">
             {% set max_views = result.videos[:10] | map(attribute='views') | max %}
             {% for video in result.videos[:10] %}
@@ -287,22 +447,49 @@
         </div>
     </div>
 </div>
+{% endif %}
 
 <!-- Lista de Videos -->
 <div class="section">
     <div class="section-header">
         <h2 class="section-title">
             <span class="section-icon">🎥</span>
-            Top {{ result.videos|length }} Videos
+            Top {{ result.videos|length }} Videos por Visualizaciones
         </h2>
+        
+        <!-- Controles -->
+        <div class="section-controls">
+            <!-- Filtros/Ordenación -->
+            <div class="sort-controls">
+                <label for="sort-select">Ordenar por:</label>
+                <select id="sort-select" onchange="var parts = this.value.split('-'); sessionStorage.setItem('scrollPosition', window.pageYOffset); window.location.href = window.location.pathname + '?sort=' + parts[0] + '&order=' + parts[1];">
+                    <option value="views-desc" {{ 'selected' if current_sort == 'views' and current_order == 'desc' }}>Más visto</option>
+                    <option value="views-asc" {{ 'selected' if current_sort == 'views' and current_order == 'asc' }}>Menos visto</option>
+                    <option value="engagement-desc" {{ 'selected' if current_sort == 'engagement' and current_order == 'desc' }}>Mayor engagement</option>
+                    <option value="engagement-asc" {{ 'selected' if current_sort == 'engagement' and current_order == 'asc' }}>Menor engagement</option>
+                    <option value="date-desc" {{ 'selected' if current_sort == 'date' and current_order == 'desc' }}>Más reciente</option>
+                    <option value="date-asc" {{ 'selected' if current_sort == 'date' and current_order == 'asc' }}>Más antiguo</option>
+                </select>
+            </div>
+            
+            <!-- Exportación -->
+            <div class="export-controls">
+                <a href="{{ url_for('top_videos.export_csv', channel_url=channel_url, duration_filter=duration_filter) }}" class="btn btn-export" title="Descargar CSV">
+                    📊 CSV
+                </a>
+                <button onclick="window.print()" class="btn btn-pdf" title="Exportar a PDF">
+                    📄 PDF
+                </button>
+            </div>
+        </div>
     </div>
-    
     <div class="videos-list">
         {% for video in result.videos %}
-        <div class="video-row">
+        <div class="video-row {{ 'even' if loop.index % 2 == 0 else 'odd' }}">
             <div class="video-thumbnail-new">
                 <img src="{{ video.thumbnail }}" alt="Miniatura del video" loading="lazy">
                 <div class="video-duration-badge">{{ video.duration_formatted }}</div>
+                <div class="video-category-banner">{{ video.category }}</div>
                 <div class="rank-badge">#{{ loop.index }}</div>
             </div>
             <div class="video-content">
@@ -358,24 +545,25 @@
         <span class="section-icon">😕</span>
         Sin Videos
     </h2>
-    <div class="no-videos">
-        <p>No se encontraron videos que cumplan con los criterios especificados.</p>
+    <div class="no-results">
+        <div class="no-results-icon">🤷‍♂️</div>
+        <h3>No se encontraron videos que cumplan con los criterios especificados</h3>
         <p>Intenta ajustar el filtro de duración o verifica que el canal tenga videos públicos.</p>
+        <div class="suggestions">
+            <h4>Sugerencias:</h4>
+            <ul>
+                <li>Verifica que la URL del canal sea correcta</li>
+                <li>El canal podría tener solo Shorts o directos recientes</li>
+                <li>El canal podría no tener videos públicos</li>
+            </ul>
+        </div>
     </div>
 </div>
 {% endif %}
 
-<script>
-function applySorting() {
-    const select = document.getElementById('sort-select');
-    const [sort, order] = select.value.split('-');
-    const url = new URL(window.location);
-    url.searchParams.set('sort', sort);
-    url.searchParams.set('order', order);
-    window.location.href = url.toString();
-}
-</script>
-
+<div class="back-section">
+    <a href="/top-videos" class="back-link">← Realizar nuevo análisis</a>
+</div>
 {% endblock %}
 
 {% block extra_css %}
@@ -740,134 +928,6 @@ function applySorting() {
     border-radius: 4px;
 }
 
-/* Sort controls */
-.sort-controls {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-    padding: 1rem;
-    background: var(--background-secondary);
-    border-radius: var(--radius);
-    border: 1px solid var(--border);
-}
-
-.sort-group label {
-    margin-right: 0.5rem;
-    font-weight: 600;
-    color: var(--text-primary);
-}
-
-.sort-group select {
-    padding: 0.5rem;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    background: var(--background);
-    color: var(--text-primary);
-}
-
-.export-controls {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.btn-export {
-    background: #28a745;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: var(--radius);
-    text-decoration: none;
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.btn-export:hover {
-    background: #218838;
-    transform: translateY(-1px);
-}
-
-.btn-pdf {
-    background: #dc3545;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: var(--radius);
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.btn-pdf:hover {
-    background: #c82333;
-    transform: translateY(-1px);
-}
-
-/* Chart Containers */
-.chart-container {
-    background-color: #f8f9fa;
-    border-radius: var(--radius);
-    padding: 1.5rem;
-    margin-bottom: 2rem;
-}
-
-.chart-container h4 {
-    margin-bottom: 1rem;
-    color: var(--text-primary);
-}
-
-/* Timeline Chart */
-.timeline-chart {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    padding: 1rem;
-    background: var(--background);
-    border-radius: var(--radius);
-    border: 1px solid var(--border);
-}
-
-.timeline-item {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.timeline-date {
-    min-width: 120px;
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-    font-weight: 600;
-}
-
-.timeline-bar {
-    height: 24px;
-    background: linear-gradient(90deg, var(--primary-color), #ff4444);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    padding: 0 0.5rem;
-    min-width: 60px;
-    position: relative;
-}
-
-.timeline-views {
-    color: white;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-}
-
-/* No Videos */
-.no-videos {
-    text-align: center;
-    padding: 3rem;
-    color: var(--text-secondary);
-}
-
 /* Responsive */
 @media (max-width: 768px) {
     .video-row {
@@ -896,28 +956,54 @@ function applySorting() {
         grid-template-columns: 1fr;
         gap: 0.5rem;
     }
-    
-    .sort-controls {
-        flex-direction: column;
-        gap: 1rem;
-        align-items: stretch;
+}
+
+@media (max-width: 480px) {
+    .video-row {
+        padding: 0.75rem;
     }
     
-    .export-controls {
-        justify-content: center;
+    .metric-group {
+        padding: 0.4rem;
     }
-    
-    .timeline-item {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 0.25rem;
-    }
-    
-    .timeline-date {
-        min-width: auto;
-        text-align: center;
-    }
-    
+}
+
+/* No Results */
+.no-results {
+    text-align: center;
+    padding: 3rem;
+}
+
+.no-results-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.no-results h3 {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+.suggestions {
+    background-color: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 1.5rem;
+    margin-top: 2rem;
+    border-radius: 0 var(--radius) var(--radius) 0;
+    text-align: left;
+}
+
+.suggestions ul {
+    margin-left: 1.5rem;
+    margin-top: 1rem;
+}
+
+.suggestions li {
+    margin-bottom: 0.5rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
     .channel-overview {
         flex-direction: column;
         text-align: center;
@@ -932,17 +1018,278 @@ function applySorting() {
         justify-content: center;
         gap: 1rem;
     }
+
+}
+
+/* Frequency Cards */
+.frequency-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+
+.frequency-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    box-shadow: var(--shadow);
+}
+
+.frequency-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.frequency-content h4 {
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+.frequency-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: 0.25rem;
+}
+
+.frequency-content small {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+}
+
+/* Chart Containers */
+.chart-container {
+    background-color: #f8f9fa;
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.chart-container h4 {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+/* Duration Bars */
+.duration-bars {
+    display: flex;
+    justify-content: space-around;
+    align-items: end;
+    height: 120px;
+    gap: 1rem;
+}
+
+.duration-bar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    height: 100%;
+}
+
+.bar-fill {
+    background: linear-gradient(180deg, var(--primary-color) 0%, #ff4444 100%);
+    width: 100%;
+    border-radius: 4px 4px 0 0;
+    min-height: 5px;
+    margin-top: auto;
+}
+
+.bar-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-top: 0.5rem;
+    text-align: center;
+}
+
+.bar-count {
+    font-size: 0.7rem;
+    color: var(--text-tertiary);
+    font-weight: bold;
+}
+
+/* Timeline Chart */
+.timeline-chart {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.timeline-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.timeline-date {
+    width: 100px;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+}
+
+.timeline-bar {
+    background: linear-gradient(90deg, var(--primary-color) 0%, #ff6b6b 100%);
+    height: 20px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    padding: 0 0.5rem;
+    min-width: 60px;
+    position: relative;
+}
+
+.timeline-views {
+    color: white;
+    font-size: 0.7rem;
+    font-weight: bold;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+/* Section Controls */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.section-controls {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.sort-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.sort-controls label {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.sort-controls select {
+    padding: 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: white;
+    font-size: 0.9rem;
+}
+
+.export-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn {
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius);
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.btn-export {
+    background: #28a745;
+    color: white;
+    border: none;
+}
+
+.btn-export:hover {
+    background: #218838;
+    transform: translateY(-1px);
+}
+
+/* Insights Grid */
+.insights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.insight-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border-left: 4px solid var(--primary-color);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.insight-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.insight-content h4 {
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.insight-content p {
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+}
+
+.insight-content small {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+}
+
+.success-word {
+    background: rgba(76, 175, 80, 0.1);
+    color: #2e7d32;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+@media (max-width: 768px) {
+    .section-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .section-controls {
+        justify-content: space-between;
+    }
+    
+    .frequency-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+    
+    .duration-bars {
+        height: 100px;
+    }
+    
+    .timeline-item {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.25rem;
+    }
+    
+    .timeline-date {
+        width: auto;
+        text-align: center;
+    }
 }
 
 @media (max-width: 480px) {
-    .video-row {
-        padding: 0.75rem;
-    }
-    
-    .metric-group {
-        padding: 0.4rem;
-    }
-    
     .section {
         padding: 1.5rem;
     }
@@ -950,6 +1297,44 @@ function applySorting() {
     .channel-overview {
         padding: 1.5rem;
     }
+    
+    .frequency-card {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.5rem;
+    }
+    
+    .chart-container {
+        padding: 1rem;
+    }
 }
 </style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Restaurar scroll - múltiples intentos para asegurar que funcione
+function restoreScroll() {
+    var savedScrollPosition = sessionStorage.getItem('scrollPosition');
+    if (savedScrollPosition) {
+        var position = parseInt(savedScrollPosition);
+        window.scrollTo(0, position);
+        console.log('📍 Scroll restaurado a posición:', position);
+        sessionStorage.removeItem('scrollPosition');
+    }
+}
+
+// Intentar restaurar en diferentes momentos
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(restoreScroll, 50);
+});
+
+window.addEventListener('load', function() {
+    setTimeout(restoreScroll, 100);
+    setTimeout(restoreScroll, 300);
+    setTimeout(restoreScroll, 500);
+});
+
+console.log('✅ Filtro con scroll preservado (múltiples intentos) activo');
+</script>
 {% endblock %}
