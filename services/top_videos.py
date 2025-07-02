@@ -134,7 +134,7 @@ def get_all_channel_videos(channel_id, duration_filter=0):
             
             # Obtener detalles de todos los videos en una sola llamada
             videos_details_request = youtube.videos().list(
-                part='statistics,contentDetails,snippet',
+                part='statistics,contentDetails,snippet,liveStreamingDetails',
                 id=','.join(video_ids)
             )
             videos_details_response = videos_details_request.execute()
@@ -179,6 +179,7 @@ def build_video_object(video_item, video_id):
         snippet = video_item.get('snippet', {})
         statistics = video_item.get('statistics', {})
         content_details = video_item.get('contentDetails', {})
+        live_details = video_item.get('liveStreamingDetails', {})
         
         # Parsear fecha de publicación
         published_at_str = snippet.get('publishedAt', '')
@@ -194,19 +195,43 @@ def build_video_object(video_item, video_id):
             duration_seconds = int(duration_obj.total_seconds())
         except:
             duration_seconds = 0
+            duration_obj = timedelta(seconds=0)
+        
+        # Campos básicos de video
+        views = int(statistics.get('viewCount', 0))
+        likes = int(statistics.get('likeCount', 0))
+        comments = int(statistics.get('commentCount', 0))
+        
+        # Verificar si es live
+        is_live = 'actualStartTime' in live_details
+        
+        # Calcular métricas adicionales
+        age_days = (datetime.now() - published_at).days
+        engagement_rate = (likes / views * 100) if views > 0 else 0
+        views_per_day = (views / age_days) if age_days > 0 else views
+        weekday = published_at.strftime('%A')
+        
+        # Obtener categoría
+        category_id = snippet.get('categoryId', '0')
         
         return {
-            'id': video_id,
+            'video_id': video_id,
             'title': snippet.get('title', 'Sin título'),
-            'description': snippet.get('description', '')[:200] + '...' if len(snippet.get('description', '')) > 200 else snippet.get('description', ''),
             'published_at': published_at,
-            'duration': duration_seconds,
-            'views': int(statistics.get('viewCount', 0)),
-            'likes': int(statistics.get('likeCount', 0)),
-            'comments': int(statistics.get('commentCount', 0)),
             'thumbnail': snippet.get('thumbnails', {}).get('medium', {}).get('url', ''),
-            'url': f"https://www.youtube.com/watch?v={video_id}",
-            'category_id': snippet.get('categoryId', ''),
+            'duration': duration_obj,
+            'duration_seconds': duration_seconds,
+            'views': views,
+            'likes': likes,
+            'comments': comments,
+            'video_url': f"https://www.youtube.com/watch?v={video_id}",
+            'is_live': is_live,
+            'is_short': duration_obj <= timedelta(seconds=90),
+            'age_days': age_days,
+            'engagement_rate': engagement_rate,
+            'views_per_day': views_per_day,
+            'weekday': weekday,
+            'category_id': category_id,
             'tags': snippet.get('tags', [])
         }
         
