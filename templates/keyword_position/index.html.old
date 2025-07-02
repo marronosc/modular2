@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block title %}Verificador de Posición de Canal{% endblock %}
+
+{% block content %}
+<div class="keyword-position-container">
+    <div class="keyword-position-header">
+        <div class="logo">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+            </svg>
+        </div>
+        <h1>Verificador de Posición de Canal</h1>
+        <p>Descubre si los videos de un canal específico aparecen entre los primeros resultados de búsqueda en YouTube</p>
+    </div>
+    
+    {% if error %}
+        <div class="error-message">
+            <h3>❌ Error</h3>
+            <p>{{ error }}</p>
+        </div>
+    {% endif %}
+    
+    <form method="post" class="keyword-position-form">
+        <div class="form-group">
+            <label for="keyword">Palabra clave a buscar:</label>
+            <input type="text" name="keyword" id="keyword" placeholder="Ej: marketing digital" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="channel_url">URL del canal o video de YouTube:</label>
+            <input type="text" name="channel_url" id="channel_url" placeholder="https://www.youtube.com/channel/UC... o https://www.youtube.com/watch?v=..." required>
+            <small>Puedes usar cualquier URL de YouTube relacionada con el canal (canal, video, etc.)</small>
+        </div>
+        
+        <div class="form-group">
+            <label for="max_results">Número de resultados a analizar:</label>
+            <select name="max_results" id="max_results">
+                <option value="50">Primeros 50 resultados</option>
+                <option value="100" selected>Primeros 100 resultados</option>
+                <option value="200">Primeros 200 resultados</option>
+            </select>
+        </div>
+        
+        <input type="submit" value="Verificar Posición" class="button">
+    </form>
+    
+    <div class="info-section">
+        <h3>¿Cómo funciona esta herramienta?</h3>
+        <div class="analysis-features">
+            <div class="feature">
+                <div class="feature-icon">🔍</div>
+                <div class="feature-content">
+                    <h4>Búsqueda Exhaustiva</h4>
+                    <p>Analiza hasta 200 resultados de búsqueda para encontrar videos del canal</p>
+                </div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">📊</div>
+                <div class="feature-content">
+                    <h4>Estadísticas Detalladas</h4>
+                    <p>Muestra la posición exacta, views, likes y comentarios de cada video encontrado</p>
+                </div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🎯</div>
+                <div class="feature-content">
+                    <h4>Análisis de Rendimiento</h4>
+                    <p>Evalúa qué tan bien posiciona el canal para palabras clave específicas</p>
+                </div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">📈</div>
+                <div class="feature-content">
+                    <h4>Detección Automática</h4>
+                    <p>Extrae automáticamente el ID del canal desde cualquier URL de YouTube</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="tips-section">
+        <h3>💡 Consejos para obtener mejores resultados</h3>
+        <ul>
+            <li><strong>URL del Canal:</strong> Puedes usar cualquier URL del canal o de un video del canal</li>
+            <li><strong>Palabras Clave:</strong> Prueba diferentes variaciones de tu palabra clave principal</li>
+            <li><strong>Análisis Periódico:</strong> Realiza verificaciones regulares para monitorear cambios</li>
+            <li><strong>Competencia:</strong> Analiza también a tus competidores para comparar posiciones</li>
+        </ul>
+    </div>
+    
+    <a href="/" class="home-link">← Volver a la página principal</a>
+</div>
+
+<style>
+.keyword-position-container {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 0 20px;
+}
+
+.keyword-position-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.keyword-position-form {
+    background-color: var(--card-background);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 3rem;
+    box-shadow: 0 4px 6px var(--shadow-color);
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+    color: var(--secondary-color);
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.1);
+}
+
+.form-group small {
+    display: block;
+    margin-top: 0.5rem;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.form-group small a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.form-group small a:hover {
+    text-decoration: underline;
+}
+
+.error-message {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    color: var(--error-color);
+}
+</style>
+{% endblock %}

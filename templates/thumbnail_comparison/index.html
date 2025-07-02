@@ -1,0 +1,270 @@
+{% extends "base.html" %}
+
+{% block title %}Comparador de Miniaturas - TubeTools{% endblock %}
+{% block breadcrumb %}Comparador Miniaturas{% endblock %}
+
+{% set current_tool = tools_config.thumbnail_comparison %}
+{% block tool_color %}{{ current_tool.color }}{% endblock %}
+{% block tool_icon %}<svg viewBox="0 0 24 24">{{ icons[current_tool.icon]|safe }}</svg>{% endblock %}
+{% block tool_title %}{{ current_tool.name }}{% endblock %}
+{% block tool_description %}{{ current_tool.description }}{% endblock %}
+{% block tool_tags %}
+{% for tag in current_tool.tags %}
+<span class="tool-tag {% if loop.first %}primary{% endif %}">{{ tag }}</span>
+{% endfor %}
+{% endblock %}
+
+{% block content %}
+{% if error %}
+<div class="error-message">
+    <h3>❌ Error</h3>
+    <p>{{ error }}</p>
+</div>
+{% endif %}
+
+<div class="form-section">
+    <div class="form-header">
+        <h2>Comparar Miniaturas</h2>
+        <p>Compara la miniatura de tu video con los videos mejor posicionados para una palabra clave específica</p>
+    </div>
+
+    <form method="post" class="thumbnail-comparison-form">
+        <div class="form-group">
+            <label for="keyword" class="form-label">Palabra clave para la comparación:</label>
+            <input type="text" name="keyword" id="keyword" class="form-input" 
+                   placeholder="Ej: tutorial photoshop" required>
+            <div class="form-help">Esta será la palabra clave con la que se buscarán los videos mejor posicionados</div>
+        </div>
+        
+        <div class="form-group">
+            <label for="video_url" class="form-label">URL de tu video:</label>
+            <input type="url" name="video_url" id="video_url" class="form-input" 
+                   placeholder="https://www.youtube.com/watch?v=..." required>
+            <div class="form-help">El video debe ser público o no listado (no puede ser privado)</div>
+        </div>
+        
+        <div class="form-group checkbox-group">
+            <label class="checkbox-label">
+                <input type="checkbox" name="show_titles" checked>
+                <span class="checkmark"></span>
+                Mostrar títulos de los videos
+            </label>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                {{ icons[current_tool.icon]|safe }}
+            </svg>
+            Comparar Miniaturas
+        </button>
+    </form>
+</div>
+
+<div class="info-grid">
+    <div class="info-card">
+        <div class="info-card-header">
+            <div class="info-card-icon">🖼️</div>
+            <h3>Vista Desktop</h3>
+        </div>
+        <p>Muestra las miniaturas en 3 columnas con los 11 videos mejor posicionados + tu video</p>
+    </div>
+
+    <div class="info-card">
+        <div class="info-card-header">
+            <div class="info-card-icon">📱</div>
+            <h3>Vista Móvil</h3>
+        </div>
+        <p>Vista optimizada en una columna con 5 miniaturas para simular la experiencia móvil</p>
+    </div>
+
+    <div class="info-card">
+        <div class="info-card-header">
+            <div class="info-card-icon">🎯</div>
+            <h3>Posicionamiento Real</h3>
+        </div>
+        <p>Si tu video aparece en los resultados, se mostrará su posición real</p>
+    </div>
+
+    <div class="info-card">
+        <div class="info-card-header">
+            <div class="info-card-icon">📊</div>
+            <h3>Estadísticas</h3>
+        </div>
+        <p>Views, likes y comentarios de cada video para analizar el rendimiento</p>
+    </div>
+</div>
+
+<div class="tips-section">
+    <div class="tips-header">
+        <svg class="tips-icon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M9 21c0 .5.4 1 1 1h4c.6 0 1-.5 1-1v-1H9v1zm3-19C8.1 2 5 5.1 5 9c0 2.4 1.2 4.5 3 5.7V17c0 .5.4 1 1 1h6c.6 0 1-.5 1-1v-2.3c1.8-1.3 3-3.4 3-5.7 0-3.9-3.1-7-7-7z" />
+        </svg>
+        <span class="tips-title">💡 Consejos para optimizar tus miniaturas</span>
+    </div>
+    <ul class="tips-list">
+        <li><strong>Contraste:</strong> Usa colores que destaquen frente a la competencia</li>
+        <li><strong>Texto legible:</strong> Si usas texto, que sea visible incluso en tamaño pequeño</li>
+        <li><strong>Rostros:</strong> Las caras humanas suelen generar más clics</li>
+        <li><strong>Curiosidad:</strong> Crea miniaturas que generen intriga sin ser clickbait</li>
+        <li><strong>Consistencia:</strong> Mantén un estilo coherente en tu canal</li>
+    </ul>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.error-message {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    color: var(--error);
+}
+
+.form-header {
+    margin-bottom: 2rem;
+}
+
+.form-header h2 {
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-weight: normal !important;
+    margin-bottom: 0 !important;
+}
+
+.checkbox-label input[type="checkbox"] {
+    margin-right: 0.5rem;
+    transform: scale(1.2);
+}
+
+.form-help {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    margin-top: 6px;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+.info-card {
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    transition: transform 0.2s ease;
+}
+
+.info-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.info-card-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.info-card-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius);
+    background: rgba(233, 30, 99, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.info-card h3 {
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.info-card p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin: 0;
+}
+
+.tips-section {
+    background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+    border: 1px solid #ffe082;
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    margin: 2rem 0;
+}
+
+.tips-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.tips-icon {
+    width: 28px;
+    height: 28px;
+    color: #f57f17;
+}
+
+.tips-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #f57f17;
+}
+
+.tips-list {
+    list-style: none;
+    margin: 0;
+}
+
+.tips-list li {
+    padding: 0.75rem 0;
+    color: #f57f17;
+    font-size: 0.95rem;
+    position: relative;
+    padding-left: 2rem;
+    line-height: 1.4;
+}
+
+.tips-list li::before {
+    content: "💡";
+    position: absolute;
+    left: 0;
+    top: 0.75rem;
+    font-size: 1.2rem;
+}
+
+@media (max-width: 768px) {
+    .info-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .tips-section {
+        padding: 1.5rem;
+    }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,522 @@
+{% extends "base.html" %}
+
+{% block title %}Análisis SEO: {{ keyword }} - TubeTools{% endblock %}
+{% block breadcrumb %}Análisis SEO - Resultados{% endblock %}
+
+{% set current_tool = tools_config.seo %}
+{% block tool_color %}{{ current_tool.color }}{% endblock %}
+{% block tool_icon %}<svg viewBox="0 0 24 24">{{ icons[current_tool.icon]|safe }}</svg>{% endblock %}
+{% block tool_title %}Análisis SEO para: "{{ keyword }}"{% endblock %}
+{% block tool_description %}Resultados del análisis de los primeros 20 videos en YouTube{% endblock %}
+{% block tool_tags %}
+<span class="tool-tag primary">{{ videos|length }} Videos</span>
+<span class="tool-tag">{{ unique_channels_count }} Canales</span>
+<span class="tool-tag">{{ format_number(total_stats.total_views) }} Views</span>
+{% endblock %}
+
+{% block content %}
+<div class="back-section">
+    <a href="/seo" class="back-link">← Realizar nuevo análisis</a>
+</div>
+
+<!-- Estadísticas Promedio -->
+<div class="section">
+    <h2 class="section-title">
+        <span class="section-icon">📈</span>
+        Estadísticas Promedio
+    </h2>
+    <div class="stats-grid">
+        <div class="stat-box">
+            <h4>Promedio de Visualizaciones</h4>
+            <div class="stat-value">{{ format_number(avg_views_videos) }}</div>
+        </div>
+        <div class="stat-box">
+            <h4>Promedio de Me gustas</h4>
+            <div class="stat-value">{{ format_number(avg_likes_videos) }}</div>
+        </div>
+        <div class="stat-box">
+            <h4>Promedio de Comentarios</h4>
+            <div class="stat-value">{{ format_number(avg_comments_videos) }}</div>
+        </div>
+        <div class="stat-box">
+            <h4>Duración Promedio</h4>
+            <div class="stat-value">{{ format_duration(avg_duration) }}</div>
+        </div>
+    </div>
+</div>
+
+<!-- Totales -->
+<div class="section">
+    <h2 class="section-title">
+        <span class="section-icon">🔢</span>
+        Totales Acumulados
+    </h2>
+    <div class="stats-grid totals">
+        <div class="stat-box total-box">
+            <h4>Total Visualizaciones</h4>
+            <div class="stat-value">{{ format_number(total_stats.total_views) }}</div>
+        </div>
+        <div class="stat-box total-box">
+            <h4>Total Me gustas</h4>
+            <div class="stat-value">{{ format_number(total_stats.total_likes) }}</div>
+        </div>
+        <div class="stat-box total-box">
+            <h4>Total Comentarios</h4>
+            <div class="stat-value">{{ format_number(total_stats.total_comments) }}</div>
+        </div>
+    </div>
+</div>
+
+<!-- Videos Encontrados -->
+<div class="section">
+    <h2 class="section-title">
+        <span class="section-icon">🎥</span>
+        Videos Analizados ({{ videos|length }})
+    </h2>
+    <div class="videos-grid">
+        {% for video in videos %}
+        <div class="video-card">
+            <div class="video-thumbnail">
+                <img src="{{ video.thumbnail_url }}" alt="Miniatura del video" loading="lazy">
+                <div class="video-duration">{{ format_duration(video.duration) }}</div>
+            </div>
+            <div class="video-info">
+                <h3><a href="{{ video.video_url }}" target="_blank" rel="noopener">{{ video.title }}</a></h3>
+                <p class="channel-name">📺 {{ video.channel_title }}</p>
+                <div class="video-stats">
+                    <div class="stat">
+                        <span class="stat-icon">👁️</span>
+                        <span>{{ format_number(video.views) }}</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-icon">👍</span>
+                        <span>{{ format_number(video.likes) }}</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-icon">💬</span>
+                        <span>{{ format_number(video.comments) }}</span>
+                    </div>
+                </div>
+                <div class="video-meta">
+                    <span>📅 {{ format_date(video.published_at) }}</span>
+                    <span>🏷️ {{ video.category }}</span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Estadísticas por Canal -->
+<div class="section">
+    <h2 class="section-title">
+        <span class="section-icon">👤</span>
+        Rendimiento por Canal
+    </h2>
+    <div class="channels-table">
+        <table>
+            <thead>
+                <tr>
+                    <th>Canal</th>
+                    <th>Videos</th>
+                    <th>Visualizaciones</th>
+                    <th>Me gustas</th>
+                    <th>Comentarios</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for channel, stats in channel_stats.items() %}
+                <tr>
+                    <td>
+                        <div class="channel-info">
+                            <img src="{{ stats.thumbnail }}" alt="Canal" class="channel-avatar">
+                            <span>{{ channel }}</span>
+                        </div>
+                    </td>
+                    <td><strong>{{ stats.videos }}</strong></td>
+                    <td>{{ format_number(stats.views) }}</td>
+                    <td>{{ format_number(stats.likes) }}</td>
+                    <td>{{ format_number(stats.comments) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Análisis Temporal -->
+<div class="section">
+    <h2 class="section-title">
+        <span class="section-icon">📅</span>
+        Análisis por Antigüedad
+    </h2>
+    
+    <div class="temporal-analysis">
+        <div class="time-period">
+            <h3>🔥 Últimos 6 meses ({{ last_6_months|length }} videos)</h3>
+            {% if last_6_months %}
+            <div class="video-list">
+                {% for video in last_6_months %}
+                <div class="video-item">
+                    <img src="{{ video.thumbnail_url }}" alt="Miniatura" class="video-thumb">
+                    <div class="video-details">
+                        <a href="{{ video.video_url }}" target="_blank" rel="noopener">{{ video.title }}</a>
+                        <div class="video-views">👁️ {{ format_number(video.views) }} visualizaciones</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="no-videos">No hay videos de los últimos 6 meses</p>
+            {% endif %}
+        </div>
+
+        <div class="time-period">
+            <h3>📈 Entre 6 meses y 1 año ({{ last_year|length }} videos)</h3>
+            {% if last_year %}
+            <div class="video-list">
+                {% for video in last_year %}
+                <div class="video-item">
+                    <img src="{{ video.thumbnail_url }}" alt="Miniatura" class="video-thumb">
+                    <div class="video-details">
+                        <a href="{{ video.video_url }}" target="_blank" rel="noopener">{{ video.title }}</a>
+                        <div class="video-views">👁️ {{ format_number(video.views) }} visualizaciones</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="no-videos">No hay videos de este período</p>
+            {% endif %}
+        </div>
+
+        <div class="time-period">
+            <h3>📚 Más de 1 año ({{ older_than_year|length }} videos)</h3>
+            {% if older_than_year %}
+            <div class="video-list">
+                {% for video in older_than_year %}
+                <div class="video-item">
+                    <img src="{{ video.thumbnail_url }}" alt="Miniatura" class="video-thumb">
+                    <div class="video-details">
+                        <a href="{{ video.video_url }}" target="_blank" rel="noopener">{{ video.title }}</a>
+                        <div class="video-views">👁️ {{ format_number(video.views) }} visualizaciones</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="no-videos">No hay videos de más de 1 año</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="back-section">
+    <a href="/seo" class="back-link">← Realizar nuevo análisis</a>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.back-section {
+    margin: 2rem 0;
+}
+
+.back-link {
+    display: inline-block;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+.back-link:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
+}
+
+.section {
+    background-color: var(--background);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow);
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--primary-color);
+}
+
+.section-icon {
+    font-size: 1.2rem;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+
+.stat-box {
+    background-color: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: var(--radius);
+    text-align: center;
+    border: 1px solid #e9ecef;
+}
+
+.stat-box.total-box {
+    background-color: #e7f3ff;
+    border-color: #4caf50;
+}
+
+.stat-box h4 {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+    font-size: 1rem;
+}
+
+.stat-value {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.videos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.video-card {
+    background-color: #f8f9fa;
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: transform 0.3s ease;
+}
+
+.video-card:hover {
+    transform: translateY(-2px);
+}
+
+.video-thumbnail {
+    position: relative;
+    width: 100%;
+    height: 180px;
+    overflow: hidden;
+}
+
+.video-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.video-duration {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.video-info {
+    padding: 1rem;
+}
+
+.video-info h3 {
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+    line-height: 1.3;
+}
+
+.video-info h3 a {
+    color: var(--text-primary);
+    text-decoration: none;
+}
+
+.video-info h3 a:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
+}
+
+.channel-name {
+    color: #666;
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+}
+
+.video-stats {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.stat {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.8rem;
+}
+
+.stat-icon {
+    font-size: 0.7rem;
+}
+
+.video-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: #666;
+}
+
+.channels-table {
+    overflow-x: auto;
+}
+
+.channels-table table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.channels-table th,
+.channels-table td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.channels-table th {
+    background-color: var(--text-primary);
+    color: white;
+    font-weight: bold;
+}
+
+.channels-table tr:hover {
+    background-color: #f8f9fa;
+}
+
+.channel-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.channel-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.temporal-analysis {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.time-period {
+    background-color: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: var(--radius);
+    border-left: 4px solid #4caf50;
+}
+
+.time-period h3 {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+.video-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.video-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem;
+    background-color: white;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.video-thumb {
+    width: 80px;
+    height: 45px;
+    border-radius: 4px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.video-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.video-details a {
+    color: var(--text-primary);
+    text-decoration: none;
+    font-size: 0.9rem;
+    line-height: 1.3;
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.video-details a:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
+}
+
+.video-views {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.no-videos {
+    text-align: center;
+    color: #666;
+    font-style: italic;
+    padding: 1rem;
+}
+
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+
+    .videos-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .video-item {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .video-thumb {
+        width: 120px;
+        height: 68px;
+    }
+
+    .channels-table {
+        font-size: 0.9rem;
+    }
+}
+</style>
+{% endblock %}

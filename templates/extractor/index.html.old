@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extractor de ID de Canal - YouTube Tools</title>
+    <style>
+        :root {
+            --primary-color: #FF0000;
+            --primary-hover: #E60000;
+            --secondary-color: #282828;
+            --text-primary: #0F0F0F;
+            --text-secondary: #606060;
+            --text-tertiary: #909090;
+            --background: #FFFFFF;
+            --background-secondary: #F9F9F9;
+            --background-tertiary: #F1F1F1;
+            --border: #E5E5E5;
+            --border-light: #F0F0F0;
+            --success: #00C851;
+            --warning: #FFB347;
+            --error: #dc3545;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
+            --radius: 8px;
+            --radius-lg: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--background-secondary);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        /* Layout Principal */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: var(--background);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 24px 20px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--primary-color);
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .nav-section {
+            padding: 20px 0 16px;
+        }
+
+        .nav-title {
+            padding: 0 20px 12px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            background: var(--background-secondary);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            background: var(--background-secondary);
+            color: var(--primary-color);
+            border-left-color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .nav-item.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .nav-item.disabled:hover {
+            background: transparent;
+            color: var(--text-secondary);
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .nav-icon svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background: var(--background);
+            border-bottom: 1px solid var(--border);
+            padding: 20px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .breadcrumb a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .breadcrumb a:hover {
+            color: var(--primary-color);
+        }
+
+        .breadcrumb .current {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .search-container {
+            position: relative;
+            width: 320px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 16px 10px 40px;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            background: var(--background-secondary);
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-tertiary);
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Tool Header */
+        .tool-header {
+            background: var(--background);
+            padding: 40px 32px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tool-title-section {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            margin-bottom: 20px;
+        }
+
+        .tool-icon-large {
+            width: 72px;
+            height: 72px;
+            border-radius: var(--radius-lg);
+            background: #667eea;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: var(--shadow-lg);
+            flex-shrink: 0;
+        }
+
+        .tool-icon-large svg {
+            width: 36px;
+            height: 36px;
+            fill: currentColor;
+        }
+
+        .tool-title-info h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            line-height: 1.2;
+        }
+
+        .tool-subtitle {
+            font-size: 17px;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .tool-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tool-tag {
+            padding: 6px 12px;
+            background: var(--background-tertiary);
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 500;
+            border-radius: 16px;
+            border: 1px solid var(--border-light);
+        }
+
+        .tool-tag.primary {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            border-color: rgba(102, 126, 234, 0.2);
+        }
+
+        /* Content Area */
+        .content {
+            padding: 32px;
+            max-width: 1000px;
+            margin: 0 auto;
+            width: 100%;
+            flex: 1;
+        }
+
+        /* Form Section */
+        .form-section {
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            margin-bottom: 32px;
+            box-shadow: var(--shadow);
+        }
+
+        .form-header {
+            margin-bottom: 28px;
+        }
+
+        .form-header h2 {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .form-header p {
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 15px;
+            transition: all 0.2s ease;
+            background: var(--background);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.1);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        .form-help {
+            font-size: 13px;
+            color: var(--text-tertiary);
+            margin-top: 6px;
+            line-height: 1.4;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 28px;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            box-shadow: 0 2px 4px rgba(255, 0, 0, 0.2);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(255, 0, 0, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--background);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--background-tertiary);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        /* Result Section */
+        .result-section {
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            margin-bottom: 32px;
+            box-shadow: var(--shadow);
+        }
+
+        .success-result {
+            border-left: 4px solid var(--success);
+            background: rgba(0, 200, 81, 0.05);
+        }
+
+        .error-result {
+            border-left: 4px solid var(--error);
+            background: rgba(220, 53, 69, 0.05);
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .result-icon {
+            width: 24px;
+            height: 24px;
+            font-size: 20px;
+        }
+
+        .result-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .channel-id-display {
+            background: var(--background-tertiary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin: 16px 0;
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+            font-size: 15px;
+            color: var(--text-primary);
+            word-break: break-all;
+            position: relative;
+        }
+
+        .copy-button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: var(--radius);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 12px;
+        }
+
+        .copy-button:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        /* Info Cards */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .info-card {
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 28px;
+            transition: all 0.2s ease;
+        }
+
+        .info-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .info-card-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .info-card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius);
+            background: rgba(102, 126, 234, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #667eea;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .info-card h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .info-card p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* Tips Section */
+        .tips-section {
+            background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+            border: 1px solid #ffe082;
+            border-radius: var(--radius-lg);
+            padding: 28px;
+            margin-bottom: 32px;
+        }
+
+        .tips-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .tips-icon {
+            width: 28px;
+            height: 28px;
+            color: #f57f17;
+        }
+
+        .tips-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #f57f17;
+        }
+
+        .tips-list {
+            list-style: none;
+            margin: 0;
+        }
+
+        .tips-list li {
+            padding: 10px 0;
+            color: #f57f17;
+            font-size: 14px;
+            position: relative;
+            padding-left: 28px;
+            line-height: 1.5;
+        }
+
+        .tips-list li::before {
+            content: "💡";
+            position: absolute;
+            left: 0;
+            top: 10px;
+            font-size: 16px;
+        }
+
+        /* Debug Section */
+        .debug-section {
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            margin-bottom: 32px;
+            overflow: hidden;
+        }
+
+        .debug-header {
+            background: var(--background-tertiary);
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .debug-header:hover {
+            background: var(--background-secondary);
+        }
+
+        .debug-content {
+            padding: 24px;
+            background: var(--background-tertiary);
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+            font-size: 12px;
+            line-height: 1.4;
+            color: var(--text-secondary);
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: var(--radius);
+            cursor: pointer;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                z-index: 999;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .content {
+                padding: 24px 16px;
+            }
+
+            .tool-header {
+                padding: 32px 16px;
+            }
+
+            .top-bar {
+                padding: 16px;
+                padding-left: 60px;
+            }
+
+            .search-container {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .tool-title-section {
+                flex-direction: column;
+                text-align: center;
+                gap: 20px;
+            }
+
+            .tool-icon-large {
+                width: 64px;
+                height: 64px;
+            }
+
+            .tool-title-info h1 {
+                font-size: 26px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .form-section {
+                padding: 24px 20px;
+            }
+
+            .tips-section {
+                padding: 24px 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .tool-header {
+                padding: 24px 16px;
+            }
+
+            .content {
+                padding: 20px 12px;
+            }
+
+            .form-section {
+                padding: 20px 16px;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Mobile Menu Toggle -->
+        <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
+            </svg>
+        </button>
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">YT</div>
+                    <div class="logo-text">YouTube Tools</div>
+                </div>
+            </div>
+
+            <nav>
+                <div class="nav-section">
+                    <div class="nav-title">Principal</div>
+                    <a href="/" class="nav-item">
+                        <div class="nav-icon">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+                            </svg>
+                        </div>
+                        Dashboard
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-title">Herramientas Disponibles</div>
+                    <a href="/extractor" class="nav-item active">
+                        <div class="nav-icon">
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
+                            </svg>
+                        </div>
+                        Extractor de ID
+                    </a>
+                    <a href="/seo" class="nav-item">
+                        <div class="nav-icon">
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+                            </svg>
+                        </div>
+                        Análisis SEO
+                    </a>
+                    <a href="/keyword-position" class="nav-item">
+                        <div class="nav-icon">
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                            </svg>
+                        </div>
+                        Verificador Posición
+                    </a>
+                    <a href="/thumbnail-comparison" class="nav-item">
+                        <div class="nav-icon">
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" />
+                            </svg>
+                        </div>
+                        Comparador Miniaturas
+                    </a>
+                    <a href="/video-activity" class="nav-item">
+                        <div class="nav-icon">
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M16,6L18.29,8.29L13.41,13.17L9.41,9.17L2,16.59L3.41,18L9.41,12L13.41,16L19.71,9.71L22,12V6H16Z" />
+                            </svg>
+                        </div>
+                        Análisis Actividad
+                    </a>
+                    <a href="/keyword-research" class="nav-item">
+                        <div class="nav-icon">
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+                                <path d="M12 10h-2v2H8v-2H6V8h2V6h2v2h2v2z" />
+                            </svg>
+                        </div>
+                        Investigador Keywords
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-title">Próximamente</div>
+                    <div class="nav-item disabled">
+                        <div class="nav-icon">
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z" />
+                            </svg>
+                        </div>
+                        Informe Competencia
+                    </div>
+                    <div class="nav-item disabled">
+                        <div class="nav-icon">
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                            </svg>
+                        </div>
+                        TOP 20 Videos
+                    </div>
+                    <div class="nav-item disabled">
+                        <div class="nav-icon">
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z" />
+                            </svg>
+                        </div>
+                        Últimos 20 Videos
+                    </div>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-title">Configuración</div>
+                    <a href="#" class="nav-item">
+                        <div class="nav-icon">
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.82,11.69,4.82,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z" />
+                            </svg>
+                        </div>
+                        Ajustes
+                    </a>
+                    <a href="#" class="nav-item">
+                        <div class="nav-icon">
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z" />
+                            </svg>
+                        </div>
+                        Ayuda
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <header class="top-bar">
+                <nav class="breadcrumb">
+                    <a href="/">Dashboard</a>
+                    <span>></span>
+                    <span class="current">Extractor de ID</span>
+                </nav>
+                <div class="search-container">
+                    <div class="search-icon">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+                        </svg>
+                    </div>
+                    <input type="text" class="search-input" placeholder="Buscar herramientas...">
+                </div>
+            </header>
+
+            <!-- Tool Header -->
+            <div class="tool-header">
+                <div class="tool-title-section">
+                    <div class="tool-icon-large">
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
+                        </svg>
+                    </div>
+                    <div class="tool-title-info">
+                        <h1>Extractor de ID de Canal</h1>
+                        <p class="tool-subtitle">Obtén el ID único de cualquier canal de YouTube a partir de URLs de videos, canales o perfiles de forma instantánea y precisa</p>
+                        <div class="tool-tags">
+                            <span class="tool-tag primary">Utilidades</span>
+                            <span class="tool-tag">Instantáneo</span>
+                            <span class="tool-tag">URLs múltiples</span>
+                            <span class="tool-tag">Detección automática</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="content">
+                <!-- Form Section -->
+                <div class="form-section">
+                    <div class="form-header">
+                        <h2>Extraer ID de Canal</h2>
+                        <p>Introduce cualquier URL de YouTube relacionada con el canal y obtendremos automáticamente su ID único</p>
+                    </div>
+
+                    <form method="post" id="extractorForm">
+                        <div class="form-group">
+                            <label for="url" class="form-label">URL de YouTube *</label>
+                            <input type="text" id="url" name="url" class="form-input"
+                                placeholder="https://www.youtube.com/channel/UC... o https://www.youtube.com/watch?v=..." required>
+                            <div class="form-help">Puedes usar URLs de canales, videos, perfiles o cualquier contenido relacionado con el canal que necesites</div>
+                        </div>
+
+                        <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+                            <button type="submit" class="btn btn-primary">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                    <path
+                                        d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
+                                </svg>
+                                Extraer ID del Canal
+                            </button>
+                            <button type="reset" class="btn btn-secondary">Limpiar</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Result Section -->
+                {% if result is not none %}
+                <div class="result-section {% if result %}success-result{% else %}error-result{% endif %}">
+                    <div class="result-header">
+                        <div class="result-icon">{% if result %}✅{% else %}❌{% endif %}</div>
+                        <div class="result-title">{% if result %}Éxito{% else %}Error{% endif %}</div>
+                    </div>
+                    
+                    {% if result %}
+                        <p>El ID del canal se ha extraído correctamente:</p>
+                        <div class="channel-id-display">{{ result }}</div>
+                        <button onclick="copyToClipboard('{{ result }}')" class="copy-button">
+                            📋 Copiar ID
+                        </button>
+                    {% else %}
+                        <p>No se pudo obtener el ID del canal. Verifica que la URL sea correcta y válida.</p>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <!-- Debug Section -->
+                {% if debug_info %}
+                <div class="debug-section">
+                    <div class="debug-header" onclick="toggleDebug()">
+                        🔍 Información de depuración
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-left: auto;">
+                            <path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"/>
+                        </svg>
+                    </div>
+                    <div class="debug-content" id="debugContent" style="display: none;">{{ debug_info }}</div>
+                </div>
+                {% endif %}
+
+                <!-- Info Cards -->
+                <div class="info-grid">
+                    <div class="info-card">
+                        <div class="info-card-header">
+                            <div class="info-card-icon">🔗</div>
+                            <h3>URLs Compatibles</h3>
+                        </div>
+                        <p>Funciona con cualquier URL de YouTube: canales directos, videos, shorts, perfiles de usuario, URLs personalizadas y más. La detección es automática.</p>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="info-card-header">
+                            <div class="info-card-icon">⚡</div>
+                            <h3>Procesamiento Instantáneo</h3>
+                        </div>
+                        <p>Extracción inmediata sin esperas. El ID se obtiene al instante utilizando técnicas avanzadas de análisis de URLs y contenido.</p>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="info-card-header">
+                            <div class="info-card-icon">🛡️</div>
+                            <h3>Análisis Robusto</h3>
+                        </div>
+                        <p>Sistema inteligente que analiza múltiples patrones y fuentes para garantizar la máxima precisión en la extracción del ID correcto.</p>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="info-card-header">
+                            <div class="info-card-icon">📋</div>
+                            <h3>Copia Fácil</h3>
+                        </div>
+                        <p>Una vez extraído, copia el ID al portapapeles con un solo clic para usarlo inmediatamente en otras herramientas o aplicaciones.</p>
+                    </div>
+                </div>
+
+                <!-- Tips Section -->
+                <div class="tips-section">
+                    <div class="tips-header">
+                        <svg class="tips-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M9 21c0 .5.4 1 1 1h4c.6 0 1-.5 1-1v-1H9v1zm3-19C8.1 2 5 5.1 5 9c0 2.4 1.2 4.5 3 5.7V17c0 .5.4 1 1 1h6c.6 0 1-.5 1-1v-2.3c1.8-1.3 3-3.4 3-5.7 0-3.9-3.1-7-7-7z" />
+                        </svg>
+                        <span class="tips-title">Consejos para mejores resultados</span>
+                    </div>
+                    <ul class="tips-list">
+                        <li><strong>URLs directas de canal:</strong> Funcionan perfectamente las que empiezan con youtube.com/channel/UC...</li>
+                        <li><strong>URLs de videos:</strong> Cualquier video del canal nos permite extraer el ID del propietario automáticamente</li>
+                        <li><strong>Nombres personalizados:</strong> URLs como youtube.com/@nombrecanal o youtube.com/c/nombrecanal también funcionan</li>
+                        <li><strong>URLs móviles:</strong> Las URLs de la app móvil (m.youtube.com) son totalmente compatibles</li>
+                        <li><strong>Copia completa:</strong> Asegúrate de copiar la URL completa, incluyendo https:// para mejores resultados</li>
+                        <li><strong>Verificación:</strong> Los IDs de canal siempre empiezan con "UC" seguido de 22 caracteres alfanuméricos</li>
+                    </ul>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Mobile sidebar toggle
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function (e) {
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.querySelector('.mobile-menu-toggle');
+
+            if (window.innerWidth <= 1024 &&
+                !sidebar.contains(e.target) &&
+                !toggle.contains(e.target) &&
+                sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+            }
+        });
+
+        // Toggle debug section
+        function toggleDebug() {
+            const content = document.getElementById('debugContent');
+            if (content) {
+                content.style.display = content.style.display === 'none' ? 'block' : 'none';
+            }
+        }
+
+        // Copy to clipboard function
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(function() {
+                // Cambiar temporalmente el texto del botón
+                const button = document.querySelector('.copy-button');
+                const originalText = button.textContent;
+                button.textContent = '✅ ¡Copiado!';
+                button.style.backgroundColor = '#00C851';
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.style.backgroundColor = '';
+                }, 2000);
+            }).catch(function(err) {
+                alert('Error al copiar al portapapeles');
+            });
+        }
+
+        // Focus on input when page loads
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('url').focus();
+        });
+
+        // Search functionality in top bar
+        document.querySelector('.search-input').addEventListener('input', function (e) {
+            const searchTerm = e.target.value.toLowerCase();
+            // In real implementation, this would filter tools or show suggestions
+            console.log('Searching for:', searchTerm);
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function (e) {
+            // Alt + S to focus search
+            if (e.altKey && e.key === 's') {
+                e.preventDefault();
+                document.querySelector('.search-input').focus();
+            }
+
+            // Alt + U to focus URL input
+            if (e.altKey && e.key === 'u') {
+                e.preventDefault();
+                document.getElementById('url').focus();
+            }
+
+            // Escape to close mobile sidebar
+            if (e.key === 'Escape') {
+                document.getElementById('sidebar').classList.remove('open');
+            }
+        });
+
+        // Add visual feedback for form validation
+        document.getElementById('url').addEventListener('input', function (e) {
+            const input = e.target;
+            const value = input.value.trim();
+
+            if (value.length === 0) {
+                input.style.borderColor = '';
+            } else if (value.includes('youtube.com') || value.includes('youtu.be')) {
+                input.style.borderColor = '#00C851';
+            } else {
+                input.style.borderColor = '#FFB347';
+            }
+        });
+
+        // Form reset handler
+        document.querySelector('button[type="reset"]').addEventListener('click', function () {
+            document.getElementById('url').value = '';
+            document.getElementById('url').style.borderColor = '';
+            document.getElementById('url').focus();
+        });
+    </script>
+</body>
+
+</html>

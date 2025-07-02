@@ -1,0 +1,448 @@
+{% extends "base.html" %}
+
+{% block title %}Análisis: {{ result.video_info.title }} - TubeTools{% endblock %}
+{% block breadcrumb %}Análisis Actividad - Resultados{% endblock %}
+
+{% set current_tool = tools_config.video_activity %}
+{% block tool_color %}{{ current_tool.color }}{% endblock %}
+{% block tool_icon %}<svg viewBox="0 0 24 24">{{ icons[current_tool.icon]|safe }}</svg>{% endblock %}
+{% block tool_title %}Análisis de Actividad Reciente{% endblock %}
+{% block tool_description %}Estimación de visualizaciones de los últimos {{ result.period_days }} días{% endblock %}
+{% block tool_tags %}
+<span class="tool-tag primary">{{ "{:,}".format(result.video_info.views) }} Views totales</span>
+<span class="tool-tag">{{ "{:,}".format(result.total_comments_analyzed) }} Comentarios analizados</span>
+<span class="tool-tag">{{ result.recent_metrics.video_age }} de antigüedad</span>
+{% endblock %}
+
+{% block content %}
+<div class="back-section">
+    <a href="/video-activity" class="back-link">← Realizar nuevo análisis</a>
+</div>
+
+<!-- Video Information -->
+<div class="section video-card">
+    <div class="video-info">
+        <div class="video-thumbnail">
+            <img src="{{ result.video_info.thumbnail }}" alt="Thumbnail">
+        </div>
+        <div class="video-details">
+            <h2 class="video-title">{{ result.video_info.title }}</h2>
+            <p class="channel-name">{{ result.video_info.channel_title }}</p>
+            <div class="video-stats">
+                <div class="stat-item">
+                    <span class="stat-icon">👁️</span>
+                    <span class="stat-value">{{ "{:,}".format(result.video_info.views) }}</span>
+                    <span>visualizaciones</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-icon">💬</span>
+                    <span class="stat-value">{{ "{:,}".format(result.video_info.comments) }}</span>
+                    <span>comentarios</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-icon">🔍</span>
+                    <span class="stat-value">{{ "{:,}".format(result.total_comments_analyzed) }}</span>
+                    <span>analizados</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-icon">📅</span>
+                    <span class="stat-value">{{ result.recent_metrics.video_age }}</span>
+                    <span>de antigüedad</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Estimates Section -->
+<div class="section estimates-section">
+    <h2 class="section-title">
+        <span class="section-icon">💡</span>
+        Visualizaciones Estimadas
+    </h2>
+    <p class="section-subtitle">Últimos {{ result.period_days }} días</p>
+    
+    <div class="estimates-grid">
+        <div class="estimate-card conservative">
+            <div class="estimate-label">Conservadora</div>
+            <div class="estimate-value">{{ format_number(result.recent_metrics.estimates.low) }}</div>
+            <div class="estimate-percent">({{ result.recent_metrics.percentages.low }}%)</div>
+        </div>
+        
+        <div class="estimate-card probable">
+            <div class="estimate-label">Probable</div>
+            <div class="estimate-value">{{ format_number(result.recent_metrics.estimates.medium) }}</div>
+            <div class="estimate-percent">({{ result.recent_metrics.percentages.medium }}%)</div>
+        </div>
+        
+        <div class="estimate-card optimistic">
+            <div class="estimate-label">Optimista</div>
+            <div class="estimate-value">{{ format_number(result.recent_metrics.estimates.high) }}</div>
+            <div class="estimate-percent">({{ result.recent_metrics.percentages.high }}%)</div>
+        </div>
+    </div>
+    
+    <!-- Visual Range -->
+    <div class="visual-range">
+        <div class="range-labels">
+            <span>{{ format_number(result.recent_metrics.estimates.low) }}</span>
+            <span>{{ format_number(result.recent_metrics.estimates.medium) }}</span>
+            <span>{{ format_number(result.recent_metrics.estimates.high) }}</span>
+        </div>
+        <div class="range-bar"></div>
+    </div>
+    
+    <!-- Confidence -->
+    <div class="confidence-section">
+        <div class="confidence-indicator">
+            <span>Confianza:</span>
+            <span class="confidence-stars">
+                {% if result.recent_metrics.estimates.confidence == 'high' %}
+                    ⭐⭐⭐⭐⭐
+                {% elif result.recent_metrics.estimates.confidence == 'medium' %}
+                    ⭐⭐⭐⭐☆
+                {% else %}
+                    ⭐⭐⭐☆☆
+                {% endif %}
+            </span>
+            <span>({{ result.recent_metrics.estimates.confidence | capitalize }})</span>
+        </div>
+    </div>
+</div>
+
+<!-- Interpretation -->
+<div class="section interpretation-section {{ result.recent_metrics.interpretation.class }}">
+    <div class="interpretation-header">
+        <span class="interpretation-icon">{{ result.recent_metrics.interpretation.icon }}</span>
+        <h3 class="interpretation-title">{{ result.recent_metrics.interpretation.title }}</h3>
+    </div>
+    <p class="interpretation-text">
+        {{ result.recent_metrics.interpretation.text }}
+    </p>
+</div>
+
+<!-- Method Note -->
+<div class="method-note">
+    <h4>ℹ️ Cómo calculamos estas estimaciones</h4>
+    <p>
+        Analizamos la relación histórica entre comentarios y visualizaciones de tu video. 
+        Las 3 estimaciones reflejan diferentes escenarios de engagement (bajo, normal, alto) 
+        ajustados por la edad del video. El análisis se basa en 
+        {{ result.recent_metrics.period_comments }} comentarios recientes.
+    </p>
+</div>
+
+<div class="back-section">
+    <a href="/video-activity" class="back-link">← Realizar nuevo análisis</a>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.back-section {
+    margin: 2rem 0;
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.back-link:hover {
+    color: var(--primary-color);
+}
+
+.section {
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow);
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.section-icon {
+    font-size: 1.2rem;
+}
+
+.section-subtitle {
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+}
+
+/* Video Card */
+.video-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border: 1px solid #e9ecef;
+}
+
+.video-info {
+    display: flex;
+    gap: 2rem;
+    align-items: start;
+}
+
+.video-thumbnail {
+    flex-shrink: 0;
+    width: 240px;
+    height: 135px;
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+}
+
+.video-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.video-details {
+    flex: 1;
+}
+
+.video-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+}
+
+.channel-name {
+    color: #666;
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.video-stats {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.stat-icon {
+    font-size: 1.2rem;
+}
+
+.stat-value {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* Estimates Section */
+.estimates-section {
+    background: white;
+}
+
+.estimates-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.estimate-card {
+    text-align: center;
+    padding: 2rem 1rem;
+    border-radius: var(--radius-lg);
+    transition: transform 0.3s ease;
+}
+
+.estimate-card:hover {
+    transform: translateY(-5px);
+}
+
+.estimate-card.conservative {
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+}
+
+.estimate-card.probable {
+    background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+    transform: scale(1.05);
+}
+
+.estimate-card.optimistic {
+    background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+}
+
+.estimate-label {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 1rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.estimate-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.estimate-percent {
+    font-size: 1.1rem;
+    color: #666;
+}
+
+/* Visual Range */
+.visual-range {
+    background: #f8f9fa;
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.range-bar {
+    height: 8px;
+    background: linear-gradient(90deg, #64b5f6 0%, #ffa726 50%, #81c784 100%);
+    border-radius: 4px;
+    position: relative;
+    margin: 2rem 0;
+}
+
+.range-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+/* Confidence Indicator */
+.confidence-section {
+    text-align: center;
+}
+
+.confidence-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #f8f9fa;
+    padding: 0.75rem 1.5rem;
+    border-radius: 50px;
+    font-size: 0.9rem;
+}
+
+.confidence-stars {
+    color: #ffa726;
+}
+
+/* Interpretation Section */
+.interpretation-section {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border: 1px solid #e9ecef;
+}
+
+.interpretation-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.interpretation-icon {
+    font-size: 2.5rem;
+}
+
+.interpretation-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.interpretation-text {
+    color: #555;
+    line-height: 1.6;
+    font-size: 1.1rem;
+}
+
+/* Status Classes */
+.very-active .interpretation-header {
+    color: #d32f2f;
+}
+
+.good-performance .interpretation-header {
+    color: #388e3c;
+}
+
+.moderate-activity .interpretation-header {
+    color: #f57c00;
+}
+
+.low-activity .interpretation-header {
+    color: #616161;
+}
+
+/* Method Note */
+.method-note {
+    background: #e7f3ff;
+    border-left: 4px solid var(--primary-color);
+    padding: 1.5rem;
+    border-radius: 0 var(--radius) var(--radius) 0;
+    margin: 2rem 0;
+}
+
+.method-note h4 {
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.method-note p {
+    color: #555;
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .video-info {
+        flex-direction: column;
+    }
+    
+    .video-thumbnail {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 16/9;
+    }
+    
+    .estimates-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .estimate-card.probable {
+        transform: none;
+    }
+    
+    .estimate-value {
+        font-size: 2rem;
+    }
+    
+    .video-stats {
+        gap: 1rem;
+    }
+}
+</style>
+{% endblock %}

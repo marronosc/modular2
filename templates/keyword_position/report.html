@@ -1,0 +1,550 @@
+{% extends "base.html" %}
+
+{% block title %}Reporte de Posición: {{ result.keyword }} - TubeTools{% endblock %}
+{% block breadcrumb %}Verificador Posición - Resultados{% endblock %}
+
+{% set current_tool = tools_config.keyword_position %}
+{% block tool_color %}{{ current_tool.color }}{% endblock %}
+{% block tool_icon %}<svg viewBox="0 0 24 24">{{ icons[current_tool.icon]|safe }}</svg>{% endblock %}
+{% block tool_title %}Verificación de Posición para: "{{ result.keyword }}"{% endblock %}
+{% block tool_description %}Resultados de búsqueda para el canal en los primeros {{ result.total_searched }} resultados{% endblock %}
+{% block tool_tags %}
+<span class="tool-tag primary">{{ result.total_found }} Videos encontrados</span>
+<span class="tool-tag">{{ result.total_searched }} Analizados</span>
+{% if result.best_position %}
+<span class="tool-tag">#{{ result.best_position }} Mejor posición</span>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="back-section">
+    <a href="/keyword-position" class="back-link">← Realizar nueva verificación</a>
+</div>
+
+<!-- Información del Canal -->
+<div class="section">
+    <h2 class="section-title">
+        <span class="section-icon">📺</span>
+        Información del Canal
+    </h2>
+    <div class="channel-overview">
+        <div class="channel-avatar">
+            <img src="{{ result.channel_info.thumbnail }}" alt="Avatar del canal" onerror="this.style.display='none'">
+        </div>
+        <div class="channel-details">
+            <h3>{{ result.channel_info.title }}</h3>
+            <p class="channel-description">{{ result.channel_info.description }}</p>
+            <div class="channel-stats">
+                <div class="channel-stat">
+                    <span class="stat-icon">👥</span>
+                    <span>{{ format_number(result.channel_info.subscriber_count) }} suscriptores</span>
+                </div>
+                <div class="channel-stat">
+                    <span class="stat-icon">🎥</span>
+                    <span>{{ format_number(result.channel_info.video_count) }} videos</span>
+                </div>
+                <div class="channel-stat">
+                    <span class="stat-icon">👁️</span>
+                    <span>{{ format_number(result.channel_info.view_count) }} visualizaciones totales</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if result.found_videos %}
+<!-- Resumen de Posiciones -->
+<div class="section">
+    <h2 class="section-title">
+        <span class="section-icon">🎯</span>
+        Resumen de Posiciones
+    </h2>
+    <div class="position-summary">
+        <div class="position-stat">
+            <h4>Mejor Posición</h4>
+            <div class="position-value best">#{{ result.best_position }}</div>
+        </div>
+        <div class="position-stat">
+            <h4>Videos en Top 10</h4>
+            <div class="position-value">{{ result.found_videos | selectattr('position', 'le', 10) | list | length }}</div>
+        </div>
+        <div class="position-stat">
+            <h4>Videos en Top 50</h4>
+            <div class="position-value">{{ result.found_videos | selectattr('position', 'le', 50) | list | length }}</div>
+        </div>
+        <div class="position-stat">
+            <h4>Promedio de Posición</h4>
+            <div class="position-value">
+                #{{ "%.1f"|format((result.found_videos | sum(attribute='position')) / result.found_videos | length) }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Videos Encontrados -->
+<div class="section">
+    <h2 class="section-title">
+        <span class="section-icon">🎥</span>
+        Videos Encontrados ({{ result.found_videos | length }})
+    </h2>
+    <div class="videos-positions">
+        {% for video in result.found_videos %}
+        <div class="video-position-card">
+            <div class="position-badge 
+                {% if video.position <= 3 %}excellent
+                {% elif video.position <= 10 %}good
+                {% elif video.position <= 30 %}average
+                {% else %}poor{% endif %}">
+                #{{ video.position }}
+            </div>
+            <div class="video-thumbnail">
+                <img src="{{ video.thumbnail }}" alt="Miniatura del video" loading="lazy">
+            </div>
+            <div class="video-position-info">
+                <h3><a href="{{ video.video_url }}" target="_blank" rel="noopener">{{ video.title }}</a></h3>
+                <div class="video-stats">
+                    <div class="stat">
+                        <span class="stat-icon">👁️</span>
+                        <span>{{ format_number(video.views) }}</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-icon">👍</span>
+                        <span>{{ format_number(video.likes) }}</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-icon">💬</span>
+                        <span>{{ format_number(video.comments) }}</span>
+                    </div>
+                </div>
+                <div class="video-meta">
+                    <span>📅 {{ format_date(video.published_at) }}</span>
+                </div>
+                <p class="video-description">{{ video.description }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Análisis de Rendimiento -->
+<div class="section">
+    <h2 class="section-title">
+        <span class="section-icon">📊</span>
+        Análisis de Rendimiento
+    </h2>
+    <div class="performance-analysis">
+        <div class="performance-metric">
+            <h4>Visibilidad General</h4>
+            <div class="performance-bar">
+                <div class="performance-fill" style="width: {{ (result.total_found / result.total_searched * 100) | round(1) }}%"></div>
+            </div>
+            <p>{{ "%.1f"|format(result.total_found / result.total_searched * 100) }}% de presencia en los resultados</p>
+        </div>
+        
+        <div class="performance-metric">
+            <h4>Calidad de Posicionamiento</h4>
+            {% set avg_position = (result.found_videos | sum(attribute='position')) / result.found_videos | length %}
+            {% set quality_score = (100 - (avg_position / result.total_searched * 100)) | round(1) %}
+            <div class="performance-bar">
+                <div class="performance-fill" style="width: {{ quality_score }}%"></div>
+            </div>
+            <p>{{ quality_score }}% de calidad (posición promedio: #{{ "%.1f"|format(avg_position) }})</p>
+        </div>
+    </div>
+</div>
+{% else %}
+<!-- No se encontraron videos -->
+<div class="section">
+    <h2 class="section-title">
+        <span class="section-icon">❌</span>
+        Sin Resultados
+    </h2>
+    <div class="no-results">
+        <div class="no-results-icon">😔</div>
+        <h3>No se encontraron videos del canal</h3>
+        <p>El canal <strong>{{ result.channel_info.title }}</strong> no tiene videos posicionados entre los primeros {{ result.total_searched }} resultados para la palabra clave "<strong>{{ result.keyword }}</strong>".</p>
+        <div class="suggestions">
+            <h4>Sugerencias:</h4>
+            <ul>
+                <li>Intenta con una palabra clave más específica relacionada con el contenido del canal</li>
+                <li>Verifica que el ID del canal sea correcto</li>
+                <li>Aumenta el número de resultados a analizar</li>
+                <li>El canal podría necesitar optimizar su SEO para esta palabra clave</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="back-section">
+    <a href="/keyword-position" class="back-link">← Realizar nueva verificación</a>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.back-section {
+    margin: 2rem 0;
+}
+
+.back-link {
+    display: inline-block;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+.back-link:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
+}
+
+.section {
+    background-color: var(--background);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow);
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--primary-color);
+}
+
+.section-icon {
+    font-size: 1.2rem;
+}
+
+.channel-overview {
+    display: flex;
+    align-items: flex-start;
+    gap: 2rem;
+    background-color: #f8f9fa;
+    padding: 2rem;
+    border-radius: var(--radius);
+}
+
+.channel-avatar {
+    flex-shrink: 0;
+    width: 120px;
+}
+
+.channel-avatar img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.channel-details {
+    flex: 1;
+    min-width: 0;
+    word-wrap: break-word;
+}
+
+.channel-details h3 {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+    word-wrap: break-word;
+}
+
+.channel-description {
+    color: #666;
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.channel-stats {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.channel-stat {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+.position-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+
+.position-stat {
+    background-color: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: var(--radius);
+    text-align: center;
+}
+
+.position-stat h4 {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+.position-value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-top: 0.5rem;
+}
+
+.position-value.best {
+    color: #28a745;
+}
+
+.videos-positions {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.video-position-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    background-color: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    position: relative;
+}
+
+.position-badge {
+    position: absolute;
+    top: -10px;
+    left: 20px;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.9rem;
+    color: white;
+}
+
+.position-badge.excellent {
+    background-color: #28a745;
+}
+
+.position-badge.good {
+    background-color: #17a2b8;
+}
+
+.position-badge.average {
+    background-color: #ffc107;
+    color: #333;
+}
+
+.position-badge.poor {
+    background-color: #dc3545;
+}
+
+.video-thumbnail {
+    width: 200px;
+    height: 112px;
+    flex-shrink: 0;
+}
+
+.video-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: var(--radius);
+}
+
+.video-position-info {
+    flex: 1;
+    padding-top: 1.5rem;
+}
+
+.video-position-info h3 {
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+    line-height: 1.3;
+}
+
+.video-position-info h3 a {
+    color: var(--text-primary);
+    text-decoration: none;
+}
+
+.video-position-info h3 a:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
+}
+
+.video-stats {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.stat {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.8rem;
+}
+
+.stat-icon {
+    font-size: 0.9rem;
+}
+
+.video-meta {
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.video-description {
+    color: #666;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin: 0;
+}
+
+.performance-analysis {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.performance-metric {
+    background-color: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: var(--radius);
+}
+
+.performance-metric h4 {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+.performance-bar {
+    width: 100%;
+    height: 20px;
+    background-color: #e9ecef;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.performance-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-color), #ff4444);
+    transition: width 0.3s ease;
+}
+
+.no-results {
+    text-align: center;
+    padding: 3rem;
+}
+
+.no-results-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.no-results h3 {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+.suggestions {
+    background-color: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 1.5rem;
+    margin-top: 2rem;
+    border-radius: 0 var(--radius) var(--radius) 0;
+    text-align: left;
+}
+
+.suggestions h4 {
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+}
+
+.suggestions ul {
+    margin-left: 1.5rem;
+    margin-top: 1rem;
+}
+
+.suggestions li {
+    margin-bottom: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .channel-overview {
+        flex-direction: column;
+        text-align: center;
+        gap: 1.5rem;
+    }
+
+    .channel-avatar {
+        align-self: center;
+    }
+
+    .channel-stats {
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    .video-position-card {
+        flex-direction: column;
+    }
+
+    .video-thumbnail {
+        width: 100%;
+        height: 200px;
+    }
+
+    .position-badge {
+        position: static;
+        display: inline-block;
+        margin-bottom: 1rem;
+    }
+
+    .video-position-info {
+        padding-top: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .channel-overview {
+        padding: 1.5rem;
+    }
+
+    .channel-avatar img {
+        width: 100px;
+        height: 100px;
+    }
+
+    .channel-avatar {
+        width: 100px;
+    }
+
+    .channel-stats {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.8rem;
+    }
+
+    .channel-stat {
+        font-size: 0.85rem;
+    }
+}
+</style>
+{% endblock %}

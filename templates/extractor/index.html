@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}Extractor de ID de Canal - TubeTools{% endblock %}
+{% block breadcrumb %}Extractor de ID{% endblock %}
+
+{% set current_tool = tools_config.extractor %}
+{% block tool_color %}{{ current_tool.color }}{% endblock %}
+{% block tool_icon %}<svg viewBox="0 0 24 24">{{ icons[current_tool.icon]|safe }}</svg>{% endblock %}
+{% block tool_title %}{{ current_tool.name }}{% endblock %}
+{% block tool_description %}{{ current_tool.description }}{% endblock %}
+{% block tool_tags %}
+{% for tag in current_tool.tags %}
+<span class="tool-tag {% if loop.first %}primary{% endif %}">{{ tag }}</span>
+{% endfor %}
+{% endblock %}
+
+{% block content %}
+<div class="form-section">
+    <div class="form-header">
+        <h2>Extraer ID de Canal</h2>
+        <p>Introduce cualquier URL de YouTube relacionada con el canal y obtendremos automáticamente su ID único</p>
+    </div>
+
+    <form method="post" id="extractorForm">
+        <div class="form-group">
+            <label for="url" class="form-label">URL de YouTube *</label>
+            <input type="text" id="url" name="url" class="form-input"
+                placeholder="https://www.youtube.com/channel/UC... o https://www.youtube.com/watch?v=..." required>
+            <div class="form-help">Puedes usar URLs de canales, videos, perfiles o cualquier contenido relacionado con el canal que necesites</div>
+        </div>
+
+        <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+            <button type="submit" class="btn btn-primary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    {{ icons[current_tool.icon]|safe }}
+                </svg>
+                Extraer ID del Canal
+            </button>
+            <button type="reset" class="btn btn-secondary">Limpiar</button>
+        </div>
+    </form>
+</div>
+
+{% if result is not none %}
+<div class="result-section {% if result %}success-result{% else %}error-result{% endif %}">
+    <div class="result-header">
+        <div class="result-icon">{% if result %}✅{% else %}❌{% endif %}</div>
+        <div class="result-title">{% if result %}Éxito{% else %}Error{% endif %}</div>
+    </div>
+    
+    {% if result %}
+        <p>El ID del canal se ha extraído correctamente:</p>
+        <div class="channel-id-display">{{ result }}</div>
+        <button onclick="copyToClipboard('{{ result }}')" class="copy-button">
+            📋 Copiar ID
+        </button>
+    {% else %}
+        <p>No se pudo obtener el ID del canal. Verifica que la URL sea correcta y válida.</p>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.form-header {
+    margin-bottom: 2rem;
+}
+
+.form-header h2 {
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.form-help {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    margin-top: 6px;
+}
+
+.result-section {
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    margin: 2rem 0;
+    box-shadow: var(--shadow);
+}
+
+.success-result {
+    border-left: 4px solid var(--success);
+    background: rgba(0, 200, 81, 0.05);
+}
+
+.error-result {
+    border-left: 4px solid var(--error);
+    background: rgba(220, 53, 69, 0.05);
+}
+
+.result-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.result-icon {
+    font-size: 1.5rem;
+}
+
+.result-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.channel-id-display {
+    background: var(--background-tertiary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    margin: 1rem 0;
+    font-family: monospace;
+    font-size: 1rem;
+    color: var(--text-primary);
+    word-break: break-all;
+}
+
+.copy-button {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.copy-button:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(function() {
+        const button = document.querySelector('.copy-button');
+        const originalText = button.textContent;
+        button.textContent = '✅ ¡Copiado!';
+        button.style.backgroundColor = '#00C851';
+        
+        setTimeout(() => {
+            button.textContent = originalText;
+            button.style.backgroundColor = '';
+        }, 2000);
+    }).catch(function(err) {
+        alert('Error al copiar al portapapeles');
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    document.getElementById('url').focus();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+
+{% block title %}Verificador de Posición de Canal - TubeTools{% endblock %}
+{% block breadcrumb %}Verificador de Posición{% endblock %}
+
+{% set current_tool = tools_config.keyword_position %}
+{% block tool_color %}{{ current_tool.color }}{% endblock %}
+{% block tool_icon %}<svg viewBox="0 0 24 24">{{ icons[current_tool.icon]|safe }}</svg>{% endblock %}
+{% block tool_title %}{{ current_tool.name }}{% endblock %}
+{% block tool_description %}{{ current_tool.description }}{% endblock %}
+{% block tool_tags %}
+{% for tag in current_tool.tags %}
+<span class="tool-tag {% if loop.first %}primary{% endif %}">{{ tag }}</span>
+{% endfor %}
+{% endblock %}
+
+{% block content %}
+{% if error %}
+<div class="error-message">
+    <h3>❌ Error</h3>
+    <p>{{ error }}</p>
+</div>
+{% endif %}
+
+<div class="form-section">
+    <div class="form-header">
+        <h2>Verificar Posición de Canal</h2>
+        <p>Descubre si los videos de un canal específico aparecen entre los primeros resultados de búsqueda en YouTube</p>
+    </div>
+
+    <form method="post">
+        <div class="form-group">
+            <label for="keyword" class="form-label">Palabra clave a buscar:</label>
+            <input type="text" name="keyword" id="keyword" class="form-input" 
+                   placeholder="Ej: marketing digital" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="channel_url" class="form-label">URL del canal o video de YouTube:</label>
+            <input type="text" name="channel_url" id="channel_url" class="form-input"
+                   placeholder="https://www.youtube.com/channel/UC... o https://www.youtube.com/watch?v=..." required>
+            <div class="form-help">Puedes usar cualquier URL de YouTube relacionada con el canal (canal, video, etc.)</div>
+        </div>
+        
+        <div class="form-group">
+            <label for="max_results" class="form-label">Número de resultados a analizar:</label>
+            <select name="max_results" id="max_results" class="form-input">
+                <option value="50">Primeros 50 resultados</option>
+                <option value="100" selected>Primeros 100 resultados</option>
+                <option value="200">Primeros 200 resultados</option>
+            </select>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                {{ icons[current_tool.icon]|safe }}
+            </svg>
+            Verificar Posición
+        </button>
+    </form>
+</div>
+
+<div class="info-grid">
+    <div class="info-card">
+        <div class="info-card-header">
+            <div class="info-card-icon">🔍</div>
+            <h3>Búsqueda Exhaustiva</h3>
+        </div>
+        <p>Analiza hasta 200 resultados de búsqueda para encontrar videos del canal</p>
+    </div>
+
+    <div class="info-card">
+        <div class="info-card-header">
+            <div class="info-card-icon">📊</div>
+            <h3>Estadísticas Detalladas</h3>
+        </div>
+        <p>Muestra la posición exacta, views, likes y comentarios de cada video encontrado</p>
+    </div>
+
+    <div class="info-card">
+        <div class="info-card-header">
+            <div class="info-card-icon">🎯</div>
+            <h3>Análisis de Rendimiento</h3>
+        </div>
+        <p>Evalúa qué tan bien posiciona el canal para palabras clave específicas</p>
+    </div>
+
+    <div class="info-card">
+        <div class="info-card-header">
+            <div class="info-card-icon">📈</div>
+            <h3>Detección Automática</h3>
+        </div>
+        <p>Extrae automáticamente el ID del canal desde cualquier URL de YouTube</p>
+    </div>
+</div>
+
+<div class="tips-section">
+    <div class="tips-header">
+        <svg class="tips-icon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M9 21c0 .5.4 1 1 1h4c.6 0 1-.5 1-1v-1H9v1zm3-19C8.1 2 5 5.1 5 9c0 2.4 1.2 4.5 3 5.7V17c0 .5.4 1 1 1h6c.6 0 1-.5 1-1v-2.3c1.8-1.3 3-3.4 3-5.7 0-3.9-3.1-7-7-7z" />
+        </svg>
+        <span class="tips-title">Consejos para mejores resultados</span>
+    </div>
+    <ul class="tips-list">
+        <li><strong>URL del Canal:</strong> Puedes usar cualquier URL del canal o de un video del canal</li>
+        <li><strong>Palabras Clave:</strong> Prueba diferentes variaciones de tu palabra clave principal</li>
+        <li><strong>Análisis Periódico:</strong> Realiza verificaciones regulares para monitorear cambios</li>
+        <li><strong>Competencia:</strong> Analiza también a tus competidores para comparar posiciones</li>
+    </ul>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+.info-card {
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    transition: transform 0.2s ease;
+}
+
+.info-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.info-card-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.info-card-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius);
+    background: rgba(255, 152, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.info-card h3 {
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.info-card p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin: 0;
+}
+
+.tips-section {
+    background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+    border: 1px solid #ffe082;
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    margin: 2rem 0;
+}
+
+.tips-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.tips-icon {
+    width: 28px;
+    height: 28px;
+    color: #f57f17;
+}
+
+.tips-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #f57f17;
+}
+
+.tips-list {
+    list-style: none;
+    margin: 0;
+}
+
+.tips-list li {
+    padding: 0.75rem 0;
+    color: #f57f17;
+    font-size: 0.95rem;
+    position: relative;
+    padding-left: 2rem;
+    line-height: 1.4;
+}
+
+.tips-list li::before {
+    content: "💡";
+    position: absolute;
+    left: 0;
+    top: 0.75rem;
+    font-size: 1.2rem;
+}
+
+.error-message {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    color: var(--error);
+}
+
+.form-help {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    margin-top: 6px;
+    line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+    .info-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .tips-section {
+        padding: 1.5rem;
+    }
+}
+</style>
+{% endblock %}

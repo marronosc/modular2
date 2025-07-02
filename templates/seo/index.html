@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+
+{% block title %}Análisis SEO YouTube - TubeTools{% endblock %}
+{% block breadcrumb %}Análisis SEO{% endblock %}
+
+{% set current_tool = tools_config.seo %}
+{% block tool_color %}{{ current_tool.color }}{% endblock %}
+{% block tool_icon %}<svg viewBox="0 0 24 24">{{ icons[current_tool.icon]|safe }}</svg>{% endblock %}
+{% block tool_title %}{{ current_tool.name }}{% endblock %}
+{% block tool_description %}{{ current_tool.description }}{% endblock %}
+{% block tool_tags %}
+{% for tag in current_tool.tags %}
+<span class="tool-tag {% if loop.first %}primary{% endif %}">{{ tag }}</span>
+{% endfor %}
+{% endblock %}
+
+{% block content %}
+<div class="form-section">
+    <div class="form-header">
+        <h2>Realizar Análisis SEO</h2>
+        <p>Analiza los primeros 20 resultados de búsqueda en YouTube para una palabra clave específica</p>
+    </div>
+
+    <form method="post" class="seo-form">
+        <div class="form-group">
+            <label for="keyword" class="form-label">Palabra clave para analizar:</label>
+            <input type="text" name="keyword" id="keyword" class="form-input" 
+                   placeholder="Introduce una palabra clave (ej: marketing digital)" required>
+            <div class="form-help">Esta será la palabra clave que analizaremos en los primeros 20 resultados de YouTube</div>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                {{ icons[current_tool.icon]|safe }}
+            </svg>
+            Realizar Análisis SEO
+        </button>
+    </form>
+</div>
+
+<div class="info-grid">
+    <div class="info-card">
+        <div class="info-card-header">
+            <div class="info-card-icon">📊</div>
+            <h3>Estadísticas Generales</h3>
+        </div>
+        <p>Promedio de visualizaciones, likes, comentarios y duración de los videos mejor posicionados</p>
+    </div>
+
+    <div class="info-card">
+        <div class="info-card-header">
+            <div class="info-card-icon">📺</div>
+            <h3>Análisis de Videos</h3>
+        </div>
+        <p>Detalles completos de cada video en los primeros 20 resultados con métricas de rendimiento</p>
+    </div>
+
+    <div class="info-card">
+        <div class="info-card-header">
+            <div class="info-card-icon">👤</div>
+            <h3>Estadísticas de Canales</h3>
+        </div>
+        <p>Rendimiento por canal y número de videos por creador en los resultados</p>
+    </div>
+
+    <div class="info-card">
+        <div class="info-card-header">
+            <div class="info-card-icon">📅</div>
+            <h3>Análisis Temporal</h3>
+        </div>
+        <p>Videos categorizados por antigüedad (6 meses, 1 año, más antiguos)</p>
+    </div>
+</div>
+
+<div class="tips-section">
+    <div class="tips-header">
+        <svg class="tips-icon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M9 21c0 .5.4 1 1 1h4c.6 0 1-.5 1-1v-1H9v1zm3-19C8.1 2 5 5.1 5 9c0 2.4 1.2 4.5 3 5.7V17c0 .5.4 1 1 1h6c.6 0 1-.5 1-1v-2.3c1.8-1.3 3-3.4 3-5.7 0-3.9-3.1-7-7-7z" />
+        </svg>
+        <span class="tips-title">💡 Consejos para mejores resultados</span>
+    </div>
+    <ul class="tips-list">
+        <li><strong>Sé específico:</strong> Palabras clave más específicas dan resultados más relevantes</li>
+        <li><strong>Analiza la competencia:</strong> Observa qué tipo de contenido está funcionando</li>
+        <li><strong>Estudia las duraciones:</strong> Identifica la duración promedio exitosa</li>
+        <li><strong>Revisa las fechas:</strong> Determina si el contenido reciente o antiguo funciona mejor</li>
+    </ul>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+.info-card {
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    transition: transform 0.2s ease;
+}
+
+.info-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.info-card-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.info-card-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius);
+    background: rgba(76, 175, 80, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.info-card h3 {
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.info-card p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin: 0;
+}
+
+.tips-section {
+    background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+    border: 1px solid #ffe082;
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    margin: 2rem 0;
+}
+
+.tips-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.tips-icon {
+    width: 28px;
+    height: 28px;
+    color: #f57f17;
+}
+
+.tips-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #f57f17;
+}
+
+.tips-list {
+    list-style: none;
+    margin: 0;
+}
+
+.tips-list li {
+    padding: 0.75rem 0;
+    color: #f57f17;
+    font-size: 0.95rem;
+    position: relative;
+    padding-left: 2rem;
+    line-height: 1.4;
+}
+
+.tips-list li::before {
+    content: "💡";
+    position: absolute;
+    left: 0;
+    top: 0.75rem;
+    font-size: 1.2rem;
+}
+
+.form-help {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    margin-top: 6px;
+}
+
+@media (max-width: 768px) {
+    .info-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .tips-section {
+        padding: 1.5rem;
+    }
+}
+</style>
+{% endblock %}

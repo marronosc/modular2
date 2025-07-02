@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}TubeTools{% endblock %}</title>
+    <style>
+        :root {
+            --primary-color: #FF0000;
+            --primary-hover: #E60000;
+            --secondary-color: #282828;
+            --text-primary: #0F0F0F;
+            --text-secondary: #606060;
+            --text-tertiary: #909090;
+            --background: #FFFFFF;
+            --background-secondary: #F9F9F9;
+            --background-tertiary: #F1F1F1;
+            --border: #E5E5E5;
+            --border-light: #F0F0F0;
+            --success: #00C851;
+            --warning: #FFB347;
+            --error: #dc3545;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
+            --radius: 8px;
+            --radius-lg: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--background-secondary);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: var(--background);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 24px 20px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--primary-color);
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .nav-section {
+            padding: 20px 0 16px;
+        }
+
+        .nav-title {
+            padding: 0 20px 12px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            background: var(--background-secondary);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            background: var(--background-secondary);
+            color: var(--primary-color);
+            border-left-color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .nav-item.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .nav-item.disabled:hover {
+            background: transparent;
+            color: var(--text-secondary);
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .nav-icon svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
+        .main-content {
+            margin-left: 280px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .top-bar {
+            background: var(--background);
+            border-bottom: 1px solid var(--border);
+            padding: 20px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .breadcrumb a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .breadcrumb a:hover {
+            color: var(--primary-color);
+        }
+
+        .breadcrumb .current {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .search-container {
+            position: relative;
+            width: 320px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 16px 10px 40px;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            background: var(--background-secondary);
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-tertiary);
+            width: 16px;
+            height: 16px;
+        }
+
+        .tool-header {
+            background: var(--background);
+            padding: 40px 32px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tool-title-section {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            margin-bottom: 20px;
+        }
+
+        .tool-icon-large {
+            width: 72px;
+            height: 72px;
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: var(--shadow-lg);
+            flex-shrink: 0;
+        }
+
+        .tool-icon-large svg {
+            width: 36px;
+            height: 36px;
+            fill: currentColor;
+        }
+
+        .tool-title-info h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            line-height: 1.2;
+        }
+
+        .tool-subtitle {
+            font-size: 17px;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .tool-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tool-tag {
+            padding: 6px 12px;
+            background: var(--background-tertiary);
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 500;
+            border-radius: 16px;
+            border: 1px solid var(--border-light);
+        }
+
+        .tool-tag.primary {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            border-color: rgba(102, 126, 234, 0.2);
+        }
+
+        .content {
+            padding: 32px;
+            max-width: 1000px;
+            margin: 0 auto;
+            width: 100%;
+            flex: 1;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 28px;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            box-shadow: 0 2px 4px rgba(255, 0, 0, 0.2);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(255, 0, 0, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--background);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--background-tertiary);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .form-section {
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            margin-bottom: 32px;
+            box-shadow: var(--shadow);
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 15px;
+            transition: all 0.2s ease;
+            background: var(--background);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.1);
+        }
+
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: var(--radius);
+            cursor: pointer;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                z-index: 999;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .content {
+                padding: 24px 16px;
+            }
+
+            .tool-header {
+                padding: 32px 16px;
+            }
+
+            .top-bar {
+                padding: 16px;
+                padding-left: 60px;
+            }
+
+            .search-container {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .tool-title-section {
+                flex-direction: column;
+                text-align: center;
+                gap: 20px;
+            }
+
+            .tool-icon-large {
+                width: 64px;
+                height: 64px;
+            }
+
+            .tool-title-info h1 {
+                font-size: 26px;
+            }
+        }
+
+        {% block extra_css %}{% endblock %}
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
+            </svg>
+        </button>
+
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">TT</div>
+                    <div class="logo-text">TubeTools</div>
+                </div>
+            </div>
+
+            <nav>
+                <div class="nav-section">
+                    <div class="nav-title">Principal</div>
+                    <a href="/" class="nav-item {% if request.endpoint == 'index' %}active{% endif %}">
+                        <div class="nav-icon">
+                            <svg viewBox="0 0 24 24">{{ icons.home|safe }}</svg>
+                        </div>
+                        Dashboard
+                    </a>
+                </div>
+
+                {% if active_tools %}
+                <div class="nav-section">
+                    <div class="nav-title">Herramientas Disponibles</div>
+                    {% for tool_id, tool in active_tools.items() %}
+                    <a href="{{ tool.url }}" class="nav-item {% if request.endpoint and tool_id in request.endpoint %}active{% endif %}">
+                        <div class="nav-icon">
+                            <svg viewBox="0 0 24 24">{{ icons[tool.icon]|safe }}</svg>
+                        </div>
+                        {{ tool.name }}
+                    </a>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {% if coming_soon_tools %}
+                <div class="nav-section">
+                    <div class="nav-title">Próximamente</div>
+                    {% for tool_id, tool in coming_soon_tools.items() %}
+                    <div class="nav-item disabled">
+                        <div class="nav-icon">
+                            <svg viewBox="0 0 24 24">{{ icons[tool.icon]|safe }}</svg>
+                        </div>
+                        {{ tool.name }}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="nav-section">
+                    <div class="nav-title">Configuración</div>
+                    <a href="#" class="nav-item">
+                        <div class="nav-icon">
+                            <svg viewBox="0 0 24 24">{{ icons.settings|safe }}</svg>
+                        </div>
+                        Ajustes
+                    </a>
+                    <a href="#" class="nav-item">
+                        <div class="nav-icon">
+                            <svg viewBox="0 0 24 24">{{ icons.help|safe }}</svg>
+                        </div>
+                        Ayuda
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-bar">
+                <nav class="breadcrumb">
+                    <a href="/">Dashboard</a>
+                    <span>></span>
+                    <span class="current">{% block breadcrumb %}Herramienta{% endblock %}</span>
+                </nav>
+                <div class="search-container">
+                    <div class="search-icon">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            {{ icons.search|safe }}
+                        </svg>
+                    </div>
+                    <input type="text" class="search-input" placeholder="Buscar herramientas...">
+                </div>
+            </header>
+
+            {% block tool_header %}
+            <div class="tool-header">
+                <div class="tool-title-section">
+                    <div class="tool-icon-large" style="background: {% block tool_color %}#667eea{% endblock %};">
+                        {% block tool_icon %}
+                        <svg viewBox="0 0 24 24">{{ icons.document|safe }}</svg>
+                        {% endblock %}
+                    </div>
+                    <div class="tool-title-info">
+                        <h1>{% block tool_title %}Herramienta{% endblock %}</h1>
+                        <p class="tool-subtitle">{% block tool_description %}Descripción de la herramienta{% endblock %}</p>
+                        <div class="tool-tags">
+                            {% block tool_tags %}
+                            <span class="tool-tag primary">Herramienta</span>
+                            {% endblock %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endblock %}
+
+            <div class="content">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        document.addEventListener('click', function (e) {
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.querySelector('.mobile-menu-toggle');
+
+            if (window.innerWidth <= 1024 &&
+                !sidebar.contains(e.target) &&
+                !toggle.contains(e.target) &&
+                sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+            }
+        });
+
+        document.querySelector('.search-input').addEventListener('input', function (e) {
+            const searchTerm = e.target.value.toLowerCase();
+            console.log('Searching for:', searchTerm);
+        });
+
+        document.addEventListener('keydown', function (e) {
+            if (e.altKey && e.key === 's') {
+                e.preventDefault();
+                document.querySelector('.search-input').focus();
+            }
+
+            if (e.key === 'Escape') {
+                document.getElementById('sidebar').classList.remove('open');
+            }
+        });
+
+        {% block extra_js %}{% endblock %}
+    </script>
+</body>
+</html>

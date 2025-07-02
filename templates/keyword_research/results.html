@@ -1,0 +1,511 @@
+{% extends "base.html" %}
+
+{% block title %}Sugerencias: {{ result.keyword }} - TubeTools{% endblock %}
+{% block breadcrumb %}Investigador Keywords - Resultados{% endblock %}
+
+{% set current_tool = tools_config.keyword_research %}
+{% block tool_color %}{{ current_tool.color }}{% endblock %}
+{% block tool_icon %}<svg viewBox="0 0 24 24">{{ icons[current_tool.icon]|safe }}</svg>{% endblock %}
+{% block tool_title %}Sugerencias de YouTube para: "{{ result.keyword }}"{% endblock %}
+{% block tool_description %}{{ result.total_suggestions }} sugerencias encontradas{% endblock %}
+{% block tool_tags %}
+<span class="tool-tag primary">{{ result.total_suggestions }} Sugerencias</span>
+<span class="tool-tag">{{ result.search_date.strftime('%H:%M') }} Hora</span>
+{% if result.has_suggestions %}
+<span class="tool-tag">Exportables</span>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="back-section">
+    <a href="/keyword-research" class="back-link">← Buscar nuevas sugerencias</a>
+</div>
+
+{% if result.has_suggestions %}
+
+<!-- Acciones rápidas -->
+<div class="section">
+    <h2 class="section-title">
+        <span class="section-icon">⚡</span>
+        Acciones Rápidas
+    </h2>
+    <div class="quick-actions">
+        <button onclick="copyAllSuggestions()" class="action-button copy-btn">
+            📋 Copiar Todas
+        </button>
+        <div class="export-buttons">
+            <a href="{{ url_for('keyword_research.export_suggestions', keyword=result.keyword, format_type='txt') }}" 
+               class="action-button export-btn">📄 Descargar TXT</a>
+            <a href="{{ url_for('keyword_research.export_suggestions', keyword=result.keyword, format_type='csv') }}" 
+               class="action-button export-btn">📊 Descargar CSV</a>
+            <a href="{{ url_for('keyword_research.export_suggestions', keyword=result.keyword, format_type='json') }}" 
+               class="action-button export-btn">🔧 Descargar JSON</a>
+        </div>
+    </div>
+</div>
+
+<!-- Lista de sugerencias -->
+<div class="section">
+    <h2 class="section-title">
+        <span class="section-icon">💡</span>
+        Sugerencias Encontradas ({{ result.total_suggestions }})
+    </h2>
+    <div class="suggestions-grid">
+        {% for suggestion in result.suggestions %}
+        <div class="suggestion-card">
+            <div class="suggestion-number">{{ loop.index }}</div>
+            <div class="suggestion-content">
+                <div class="suggestion-text">{{ suggestion }}</div>
+                <button onclick="copySuggestion('{{ suggestion }}')" class="copy-single">
+                    📋 Copiar
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Análisis de las sugerencias -->
+<div class="section">
+    <h2 class="section-title">
+        <span class="section-icon">📈</span>
+        Análisis de Sugerencias
+    </h2>
+    <div class="analysis-cards">
+        <div class="analysis-card">
+            <h4>Palabras más comunes</h4>
+            <div class="word-cloud">
+                {% set all_words = [] %}
+                {% for suggestion in result.suggestions %}
+                    {% for word in suggestion.split() %}
+                        {% if word|length > 3 %}
+                            {% set word_lower = word.lower() %}
+                            {% if word_lower not in ['para', 'como', 'cómo', 'hacer', 'tutorial', 'the', 'and', 'with', 'for', 'yoga'] %}
+                                {% set _ = all_words.append(word_lower) %}
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                {% endfor %}
+                
+                {% set word_counts = {} %}
+                {% for word in all_words %}
+                    {% if word in word_counts %}
+                        {% set _ = word_counts.update({word: word_counts[word] + 1}) %}
+                    {% else %}
+                        {% set _ = word_counts.update({word: 1}) %}
+                    {% endif %}
+                {% endfor %}
+                
+                {% set sorted_words = word_counts.items() | sort(attribute='1', reverse=true) %}
+                {% for word, count in sorted_words[:8] %}
+                    {% if count > 1 %}
+                        <span class="word-tag">{{ word }} ({{ count }})</span>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="analysis-card">
+            <h4>Tipos de contenido sugeridos</h4>
+            <div class="content-types">
+                {% set tutorial_count = 0 %}
+                {% set review_count = 0 %}
+                {% set vs_count = 0 %}
+                {% set best_count = 0 %}
+                {% set day_count = 0 %}
+                
+                {% for suggestion in result.suggestions %}
+                    {% set suggestion_lower = suggestion.lower() %}
+                    {% if 'tutorial' in suggestion_lower or 'cómo' in suggestion_lower or 'como' in suggestion_lower or 'how to' in suggestion_lower or 'paso a paso' in suggestion_lower %}
+                        {% set tutorial_count = tutorial_count + 1 %}
+                    {% endif %}
+                    {% if 'review' in suggestion_lower or 'reseña' in suggestion_lower or 'opinión' in suggestion_lower %}
+                        {% set review_count = review_count + 1 %}
+                    {% endif %}
+                    {% if 'vs' in suggestion_lower or 'versus' in suggestion_lower or 'comparar' in suggestion_lower %}
+                        {% set vs_count = vs_count + 1 %}
+                    {% endif %}
+                    {% if 'mejor' in suggestion_lower or 'best' in suggestion_lower or 'top' in suggestion_lower %}
+                        {% set best_count = best_count + 1 %}
+                    {% endif %}
+                    {% if 'día' in suggestion_lower or 'dia' in suggestion_lower or 'day' in suggestion_lower or 'días' in suggestion_lower %}
+                        {% set day_count = day_count + 1 %}
+                    {% endif %}
+                {% endfor %}
+                
+                {% if tutorial_count > 0 %}
+                    <div class="content-type">🎓 Tutoriales: {{ tutorial_count }}</div>
+                {% endif %}
+                {% if review_count > 0 %}
+                    <div class="content-type">⭐ Reviews: {{ review_count }}</div>
+                {% endif %}
+                {% if vs_count > 0 %}
+                    <div class="content-type">⚔️ Comparaciones: {{ vs_count }}</div>
+                {% endif %}
+                {% if best_count > 0 %}
+                    <div class="content-type">🏆 Rankings: {{ best_count }}</div>
+                {% endif %}
+                {% if day_count > 0 %}
+                    <div class="content-type">📅 Por días: {{ day_count }}</div>
+                {% endif %}
+                
+                {% if tutorial_count == 0 and review_count == 0 and vs_count == 0 and best_count == 0 and day_count == 0 %}
+                    <div class="content-type">📝 Contenido general variado</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% else %}
+<!-- Sin sugerencias -->
+<div class="section">
+    <h2 class="section-title">
+        <span class="section-icon">😕</span>
+        Sin Sugerencias
+    </h2>
+    <div class="no-suggestions">
+        <div class="no-suggestions-icon">🤷‍♂️</div>
+        <h3>No se encontraron sugerencias</h3>
+        <p>YouTube no proporcionó sugerencias para "<strong>{{ result.keyword }}</strong>".</p>
+        <div class="suggestions-help">
+            <h4>Posibles razones:</h4>
+            <ul>
+                <li>La palabra clave es muy específica o poco común</li>
+                <li>Podría haber un error temporal con el servicio</li>
+                <li>Intenta con una variación más general de tu palabra clave</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="back-section">
+    <a href="/keyword-research" class="back-link">← Buscar nuevas sugerencias</a>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.back-section {
+    margin: 2rem 0;
+}
+
+.back-link {
+    display: inline-block;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+.back-link:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
+}
+
+.section {
+    background-color: var(--background);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow);
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--primary-color);
+}
+
+.section-icon {
+    font-size: 1.2rem;
+}
+
+.quick-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.export-buttons {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.action-button {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.copy-btn {
+    background-color: var(--text-primary);
+    color: white;
+}
+
+.copy-btn:hover {
+    background-color: #404040;
+    transform: translateY(-2px);
+}
+
+.export-btn {
+    background-color: #9c27b0;
+    color: white;
+}
+
+.export-btn:hover {
+    background-color: #7b1fa2;
+    transform: translateY(-2px);
+}
+
+.suggestions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+}
+
+.suggestion-card {
+    background-color: #f8f9fa;
+    border-radius: var(--radius);
+    padding: 1rem;
+    border-left: 4px solid var(--primary-color);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: transform 0.3s ease;
+}
+
+.suggestion-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.suggestion-number {
+    background-color: var(--primary-color);
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+
+.suggestion-content {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.suggestion-text {
+    font-weight: 500;
+    color: var(--text-primary);
+    word-break: break-word;
+}
+
+.copy-single {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 15px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: background-color 0.3s ease;
+    white-space: nowrap;
+}
+
+.copy-single:hover {
+    background-color: #218838;
+}
+
+.analysis-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.analysis-card {
+    background-color: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: var(--radius);
+    border: 1px solid #e9ecef;
+}
+
+.analysis-card h4 {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+.word-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.word-tag {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.content-types {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.content-type {
+    background-color: white;
+    padding: 0.75rem;
+    border-radius: 6px;
+    border-left: 3px solid var(--primary-color);
+    font-weight: 500;
+}
+
+.no-suggestions {
+    text-align: center;
+    padding: 3rem;
+}
+
+.no-suggestions-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.no-suggestions h3 {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+.suggestions-help {
+    background-color: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 1.5rem;
+    margin-top: 2rem;
+    border-radius: 0 var(--radius) var(--radius) 0;
+    text-align: left;
+}
+
+.suggestions-help ul {
+    margin-left: 1.5rem;
+    margin-top: 1rem;
+}
+
+.suggestions-help li {
+    margin-bottom: 0.5rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .suggestions-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .suggestion-card {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.75rem;
+    }
+    
+    .suggestion-content {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .quick-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .export-buttons {
+        justify-content: center;
+    }
+    
+    .analysis-cards {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .section {
+        padding: 1.5rem;
+    }
+    
+    .action-button {
+        font-size: 0.8rem;
+        padding: 0.6rem 1.2rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function copyAllSuggestions() {
+    const suggestions = [
+        {% for suggestion in result.suggestions %}
+        "{{ suggestion|replace('"', '\\"') }}"{{ "," if not loop.last }}
+        {% endfor %}
+    ];
+    
+    const text = suggestions.join('\n');
+    
+    navigator.clipboard.writeText(text).then(function() {
+        const button = document.querySelector('.copy-btn');
+        const originalText = button.textContent;
+        button.textContent = '✅ ¡Copiado!';
+        button.style.backgroundColor = '#28a745';
+        
+        setTimeout(() => {
+            button.textContent = originalText;
+            button.style.backgroundColor = '';
+        }, 2000);
+    }).catch(function(err) {
+        alert('Error al copiar al portapapeles');
+    });
+}
+
+function copySuggestion(suggestion) {
+    navigator.clipboard.writeText(suggestion).then(function() {
+        const buttons = document.querySelectorAll('.copy-single');
+        buttons.forEach(button => {
+            if (button.closest('.suggestion-card').querySelector('.suggestion-text').textContent === suggestion) {
+                const originalText = button.textContent;
+                button.textContent = '✅ ¡Copiado!';
+                button.style.backgroundColor = '#218838';
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.style.backgroundColor = '';
+                }, 1500);
+            }
+        });
+    }).catch(function(err) {
+        alert('Error al copiar al portapapeles');
+    });
+}
+</script>
+{% endblock %}
