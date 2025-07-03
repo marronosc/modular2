@@ -80,6 +80,16 @@
                        required>
             </div>
             
+            <div class="form-group">
+                <label for="analysis_depth">Profundidad del análisis:</label>
+                <select id="analysis_depth" name="analysis_depth">
+                    <option value="250">Últimos 250 videos (Rápido)</option>
+                    <option value="500">Últimos 500 videos (Medio)</option>
+                    <option value="1000" selected>Últimos 1000 videos (Completo)</option>
+                    <option value="1500">Últimos 1500 videos (Exhaustivo)</option>
+                </select>
+            </div>
+            
             <button type="submit">🔍 Analizar Top Videos</button>
         </form>
     </div>

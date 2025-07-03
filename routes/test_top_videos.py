@@ -24,8 +24,9 @@ def test_top_videos():
                 return render_template('test_top_videos/error.html', 
                                      error="El canal no existe o no es público")
             
-            # Obtener videos usando EXACTAMENTE el mismo método que la app original
-            videos = get_all_channel_videos(channel_id, 0, 20)
+            # Obtener videos usando el método optimizado con profundidad configurable
+            analysis_depth = int(request.form.get('analysis_depth', '1000'))
+            videos = get_all_channel_videos(channel_id, 0, 20, analysis_depth)
             
             # Preparar datos para mostrar
             test_data = {

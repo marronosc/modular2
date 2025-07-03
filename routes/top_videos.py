@@ -12,6 +12,7 @@ def top_videos():
     if request.method == 'POST':
         channel_url = request.form.get('channel_url', '').strip()
         duration_filter = request.form.get('duration_filter', '0')
+        analysis_depth = request.form.get('analysis_depth', '1000')
         
         if not channel_url:
             return render_template('top_videos/index.html', 
@@ -20,7 +21,8 @@ def top_videos():
         try:
             return redirect(url_for('top_videos.generate_report', 
                                   channel_url=channel_url,
-                                  duration_filter=duration_filter))
+                                  duration_filter=duration_filter,
+                                  analysis_depth=analysis_depth))
         except Exception as e:
             error_msg = f"Error procesando la URL: {str(e)}"
             logging.error(error_msg)
@@ -35,8 +37,9 @@ def generate_report(channel_url):
         sort_by = request.args.get('sort', 'views')
         order = request.args.get('order', 'desc')
         duration_filter = int(request.args.get('duration_filter', '0'))
+        analysis_depth = int(request.args.get('analysis_depth', '1000'))
         
-        result = get_top_videos(channel_url, duration_filter=duration_filter)
+        result = get_top_videos(channel_url, duration_filter=duration_filter, analysis_depth=analysis_depth)
         
         # Aplicar ordenación si se especifica
         if sort_by != 'views' or order != 'desc':

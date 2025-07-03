@@ -12,7 +12,7 @@ if api_key:
 else:
     youtube = None
 
-def get_top_videos(channel_url, max_results=20, duration_filter=0):
+def get_top_videos(channel_url, max_results=20, duration_filter=0, analysis_depth=1000):
     """
     Obtiene los top videos de un canal de YouTube ordenados por visualizaciones
     
@@ -45,7 +45,7 @@ def get_top_videos(channel_url, max_results=20, duration_filter=0):
             raise Exception(f"El canal {channel_id} no existe o no es público")
         
         # Obtener los top videos del canal (ya vienen ordenados)
-        top_videos = get_all_channel_videos(channel_id, duration_filter, max_results)
+        top_videos = get_all_channel_videos(channel_id, duration_filter, max_results, analysis_depth)
         
         # Calcular estadísticas y análisis
         stats = calculate_basic_stats(top_videos) if top_videos else {}
@@ -62,7 +62,7 @@ def get_top_videos(channel_url, max_results=20, duration_filter=0):
             'insights': insights,
             'frequency': frequency,
             'analysis_type': 'top_videos',
-            'total_videos_analyzed': 1000  # Videos analizados para encontrar los top
+            'total_videos_analyzed': analysis_depth
         }
         
     except Exception as e:
@@ -98,7 +98,7 @@ def get_channel_info(channel_id):
         logging.error(f"Error obteniendo información del canal {channel_id}: {str(e)}")
         return None
 
-def get_all_channel_videos(channel_id, duration_filter=0, max_results=20):
+def get_all_channel_videos(channel_id, duration_filter=0, max_results=20, analysis_depth=1000):
     """Obtiene los videos más vistos del canal usando playlistItems (método confiable)"""
     try:
         # Obtener el uploads playlist ID del canal
@@ -117,10 +117,10 @@ def get_all_channel_videos(channel_id, duration_filter=0, max_results=20):
         videos = []
         next_page_token = None
         total_fetched = 0
-        max_iterations = 20  # Limitado para obtener ~1000 videos (50 x 20)
+        max_iterations = max(1, analysis_depth // 50)  # Calcular iteraciones según profundidad
         iterations = 0
         
-        logging.info(f"Obteniendo videos del canal para encontrar los {max_results} más vistos")
+        logging.info(f"Obteniendo últimos {analysis_depth} videos del canal para encontrar los {max_results} más vistos")
         
         while iterations < max_iterations:
             iterations += 1
