@@ -103,17 +103,14 @@ def get_channel_info(channel_id):
         return None
 
 def get_all_channel_videos(channel_id, duration_filter=0, max_results=20):
-    """Obtiene los videos más vistos del canal usando search API optimizada"""
+    """Obtiene los videos más vistos del canal usando el método exacto de la app original"""
     try:
         videos = []
         next_page_token = None
-        max_results_needed = max_results  # Solo obtener los videos que necesitamos
-        total_fetched = 0
         
-        logging.info(f"Buscando videos más vistos del canal {channel_id}")
+        logging.info(f"Intentando obtener los {max_results} videos más vistos para el canal {channel_id}")
         
-        while len(videos) < max_results_needed:
-            # Usar search API con order por viewCount para obtener directamente los más vistos
+        while len(videos) < max_results:
             request = youtube.search().list(
                 part='snippet',
                 channelId=channel_id,
@@ -124,79 +121,101 @@ def get_all_channel_videos(channel_id, duration_filter=0, max_results=20):
             )
             response = request.execute()
             
-            items = response.get('items', [])
-            logging.info(f"Search API retornó {len(items)} items para canal {channel_id}")
+            logging.info(f"Obtenida respuesta de búsqueda. Número de items: {len(response['items'])}")
             
-            if not items:
-                logging.warning(f"No se encontraron videos en search API para canal {channel_id}")
-                # Intentar con orden diferente si no hay resultados
-                if next_page_token is None:  # Solo en primera iteración
-                    logging.info("Intentando con order='date' como fallback")
-                    request_fallback = youtube.search().list(
-                        part='snippet',
-                        channelId=channel_id,
-                        maxResults=50,
-                        order='date',
-                        type='video'
-                    )
-                    response_fallback = request_fallback.execute()
-                    items = response_fallback.get('items', [])
-                    logging.info(f"Fallback retornó {len(items)} items")
+            for item in response['items']:
+                if 'id' not in item or 'videoId' not in item['id']:
+                    logging.info("Item no contiene 'id' o 'videoId'")
+                    continue
                 
-                if not items:
-                    logging.error(f"No se encontraron videos para el canal {channel_id} con ningún orden")
+                video_id = item['id']['videoId']
+                logging.info(f"Procesando video ID: {video_id}")
+                
+                video_data = youtube.videos().list(part='statistics,contentDetails,snippet', id=video_id).execute()
+                
+                if 'items' not in video_data or len(video_data['items']) == 0:
+                    logging.info(f"No se encontraron datos para el video {video_id}")
+                    continue
+                
+                video_item = video_data['items'][0]
+                
+                if 'contentDetails' not in video_item or 'duration' not in video_item['contentDetails']:
+                    logging.info(f"Datos de duración no disponibles para el video {video_id}")
+                    continue
+                
+                duration_str = video_item['contentDetails']['duration']
+                try:
+                    duration = isodate.parse_duration(duration_str)
+                except ValueError as e:
+                    logging.error(f"Error al parsear la duración '{duration_str}' para el video {video_id}: {e}")
+                    continue
+                
+                if 'statistics' not in video_item:
+                    logging.info(f"Estadísticas no disponibles para el video {video_id}")
+                    continue
+                
+                video_stats = video_item['statistics']
+                
+                if 'snippet' not in item or 'publishedAt' not in item['snippet']:
+                    logging.info(f"Datos de publicación no disponibles para el video {video_id}")
+                    continue
+                
+                published_at = datetime.strptime(item['snippet']['publishedAt'], "%Y-%m-%dT%H:%M:%SZ")
+                day_of_week = published_at.strftime('%A')
+                
+                # Convertir a formato compatible con el sistema existente
+                duration_seconds = int(duration.total_seconds())
+                views = int(video_stats.get('viewCount', 0))
+                likes = int(video_stats.get('likeCount', 0))
+                comments = int(video_stats.get('commentCount', 0))
+                
+                # Calcular métricas adicionales para compatibilidad
+                age_days = (datetime.now() - published_at).days
+                engagement_rate = (likes / views * 100) if views > 0 else 0
+                views_per_day = (views / age_days) if age_days > 0 else views
+                weekday_es = translate_weekday(day_of_week)
+                success_index = calculate_success_index(views, age_days)
+                category_id = video_item['snippet'].get('categoryId', '0')
+                
+                video_details = {
+                    'video_id': video_id,
+                    'title': item['snippet'].get('title', 'Sin título'),
+                    'published_at': published_at,
+                    'thumbnail': item['snippet'].get('thumbnails', {}).get('medium', {}).get('url', ''),
+                    'duration': duration,
+                    'duration_formatted': format_duration(duration),
+                    'duration_seconds': duration_seconds,
+                    'views': views,
+                    'likes': likes,
+                    'comments': comments,
+                    'video_url': f"https://www.youtube.com/watch?v={video_id}",
+                    'is_live': False,  # App original no filtra lives
+                    'is_short': duration <= timedelta(seconds=90),
+                    'age_days': age_days,
+                    'engagement_rate': engagement_rate,
+                    'views_per_day': views_per_day,
+                    'weekday': weekday_es,
+                    'age_formatted': format_age(age_days),
+                    'success_index': success_index,
+                    'category': get_category_name(category_id),
+                    'category_id': category_id,
+                    'tags': video_item['snippet'].get('tags', [])
+                }
+                
+                videos.append(video_details)
+                logging.info(f"Video agregado: {video_details['title'][:50]} - Vistas: {video_details['views']}")
+                
+                if len(videos) == max_results:
                     break
-                
-            # Extraer video IDs para hacer batch request
-            video_ids = [item['id']['videoId'] for item in items]
             
-            # Obtener detalles de todos los videos en una sola llamada
-            videos_details_request = youtube.videos().list(
-                part='statistics,contentDetails,snippet,liveStreamingDetails',
-                id=','.join(video_ids)
-            )
-            videos_details_response = videos_details_request.execute()
-            
-            videos_details_items = videos_details_response.get('items', [])
-            
-            logging.info(f"Procesando {len(videos_details_items)} videos")
-            
-            for video_item in videos_details_items:
-                video_id = video_item['id']
-                
-                # Construir objeto de video usando datos combinados
-                video_details = build_video_object(video_item, video_id)
-                
-                total_fetched += 1
-                
-                if video_details:
-                    # Logging para debug
-                    logging.info(f"Video procesado: {video_details.get('title', '')[:50]} - Duración: {video_details.get('duration_seconds', 0)}s - is_live: {video_details.get('is_live', False)}")
-                    
-                    if should_include_video(video_details, duration_filter):
-                        videos.append(video_details)
-                        logging.info(f"Video válido agregado: {video_details.get('title', '')[:50]} - Total: {len(videos)}")
-                        
-                        # Parar cuando tengamos suficientes videos válidos
-                        if len(videos) >= max_results_needed:
-                            logging.info(f"Alcanzados {len(videos)} videos válidos, parando búsqueda")
-                            break
-                    else:
-                        logging.info(f"Video filtrado: {video_details.get('title', '')[:50]} - Razón: is_live={video_details.get('is_live')}, duration={video_details.get('duration_seconds')}s")
-                else:
-                    logging.warning(f"Video {video_id} no pudo ser procesado")
+            if len(videos) == max_results:
+                break
             
             next_page_token = response.get('nextPageToken')
             if not next_page_token:
-                logging.info("No hay más páginas disponibles")
-                break
-                
-            # Si ya tenemos suficientes videos válidos, parar completamente
-            if len(videos) >= max_results_needed:
-                logging.info(f"Completado: {len(videos)} videos válidos obtenidos")
                 break
         
-        logging.info(f"Total procesado: {total_fetched} videos, encontrados: {len(videos)} videos válidos")
+        logging.info(f"Total de videos recolectados: {len(videos)}")
         
         return videos
         
