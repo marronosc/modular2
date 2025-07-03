@@ -125,9 +125,27 @@ def get_all_channel_videos(channel_id, duration_filter=0):
             response = request.execute()
             
             items = response.get('items', [])
+            logging.info(f"Search API retornó {len(items)} items para canal {channel_id}")
+            
             if not items:
-                logging.info("No hay más videos en el canal")
-                break
+                logging.warning(f"No se encontraron videos en search API para canal {channel_id}")
+                # Intentar con orden diferente si no hay resultados
+                if next_page_token is None:  # Solo en primera iteración
+                    logging.info("Intentando con order='date' como fallback")
+                    request_fallback = youtube.search().list(
+                        part='snippet',
+                        channelId=channel_id,
+                        maxResults=50,
+                        order='date',
+                        type='video'
+                    )
+                    response_fallback = request_fallback.execute()
+                    items = response_fallback.get('items', [])
+                    logging.info(f"Fallback retornó {len(items)} items")
+                
+                if not items:
+                    logging.error(f"No se encontraron videos para el canal {channel_id} con ningún orden")
+                    break
                 
             # Extraer video IDs para hacer batch request
             video_ids = [item['id']['videoId'] for item in items]
@@ -151,10 +169,18 @@ def get_all_channel_videos(channel_id, duration_filter=0):
                 
                 total_fetched += 1
                 
-                if video_details and should_include_video(video_details, duration_filter):
-                    videos.append(video_details)
-                    if len(videos) % 50 == 0:  # Log cada 50 videos válidos
-                        logging.info(f"Videos válidos encontrados: {len(videos)}")
+                if video_details:
+                    # Logging para debug
+                    logging.info(f"Video procesado: {video_details.get('title', '')[:50]} - Duración: {video_details.get('duration_seconds', 0)}s - is_live: {video_details.get('is_live', False)}")
+                    
+                    if should_include_video(video_details, duration_filter):
+                        videos.append(video_details)
+                        if len(videos) % 50 == 0:  # Log cada 50 videos válidos
+                            logging.info(f"Videos válidos encontrados: {len(videos)}")
+                    else:
+                        logging.info(f"Video filtrado: {video_details.get('title', '')[:50]} - Razón: is_live={video_details.get('is_live')}, duration={video_details.get('duration_seconds')}s")
+                else:
+                    logging.warning(f"Video {video_id} no pudo ser procesado")
             
             next_page_token = response.get('nextPageToken')
             if not next_page_token:
