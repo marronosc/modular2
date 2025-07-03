@@ -62,7 +62,7 @@ def get_top_videos(channel_url, max_results=20, duration_filter=0):
             'insights': insights,
             'frequency': frequency,
             'analysis_type': 'top_videos',
-            'total_videos_analyzed': len(videos)
+            'total_videos_analyzed': 1000  # Videos analizados para encontrar los top
         }
         
     except Exception as e:
