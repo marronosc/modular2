@@ -44,8 +44,8 @@ def get_top_videos(channel_url, max_results=20, duration_filter=0):
         if not channel_info:
             raise Exception(f"El canal {channel_id} no existe o no es público")
         
-        # Obtener TODOS los videos del canal para encontrar los top
-        videos = get_all_channel_videos(channel_id, duration_filter)
+        # Obtener los top videos del canal
+        videos = get_all_channel_videos(channel_id, duration_filter, max_results)
         
         # Ordenar por visualizaciones (descendente) y tomar los top
         videos.sort(key=lambda x: x['views'], reverse=True)
@@ -102,7 +102,7 @@ def get_channel_info(channel_id):
         logging.error(f"Error obteniendo información del canal {channel_id}: {str(e)}")
         return None
 
-def get_all_channel_videos(channel_id, duration_filter=0):
+def get_all_channel_videos(channel_id, duration_filter=0, max_results=20):
     """Obtiene los videos más vistos del canal usando search API optimizada"""
     try:
         videos = []
