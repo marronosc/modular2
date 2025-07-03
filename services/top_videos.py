@@ -210,7 +210,9 @@ def build_video_object(video_item, video_id):
         # Parsear fecha de publicación
         published_at_str = snippet.get('publishedAt', '')
         if published_at_str:
+            # Convertir a datetime con timezone info y luego a naive UTC
             published_at = datetime.fromisoformat(published_at_str.replace('Z', '+00:00'))
+            published_at = published_at.replace(tzinfo=None)  # Convertir a naive
         else:
             published_at = datetime.now()
         
@@ -231,8 +233,9 @@ def build_video_object(video_item, video_id):
         # Verificar si es live
         is_live = 'actualStartTime' in live_details
         
-        # Calcular métricas adicionales
-        age_days = (datetime.now() - published_at).days
+        # Calcular métricas adicionales - asegurar que ambas fechas sean naive
+        now_naive = datetime.now()
+        age_days = (now_naive - published_at).days
         engagement_rate = (likes / views * 100) if views > 0 else 0
         views_per_day = (views / age_days) if age_days > 0 else views
         weekday = published_at.strftime('%A')
