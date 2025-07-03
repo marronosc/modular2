@@ -107,7 +107,7 @@ def get_all_channel_videos(channel_id, duration_filter=0):
     try:
         videos = []
         next_page_token = None
-        max_results_needed = 200  # Obtener más videos para tener mejor selección
+        max_results_needed = max_results  # Solo obtener los videos que necesitamos
         total_fetched = 0
         
         logging.info(f"Buscando videos más vistos del canal {channel_id}")
@@ -175,8 +175,12 @@ def get_all_channel_videos(channel_id, duration_filter=0):
                     
                     if should_include_video(video_details, duration_filter):
                         videos.append(video_details)
-                        if len(videos) % 50 == 0:  # Log cada 50 videos válidos
-                            logging.info(f"Videos válidos encontrados: {len(videos)}")
+                        logging.info(f"Video válido agregado: {video_details.get('title', '')[:50]} - Total: {len(videos)}")
+                        
+                        # Parar cuando tengamos suficientes videos válidos
+                        if len(videos) >= max_results_needed:
+                            logging.info(f"Alcanzados {len(videos)} videos válidos, parando búsqueda")
+                            break
                     else:
                         logging.info(f"Video filtrado: {video_details.get('title', '')[:50]} - Razón: is_live={video_details.get('is_live')}, duration={video_details.get('duration_seconds')}s")
                 else:
@@ -187,8 +191,9 @@ def get_all_channel_videos(channel_id, duration_filter=0):
                 logging.info("No hay más páginas disponibles")
                 break
                 
-            # Si ya tenemos suficientes videos, parar
+            # Si ya tenemos suficientes videos válidos, parar completamente
             if len(videos) >= max_results_needed:
+                logging.info(f"Completado: {len(videos)} videos válidos obtenidos")
                 break
         
         logging.info(f"Total procesado: {total_fetched} videos, encontrados: {len(videos)} videos válidos")
