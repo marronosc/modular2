@@ -44,12 +44,8 @@ def get_top_videos(channel_url, max_results=20, duration_filter=0):
         if not channel_info:
             raise Exception(f"El canal {channel_id} no existe o no es público")
         
-        # Obtener los top videos del canal
-        videos = get_all_channel_videos(channel_id, duration_filter, max_results)
-        
-        # Ordenar por visualizaciones (descendente) y tomar los top
-        videos.sort(key=lambda x: x['views'], reverse=True)
-        top_videos = videos[:max_results]
+        # Obtener los top videos del canal (ya vienen ordenados)
+        top_videos = get_all_channel_videos(channel_id, duration_filter, max_results)
         
         # Calcular estadísticas y análisis
         stats = calculate_basic_stats(top_videos) if top_videos else {}
@@ -103,121 +99,73 @@ def get_channel_info(channel_id):
         return None
 
 def get_all_channel_videos(channel_id, duration_filter=0, max_results=20):
-    """Obtiene los videos más vistos del canal usando el método exacto de la app original"""
+    """Obtiene los videos más vistos del canal usando playlistItems (método confiable)"""
     try:
+        # Obtener el uploads playlist ID del canal
+        channel_request = youtube.channels().list(
+            part='contentDetails',
+            id=channel_id
+        )
+        channel_response = channel_request.execute()
+        
+        if not channel_response.get('items'):
+            raise Exception(f"No se pudo obtener información del canal: {channel_id}")
+        
+        uploads_playlist_id = channel_response['items'][0]['contentDetails']['relatedPlaylists']['uploads']
+        logging.info(f"Usando uploads playlist: {uploads_playlist_id}")
+        
         videos = []
         next_page_token = None
+        total_fetched = 0
+        max_iterations = 20  # Limitado para obtener ~1000 videos (50 x 20)
+        iterations = 0
         
-        logging.info(f"Intentando obtener los {max_results} videos más vistos para el canal {channel_id}")
+        logging.info(f"Obteniendo videos del canal para encontrar los {max_results} más vistos")
         
-        while len(videos) < max_results:
-            request = youtube.search().list(
+        while iterations < max_iterations:
+            iterations += 1
+            
+            # Usar playlistItems para obtener videos
+            request = youtube.playlistItems().list(
                 part='snippet',
-                channelId=channel_id,
+                playlistId=uploads_playlist_id,
                 maxResults=50,
-                order='viewCount',
-                type='video',
                 pageToken=next_page_token
             )
             response = request.execute()
             
-            logging.info(f"Obtenida respuesta de búsqueda. Número de items: {len(response['items'])}")
-            
-            for item in response['items']:
-                if 'id' not in item or 'videoId' not in item['id']:
-                    logging.info("Item no contiene 'id' o 'videoId'")
-                    continue
-                
-                video_id = item['id']['videoId']
-                logging.info(f"Procesando video ID: {video_id}")
-                
-                video_data = youtube.videos().list(part='statistics,contentDetails,snippet', id=video_id).execute()
-                
-                if 'items' not in video_data or len(video_data['items']) == 0:
-                    logging.info(f"No se encontraron datos para el video {video_id}")
-                    continue
-                
-                video_item = video_data['items'][0]
-                
-                if 'contentDetails' not in video_item or 'duration' not in video_item['contentDetails']:
-                    logging.info(f"Datos de duración no disponibles para el video {video_id}")
-                    continue
-                
-                duration_str = video_item['contentDetails']['duration']
-                try:
-                    duration = isodate.parse_duration(duration_str)
-                except ValueError as e:
-                    logging.error(f"Error al parsear la duración '{duration_str}' para el video {video_id}: {e}")
-                    continue
-                
-                if 'statistics' not in video_item:
-                    logging.info(f"Estadísticas no disponibles para el video {video_id}")
-                    continue
-                
-                video_stats = video_item['statistics']
-                
-                if 'snippet' not in item or 'publishedAt' not in item['snippet']:
-                    logging.info(f"Datos de publicación no disponibles para el video {video_id}")
-                    continue
-                
-                published_at = datetime.strptime(item['snippet']['publishedAt'], "%Y-%m-%dT%H:%M:%SZ")
-                day_of_week = published_at.strftime('%A')
-                
-                # Convertir a formato compatible con el sistema existente
-                duration_seconds = int(duration.total_seconds())
-                views = int(video_stats.get('viewCount', 0))
-                likes = int(video_stats.get('likeCount', 0))
-                comments = int(video_stats.get('commentCount', 0))
-                
-                # Calcular métricas adicionales para compatibilidad
-                age_days = (datetime.now() - published_at).days
-                engagement_rate = (likes / views * 100) if views > 0 else 0
-                views_per_day = (views / age_days) if age_days > 0 else views
-                weekday_es = translate_weekday(day_of_week)
-                success_index = calculate_success_index(views, age_days)
-                category_id = video_item['snippet'].get('categoryId', '0')
-                
-                video_details = {
-                    'video_id': video_id,
-                    'title': item['snippet'].get('title', 'Sin título'),
-                    'published_at': published_at,
-                    'thumbnail': item['snippet'].get('thumbnails', {}).get('medium', {}).get('url', ''),
-                    'duration': duration,
-                    'duration_formatted': format_duration(duration),
-                    'duration_seconds': duration_seconds,
-                    'views': views,
-                    'likes': likes,
-                    'comments': comments,
-                    'video_url': f"https://www.youtube.com/watch?v={video_id}",
-                    'is_live': False,  # App original no filtra lives
-                    'is_short': duration <= timedelta(seconds=90),
-                    'age_days': age_days,
-                    'engagement_rate': engagement_rate,
-                    'views_per_day': views_per_day,
-                    'weekday': weekday_es,
-                    'age_formatted': format_age(age_days),
-                    'success_index': success_index,
-                    'category': get_category_name(category_id),
-                    'category_id': category_id,
-                    'tags': video_item['snippet'].get('tags', [])
-                }
-                
-                videos.append(video_details)
-                logging.info(f"Video agregado: {video_details['title'][:50]} - Vistas: {video_details['views']}")
-                
-                if len(videos) == max_results:
-                    break
-            
-            if len(videos) == max_results:
+            items = response.get('items', [])
+            if not items:
+                logging.info("No hay más videos en la playlist")
                 break
+            
+            logging.info(f"Iteración {iterations}: procesando {len(items)} videos de playlist")
+            
+            for item in items:
+                video_id = item['snippet']['resourceId']['videoId']
+                video_details = get_video_details(video_id, item['snippet'])
+                
+                total_fetched += 1
+                
+                if video_details and should_include_video(video_details, duration_filter):
+                    videos.append(video_details)
+                    if len(videos) % 100 == 0:  # Log cada 100 videos válidos
+                        logging.info(f"Videos válidos encontrados: {len(videos)}")
             
             next_page_token = response.get('nextPageToken')
             if not next_page_token:
+                logging.info("No hay más páginas en la playlist")
                 break
         
-        logging.info(f"Total de videos recolectados: {len(videos)}")
+        logging.info(f"Total procesado: {total_fetched} videos, encontrados: {len(videos)} videos válidos")
         
-        return videos
+        # Ordenar por visualizaciones (descendente) y tomar los top
+        videos.sort(key=lambda x: x['views'], reverse=True)
+        top_videos = videos[:max_results]
+        
+        logging.info(f"Top {max_results} videos por visualizaciones seleccionados")
+        
+        return top_videos
         
     except Exception as e:
         logging.error(f"Error obteniendo videos del canal {channel_id}: {str(e)}")
