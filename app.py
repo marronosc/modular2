@@ -18,6 +18,7 @@ from routes.video_activity import video_activity_bp
 from routes.keyword_research import keyword_research_bp  # Nuevo
 from routes.recent_videos import recent_videos_bp
 from routes.top_videos import top_videos_bp
+from routes.test_top_videos import test_top_videos_bp
 
 app = Flask(__name__)
 app.context_processor(inject_tools)
@@ -31,6 +32,7 @@ app.register_blueprint(video_activity_bp)
 app.register_blueprint(keyword_research_bp)  # Nuevo
 app.register_blueprint(recent_videos_bp)
 app.register_blueprint(top_videos_bp)
+app.register_blueprint(test_top_videos_bp)
 
 @app.route('/')
 def index():
