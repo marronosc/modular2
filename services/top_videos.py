@@ -240,8 +240,14 @@ def build_video_object(video_item, video_id):
         views_per_day = (views / age_days) if age_days > 0 else views
         weekday = published_at.strftime('%A')
         
+        # Traducir día de la semana
+        weekday_es = translate_weekday(weekday)
+        
         # Obtener categoría
         category_id = snippet.get('categoryId', '0')
+        
+        # Calcular índice de éxito usando la fórmula logarítmica
+        success_index = calculate_success_index(views, age_days)
         
         return {
             'video_id': video_id,
@@ -249,6 +255,7 @@ def build_video_object(video_item, video_id):
             'published_at': published_at,
             'thumbnail': snippet.get('thumbnails', {}).get('medium', {}).get('url', ''),
             'duration': duration_obj,
+            'duration_formatted': format_duration(duration_obj),
             'duration_seconds': duration_seconds,
             'views': views,
             'likes': likes,
@@ -259,7 +266,10 @@ def build_video_object(video_item, video_id):
             'age_days': age_days,
             'engagement_rate': engagement_rate,
             'views_per_day': views_per_day,
-            'weekday': weekday,
+            'weekday': weekday_es,
+            'age_formatted': format_age(age_days),
+            'success_index': success_index,
+            'category': get_category_name(category_id),
             'category_id': category_id,
             'tags': snippet.get('tags', [])
         }
@@ -267,6 +277,81 @@ def build_video_object(video_item, video_id):
     except Exception as e:
         logging.error(f"Error construyendo objeto de video {video_id}: {str(e)}")
         return None
+
+def calculate_success_index(visualizaciones, dias_desde_publicacion):
+    """Calcula el índice de éxito de un video usando fórmula logarítmica"""
+    try:
+        dias = max(dias_desde_publicacion, 1)  # Evitar división por 0
+        indice_exito = visualizaciones / math.log(dias + 1)
+        return round(indice_exito, 2)
+    except Exception as e:
+        logging.error(f"Error al calcular el índice de éxito: {e}")
+        return 0
+
+def translate_weekday(weekday):
+    """Traduce días de la semana al español"""
+    translation = {
+        'Monday': 'Lunes',
+        'Tuesday': 'Martes', 
+        'Wednesday': 'Miércoles',
+        'Thursday': 'Jueves',
+        'Friday': 'Viernes',
+        'Saturday': 'Sábado',
+        'Sunday': 'Domingo'
+    }
+    return translation.get(weekday, weekday)
+
+def format_age(age_days):
+    """Formatea la edad del video"""
+    if age_days == 0:
+        return "Hoy"
+    elif age_days == 1:
+        return "Ayer"
+    elif age_days < 7:
+        return f"Hace {age_days} días"
+    elif age_days < 30:
+        weeks = age_days // 7
+        return f"Hace {weeks} semana{'s' if weeks > 1 else ''}"
+    elif age_days < 365:
+        months = age_days // 30
+        return f"Hace {months} mes{'es' if months > 1 else ''}"
+    else:
+        years = age_days // 365
+        return f"Hace {years} año{'s' if years > 1 else ''}"
+
+def get_category_name(category_id):
+    """Convierte el ID de categoría de YouTube a nombre legible"""
+    categories = {
+        '1': 'Cine y animación',
+        '2': 'Coches y vehículos',
+        '10': 'Música',
+        '15': 'Mascotas y animales',
+        '17': 'Deportes',
+        '19': 'Viajes y eventos',
+        '20': 'Videojuegos',
+        '22': 'Gente y blogs',
+        '23': 'Comedia',
+        '24': 'Entretenimiento',
+        '25': 'Noticias y política',
+        '26': 'Guías y estilo',
+        '27': 'Educación',
+        '28': 'Ciencia y tecnología',
+        '29': 'Sin fines de lucro y activismo'
+    }
+    return categories.get(str(category_id), 'Categoría desconocida')
+
+def format_duration(duration):
+    """Formatea duración para mostrar en formato MM:SS o HH:MM:SS"""
+    if isinstance(duration, timedelta):
+        total_seconds = int(duration.total_seconds())
+        hours, remainder = divmod(total_seconds, 3600)
+        minutes, seconds = divmod(remainder, 60)
+        
+        if hours > 0:
+            return f"{hours}:{minutes:02d}:{seconds:02d}"
+        else:
+            return f"{minutes}:{seconds:02d}"
+    return "00:00"
 
 # Reutilizar funciones del servicio recent_videos
 from services.recent_videos import (
