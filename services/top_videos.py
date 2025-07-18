@@ -51,7 +51,6 @@ def get_top_videos(channel_url, max_results=20, duration_filter=0, analysis_dept
         stats = calculate_basic_stats(top_videos) if top_videos else {}
         highlights = identify_highlights(top_videos) if top_videos else {}
         insights = generate_insights(top_videos) if top_videos else {}
-        frequency = calculate_publication_frequency(top_videos) if top_videos else {}
         
         return {
             'channel_info': channel_info,
@@ -60,7 +59,6 @@ def get_top_videos(channel_url, max_results=20, duration_filter=0, analysis_dept
             'stats': stats,
             'highlights': highlights,
             'insights': insights,
-            'frequency': frequency,
             'analysis_type': 'top_videos',
             'total_videos_analyzed': analysis_depth
         }
@@ -329,6 +327,6 @@ def format_duration(duration):
 from services.recent_videos import (
     get_video_details, should_include_video, get_filter_reason,
     calculate_basic_stats, identify_highlights, generate_insights,
-    calculate_publication_frequency, format_number, format_date, 
+    format_number, format_date, 
     format_duration, get_sorted_videos, export_to_csv, generate_chart_data
 )
