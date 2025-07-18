@@ -51,7 +51,6 @@ def get_recent_videos(channel_url, max_results=20, duration_filter=0):
         stats = calculate_basic_stats(videos) if videos else {}
         highlights = identify_highlights(videos) if videos else {}
         insights = generate_insights(videos) if videos else {}
-        frequency = calculate_publication_frequency(videos) if videos else {}
         
         return {
             'channel_info': channel_info,
@@ -60,7 +59,6 @@ def get_recent_videos(channel_url, max_results=20, duration_filter=0):
             'stats': stats,
             'highlights': highlights,
             'insights': insights,
-            'frequency': frequency,
             'analysis_date': datetime.now()
         }
         

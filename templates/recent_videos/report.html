@@ -240,61 +240,6 @@
 </div>
 {% endif %}
 
-<!-- Frecuencia de Publicación -->
-{% if result.frequency %}
-<div class="section">
-    <h2 class="section-title">
-        <span class="section-icon">📅</span>
-        Frecuencia de Publicación
-    </h2>
-    <div class="frequency-grid">
-        <div class="frequency-card">
-            <div class="frequency-icon">📊</div>
-            <div class="frequency-content">
-                <h4>Promedio entre videos</h4>
-                <div class="frequency-value">{{ "%.1f"|format(result.frequency.avg_days_between) }} días</div>
-                <small>Rango: {{ result.frequency.min_interval }}-{{ result.frequency.max_interval }} días</small>
-            </div>
-        </div>
-        
-        <div class="frequency-card">
-            <div class="frequency-icon">📈</div>
-            <div class="frequency-content">
-                <h4>Videos por semana</h4>
-                <div class="frequency-value">{{ "%.1f"|format(result.frequency.videos_per_week) }}</div>
-                <small>{{ "%.1f"|format(result.frequency.videos_per_month) }} por mes</small>
-            </div>
-        </div>
-        
-        <div class="frequency-card">
-            <div class="frequency-icon">🕒</div>
-            <div class="frequency-content">
-                <h4>Último video</h4>
-                <div class="frequency-value">Hace {{ result.frequency.days_since_last }} días</div>
-                {% if result.frequency.predicted_next_days > 0 %}
-                <small>Próximo en ~{{ result.frequency.predicted_next_days }} días</small>
-                {% else %}
-                <small>Ya es hora del próximo</small>
-                {% endif %}
-            </div>
-        </div>
-        
-        <div class="frequency-card">
-            <div class="frequency-icon">🎯</div>
-            <div class="frequency-content">
-                <h4>Consistencia</h4>
-                <div class="frequency-value">{{ "%.0f"|format(result.frequency.consistency_score) }}%</div>
-                <small>
-                    {% if result.frequency.consistency_score >= 80 %}Muy consistente
-                    {% elif result.frequency.consistency_score >= 60 %}Consistente
-                    {% elif result.frequency.consistency_score >= 40 %}Irregular
-                    {% else %}Muy irregular{% endif %}
-                </small>
-            </div>
-        </div>
-    </div>
-</div>
-{% endif %}
 
 <!-- Insights Automáticos -->
 {% if result.insights %}
