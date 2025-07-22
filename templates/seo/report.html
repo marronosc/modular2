@@ -170,6 +170,60 @@
     </div>
 </div>
 
+<!-- Gráficos Visuales -->
+{% if chart_data %}
+<div class="section">
+    <h2 class="section-title">
+        <span class="section-icon">📊</span>
+        Análisis Visual
+    </h2>
+    
+    <!-- Distribución de Duración -->
+    <div class="chart-container">
+        <h4>Distribución por Duración</h4>
+        <div class="duration-bars">
+            {% for range, count in chart_data.duration_distribution.items() %}
+            <div class="duration-bar">
+                <div class="bar-fill" style="height: {{ (count / chart_data.duration_distribution.values() | max * 100) | round(1) if chart_data.duration_distribution.values() | max > 0 else 0 }}%"></div>
+                <span class="bar-label">{{ range }}</span>
+                <span class="bar-count">{{ count }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Distribución por Día de la Semana -->
+    <div class="chart-container">
+        <h4>Distribución por Día de la Semana</h4>
+        <div class="duration-bars">
+            {% for day, count in chart_data.weekday_distribution.items() %}
+            <div class="duration-bar">
+                <div class="bar-fill" style="height: {{ (count / chart_data.weekday_distribution.values() | max * 100) | round(1) if chart_data.weekday_distribution.values() | max > 0 else 0 }}%"></div>
+                <span class="bar-label">{{ day }}</span>
+                <span class="bar-count">{{ count }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Timeline Simple -->
+    <div class="chart-container">
+        <h4>Visualizaciones por Video</h4>
+        <div class="timeline-chart">
+            {% set max_views = videos[:10] | map(attribute='views') | max %}
+            {% for video in videos[:10] %}
+            <div class="timeline-item">
+                <div class="timeline-date">{{ format_date(video.published_at) }}</div>
+                <div class="timeline-bar" style="width: {{ (video.views / max_views * 100) | round(1) if max_views > 0 else 0 }}%">
+                    <span class="timeline-views">{{ format_number(video.views) }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <!-- Análisis Temporal -->
 <div class="section">
     <h2 class="section-title">
@@ -575,6 +629,100 @@
     padding: 1rem;
 }
 
+/* Chart Containers */
+.chart-container {
+    background-color: #f8f9fa;
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.chart-container h4 {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+/* Duration Bars */
+.duration-bars {
+    display: flex;
+    justify-content: space-around;
+    align-items: end;
+    height: 120px;
+    gap: 1rem;
+}
+
+.duration-bar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    height: 100%;
+}
+
+.bar-fill {
+    background: linear-gradient(180deg, var(--primary-color) 0%, #ff4444 100%);
+    width: 100%;
+    border-radius: 4px 4px 0 0;
+    min-height: 5px;
+    margin-top: auto;
+}
+
+.bar-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-top: 0.5rem;
+    text-align: center;
+    font-weight: 500;
+}
+
+.bar-count {
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: var(--text-primary);
+    margin-top: 0.25rem;
+}
+
+/* Timeline Chart */
+.timeline-chart {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.timeline-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.timeline-date {
+    width: 100px;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+    font-weight: 500;
+}
+
+.timeline-bar {
+    background: linear-gradient(90deg, var(--primary-color) 0%, #ff6b6b 100%);
+    height: 20px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    padding: 0 0.5rem;
+    min-width: 60px;
+    position: relative;
+}
+
+.timeline-views {
+    color: white;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+
 @media (max-width: 768px) {
     .stats-grid {
         grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -618,6 +766,25 @@
 
     .channels-table {
         font-size: 0.9rem;
+    }
+    
+    .duration-bars {
+        height: 100px;
+    }
+    
+    .timeline-item {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.25rem;
+    }
+    
+    .timeline-date {
+        width: auto;
+        font-size: 0.75rem;
+    }
+    
+    .chart-container {
+        padding: 1rem;
     }
 }
 </style>
