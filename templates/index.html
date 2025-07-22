@@ -412,27 +412,6 @@
             </div>
 
             <div class="tools-grid">
-                <!-- Extractor de ID -->
-                <div class="tool-card" onclick="window.location.href='/extractor'">
-                    <div class="tool-header">
-                        <div class="tool-icon utility">
-                            <svg viewBox="0 0 24 24">
-                                <path
-                                    d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
-                            </svg>
-                        </div>
-                        <div class="tool-info">
-                            <h3>Extractor de ID de Canal</h3>
-                            <p>Obtén el ID único de cualquier canal de YouTube a partir de URLs de videos, canales o
-                                perfiles.</p>
-                        </div>
-                    </div>
-                    <div class="tool-tags">
-                        <span class="tool-tag primary">Utilidades</span>
-                        <span class="tool-tag">Instantáneo</span>
-                        <span class="tool-tag">URLs múltiples</span>
-                    </div>
-                </div>
 
                 <!-- Análisis SEO -->
                 <div class="tool-card" onclick="window.location.href='/seo'">
@@ -478,25 +457,68 @@
                     </div>
                 </div>
 
-                <!-- Comparador de Miniaturas -->
-                <div class="tool-card" onclick="window.location.href='/thumbnail-comparison'">
+                <!-- Investigador de Keywords -->
+                <div class="tool-card" onclick="window.location.href='/keyword-research'">
                     <div class="tool-header">
-                        <div class="tool-icon design">
+                        <div class="tool-icon research">
                             <svg viewBox="0 0 24 24">
                                 <path
-                                    d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" />
+                                    d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+                                <path d="M12 10h-2v2H8v-2H6V8h2V6h2v2h2v2z" />
                             </svg>
                         </div>
                         <div class="tool-info">
-                            <h3>Comparador de Miniaturas</h3>
-                            <p>Compara tu miniatura con los videos mejor posicionados. Incluye vista desktop y móvil
-                                para análisis completo.</p>
+                            <h3>Investigador de Keywords</h3>
+                            <p>Descubre las sugerencias reales que YouTube proporciona cuando los usuarios buscan
+                                términos relacionados.</p>
                         </div>
                     </div>
                     <div class="tool-tags">
-                        <span class="tool-tag primary">Diseño</span>
-                        <span class="tool-tag">Vista desktop</span>
-                        <span class="tool-tag">Vista móvil</span>
+                        <span class="tool-tag primary">Keywords</span>
+                        <span class="tool-tag">Sugerencias reales</span>
+                        <span class="tool-tag">Exportación</span>
+                    </div>
+                </div>
+
+                <!-- TOP 20 Videos -->
+                <div class="tool-card" onclick="window.location.href='/top-videos'">
+                    <div class="tool-header">
+                        <div class="tool-icon research">
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                            </svg>
+                        </div>
+                        <div class="tool-info">
+                            <h3>TOP 20 Videos</h3>
+                            <p>Descubre los videos más exitosos de tus competidores con análisis de rendimiento y
+                                estrategias.</p>
+                        </div>
+                    </div>
+                    <div class="tool-tags">
+                        <span class="tool-tag primary">Competencia</span>
+                        <span class="tool-tag">Rankings</span>
+                    </div>
+                </div>
+
+                <!-- Últimos 20 Videos -->
+                <div class="tool-card" onclick="window.location.href='/recent-videos'">
+                    <div class="tool-header">
+                        <div class="tool-icon analytics">
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z" />
+                            </svg>
+                        </div>
+                        <div class="tool-info">
+                            <h3>Últimos 20 Videos</h3>
+                            <p>Análisis completo de los últimos videos de un canal con métricas detalladas de
+                                rendimiento.</p>
+                        </div>
+                    </div>
+                    <div class="tool-tags">
+                        <span class="tool-tag primary">Analytics</span>
+                        <span class="tool-tag">Informes</span>
                     </div>
                 </div>
 
@@ -522,87 +544,25 @@
                     </div>
                 </div>
 
-                <!-- Investigador de Keywords -->
-                <div class="tool-card" onclick="window.location.href='/keyword-research'">
+                <!-- Comparador de Miniaturas -->
+                <div class="tool-card" onclick="window.location.href='/thumbnail-comparison'">
                     <div class="tool-header">
-                        <div class="tool-icon research">
+                        <div class="tool-icon design">
                             <svg viewBox="0 0 24 24">
                                 <path
-                                    d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
-                                <path d="M12 10h-2v2H8v-2H6V8h2V6h2v2h2v2z" />
+                                    d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" />
                             </svg>
                         </div>
                         <div class="tool-info">
-                            <h3>Investigador de Keywords</h3>
-                            <p>Descubre las sugerencias reales que YouTube proporciona cuando los usuarios buscan
-                                términos relacionados.</p>
+                            <h3>Comparador de Miniaturas</h3>
+                            <p>Compara tu miniatura con los videos mejor posicionados. Incluye vista desktop y móvil
+                                para análisis completo.</p>
                         </div>
                     </div>
                     <div class="tool-tags">
-                        <span class="tool-tag primary">Keywords</span>
-                        <span class="tool-tag">Sugerencias reales</span>
-                        <span class="tool-tag">Exportación</span>
-                    </div>
-                </div>
-
-                <!-- Herramientas Próximamente -->
-                <div class="tool-card" onclick="window.location.href='/recent-videos'">
-                    <div class="tool-header">
-                        <div class="tool-icon analytics">
-                            <svg viewBox="0 0 24 24">
-                                <path
-                                    d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z" />
-                            </svg>
-                        </div>
-                        <div class="tool-info">
-                            <h3>Últimos 20 Videos</h3>
-                            <p>Análisis completo de los últimos videos de un canal con métricas detalladas de
-                                rendimiento.</p>
-                        </div>
-                    </div>
-                    <div class="tool-tags">
-                        <span class="tool-tag primary">Analytics</span>
-                        <span class="tool-tag">Informes</span>
-                    </div>
-                </div>
-
-                <div class="tool-card" onclick="window.location.href='#'">
-                    <div class="tool-header">
-                        <div class="tool-icon research">
-                            <svg viewBox="0 0 24 24">
-                                <path
-                                    d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                            </svg>
-                        </div>
-                        <div class="tool-info">
-                            <h3>TOP Videos Competencia</h3>
-                            <p>Descubre los videos más exitosos de tus competidores con análisis de rendimiento y
-                                estrategias.</p>
-                        </div>
-                    </div>
-                    <div class="tool-tags">
-                        <span class="tool-tag primary">Competencia</span>
-                        <span class="tool-tag">Rankings</span>
-                    </div>
-                </div>
-
-                <div class="tool-card" onclick="window.location.href='#'">
-                    <div class="tool-header">
-                        <div class="tool-icon utility">
-                            <svg viewBox="0 0 24 24">
-                                <path
-                                    d="M12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z" />
-                            </svg>
-                        </div>
-                        <div class="tool-info">
-                            <h3>Monitoreo de Competencia</h3>
-                            <p>Monitorea la actividad reciente de tus competidores y analiza sus últimas estrategias de
-                                contenido.</p>
-                        </div>
-                    </div>
-                    <div class="tool-tags">
-                        <span class="tool-tag primary">Competencia</span>
-                        <span class="tool-tag">Monitoreo</span>
+                        <span class="tool-tag primary">Diseño</span>
+                        <span class="tool-tag">Vista desktop</span>
+                        <span class="tool-tag">Vista móvil</span>
                     </div>
                 </div>
             </div>

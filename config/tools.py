@@ -4,17 +4,7 @@ Configuración centralizada de todas las herramientas de TubeTools
 """
 
 TOOLS_CONFIG = {
-    # Herramientas activas
-    'extractor': {
-        'name': 'Extractor de ID',
-        'description': 'Obtén el ID único de cualquier canal de YouTube',
-        'url': '/extractor',
-        'icon': 'document',
-        'category': 'utility',
-        'color': '#667eea',
-        'status': 'active',
-        'tags': ['Utilidades', 'Instantáneo', 'URLs múltiples']
-    },
+    # Herramientas activas en orden específico
     'seo': {
         'name': 'Análisis SEO',
         'description': 'Analiza los primeros 20 resultados de búsqueda',
@@ -35,26 +25,6 @@ TOOLS_CONFIG = {
         'status': 'active',
         'tags': ['Análisis', '200 resultados', 'Posicionamiento']
     },
-    'thumbnail_comparison': {
-        'name': 'Comparador Miniaturas',
-        'description': 'Compara tu miniatura con los videos mejor posicionados',
-        'url': '/thumbnail-comparison',
-        'icon': 'image',
-        'category': 'design',
-        'color': '#e91e63',
-        'status': 'active',
-        'tags': ['Diseño', 'Vista desktop', 'Vista móvil']
-    },
-    'video_activity': {
-        'name': 'Análisis Actividad',
-        'description': 'Estima visualizaciones recientes basado en comentarios',
-        'url': '/video-activity',
-        'icon': 'trending-up',
-        'category': 'analytics',
-        'color': '#3f51b5',
-        'status': 'active',
-        'tags': ['Analytics', '30 días', '3 estimaciones']
-    },
     'keyword_research': {
         'name': 'Investigador Keywords',
         'description': 'Descubre sugerencias reales de YouTube',
@@ -64,16 +34,6 @@ TOOLS_CONFIG = {
         'color': '#9c27b0',
         'status': 'active',
         'tags': ['Keywords', 'Sugerencias reales', 'Exportación']
-    },
-    'competitor_report': {
-        'name': 'Informe Competencias',
-        'description': 'Análisis completo del rendimiento de canales competidores',
-        'url': '/competitor-report',
-        'icon': 'bar-chart',
-        'category': 'analytics',
-        'color': '#9e9e9e',
-        'status': 'active',
-        'tags': ['Competencia', 'Informes']
     },
     'top_videos': {
         'name': 'TOP 20 Videos',
@@ -94,6 +54,26 @@ TOOLS_CONFIG = {
         'color': '#9e9e9e',
         'status': 'active',
         'tags': ['Competencia', 'Recientes', 'Sin Shorts']
+    },
+    'video_activity': {
+        'name': 'Análisis Actividad',
+        'description': 'Estima visualizaciones recientes basado en comentarios',
+        'url': '/video-activity',
+        'icon': 'trending-up',
+        'category': 'analytics',
+        'color': '#3f51b5',
+        'status': 'active',
+        'tags': ['Analytics', '30 días', '3 estimaciones']
+    },
+    'thumbnail_comparison': {
+        'name': 'Comparador Miniaturas',
+        'description': 'Compara tu miniatura con los videos mejor posicionados',
+        'url': '/thumbnail-comparison',
+        'icon': 'image',
+        'category': 'design',
+        'color': '#e91e63',
+        'status': 'active',
+        'tags': ['Diseño', 'Vista desktop', 'Vista móvil']
     }
 }
 
