@@ -87,6 +87,7 @@ def search_videos(keyword, max_results=20):
                     'likes': likes,
                     'comments': comments,
                     'duration': duration,
+                    'duration_seconds': int(duration.total_seconds()),
                     'video_url': f"https://www.youtube.com/watch?v={video_id}",
                     'thumbnail_url': item['snippet'].get('thumbnails', {}).get('medium', {}).get('url', ''),
                     'category': get_video_category(video_item['snippet'].get('categoryId', '')),
