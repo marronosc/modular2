@@ -99,7 +99,11 @@
                         
                         <div class="metric-item">
                             <span class="metric-label">Engagement:</span>
-                            <span class="metric-value engagement">{{ "%.2f"|format((video.likes + video.comments) / video.views * 100) if video.views > 0 else 0 }}%</span>
+                            <span class="metric-value engagement">
+                                {% set total_engagement = video.likes + video.comments %}
+                                {% set engagement_rate = (total_engagement / video.views * 100) if video.views > 0 else 0 %}
+                                {{ "%.2f"|format(engagement_rate) }}%
+                            </span>
                         </div>
                     </div>
                     
