@@ -51,6 +51,10 @@ def search_videos(keyword, max_results=20):
             response = request.execute()
             
             for item in response['items']:
+                # Verificar que el item tiene la estructura correcta
+                if 'id' not in item or 'videoId' not in item['id']:
+                    continue
+                
                 video_id = item['id']['videoId']
                 video_data = youtube.videos().list(part='contentDetails,statistics,snippet', id=video_id).execute()
                 
