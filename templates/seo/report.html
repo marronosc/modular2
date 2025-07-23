@@ -236,90 +236,90 @@
         Análisis de Datos
     </h2>
     
-    <div class="insights-grid">
+    <div class="insights-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin-top: 1rem; width: 100%;">
         <!-- Mejor día para publicar -->
-        <div class="insight-card">
-            <div class="insight-icon">📅</div>
-            <div class="insight-content">
-                <h4>Mejor día para publicar</h4>
-                <div class="insight-highlight">{{ data_insights.best_day }}</div>
-                <div class="insight-subtitle">obtiene mejores resultados</div>
-                <div class="insight-detail">Promedio: {{ format_number(data_insights.best_day_avg_views) }} views</div>
+        <div class="insight-card" style="background: #FFFFFF; border: 1px solid #e0e0e0; border-radius: 12px; padding: 1.5rem; display: flex; align-items: flex-start; gap: 1rem; border-left: 4px solid #FF0000; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
+            <div class="insight-icon" style="font-size: 2rem; flex-shrink: 0; margin-top: 0.25rem;">📅</div>
+            <div class="insight-content" style="flex: 1;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #333333; font-size: 1rem; font-weight: 600;">Mejor día para publicar</h4>
+                <div class="insight-highlight" style="font-size: 1.25rem; font-weight: 700; color: #FF0000; margin-bottom: 0.25rem;">{{ data_insights.best_day }}</div>
+                <div class="insight-subtitle" style="color: #666; font-size: 0.9rem; margin-bottom: 0.5rem;">obtiene mejores resultados</div>
+                <div class="insight-detail" style="color: #666; font-size: 0.85rem; margin-top: 0.5rem;">Promedio: {{ format_number(data_insights.best_day_avg_views) }} views</div>
             </div>
         </div>
         
         <!-- Duración óptima -->
-        <div class="insight-card">
-            <div class="insight-icon">⏱️</div>
-            <div class="insight-content">
-                <h4>Duración óptima</h4>
-                <div class="insight-highlight">Videos {{ data_insights.best_duration_category }}</div>
-                <div class="insight-subtitle">funcionan mejor</div>
-                <div class="insight-detail">Promedio: {{ format_number(data_insights.best_duration_avg_views) }} views</div>
+        <div class="insight-card" style="background: #FFFFFF; border: 1px solid #e0e0e0; border-radius: 12px; padding: 1.5rem; display: flex; align-items: flex-start; gap: 1rem; border-left: 4px solid #FF0000; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
+            <div class="insight-icon" style="font-size: 2rem; flex-shrink: 0; margin-top: 0.25rem;">⏱️</div>
+            <div class="insight-content" style="flex: 1;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #333333; font-size: 1rem; font-weight: 600;">Duración óptima</h4>
+                <div class="insight-highlight" style="font-size: 1.25rem; font-weight: 700; color: #FF0000; margin-bottom: 0.25rem;">Videos {{ data_insights.best_duration_category }}</div>
+                <div class="insight-subtitle" style="color: #666; font-size: 0.9rem; margin-bottom: 0.5rem;">funcionan mejor</div>
+                <div class="insight-detail" style="color: #666; font-size: 0.85rem; margin-top: 0.5rem;">Promedio: {{ format_number(data_insights.best_duration_avg_views) }} views</div>
             </div>
         </div>
         
         <!-- Keywords exitosas -->
-        <div class="insight-card">
-            <div class="insight-icon">📝</div>
-            <div class="insight-content">
-                <h4>Keywords exitosas</h4>
-                <div class="keywords-list">
+        <div class="insight-card" style="background: #FFFFFF; border: 1px solid #e0e0e0; border-radius: 12px; padding: 1.5rem; display: flex; align-items: flex-start; gap: 1rem; border-left: 4px solid #FF0000; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
+            <div class="insight-icon" style="font-size: 2rem; flex-shrink: 0; margin-top: 0.25rem;">📝</div>
+            <div class="insight-content" style="flex: 1;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #333333; font-size: 1rem; font-weight: 600;">Keywords exitosas</h4>
+                <div class="keywords-list" style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem;">
                     {% for keyword in data_insights.keywords_exitosas %}
-                    <span class="keyword-tag success">{{ keyword }}</span>
+                    <span class="keyword-tag success" style="background: #e8f5e8; color: #2e7d32; padding: 0.25rem 0.5rem; border-radius: 6px; font-size: 0.85rem; font-weight: 500;">{{ keyword }}</span>
                     {% endfor %}
                 </div>
             </div>
         </div>
         
         <!-- Estrategia de títulos -->
-        <div class="insight-card">
-            <div class="insight-icon">📏</div>
-            <div class="insight-content">
-                <h4>Estrategia de títulos</h4>
-                <div class="insight-highlight">Extensión media: {{ data_insights.avg_title_length }} caracteres</div>
-                <div class="title-stats">
-                    <div class="title-stat">
-                        <span class="stat-label">Cortos (≤50%):</span>
-                        <span class="stat-value">{{ data_insights.title_distribution.short_percent }}% ({{ data_insights.title_distribution.short_count }} videos)</span>
+        <div class="insight-card" style="background: #FFFFFF; border: 1px solid #e0e0e0; border-radius: 12px; padding: 1.5rem; display: flex; align-items: flex-start; gap: 1rem; border-left: 4px solid #FF0000; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
+            <div class="insight-icon" style="font-size: 2rem; flex-shrink: 0; margin-top: 0.25rem;">📏</div>
+            <div class="insight-content" style="flex: 1;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #333333; font-size: 1rem; font-weight: 600;">Estrategia de títulos</h4>
+                <div class="insight-highlight" style="font-size: 1.25rem; font-weight: 700; color: #FF0000; margin-bottom: 0.25rem;">Extensión media: {{ data_insights.avg_title_length }} caracteres</div>
+                <div class="title-stats" style="margin-top: 0.75rem;">
+                    <div class="title-stat" style="display: flex; justify-content: space-between; padding: 0.25rem 0; border-bottom: 1px solid #eee; font-size: 0.85rem;">
+                        <span class="stat-label" style="color: #666;">Cortos (≤50%):</span>
+                        <span class="stat-value" style="color: #333333; font-weight: 500;">{{ data_insights.title_distribution.short_percent }}% ({{ data_insights.title_distribution.short_count }} videos)</span>
                     </div>
-                    <div class="title-stat">
-                        <span class="stat-label">Medios (50-75%):</span>
-                        <span class="stat-value">{{ data_insights.title_distribution.medium_percent }}% ({{ data_insights.title_distribution.medium_count }} videos)</span>
+                    <div class="title-stat" style="display: flex; justify-content: space-between; padding: 0.25rem 0; border-bottom: 1px solid #eee; font-size: 0.85rem;">
+                        <span class="stat-label" style="color: #666;">Medios (50-75%):</span>
+                        <span class="stat-value" style="color: #333333; font-weight: 500;">{{ data_insights.title_distribution.medium_percent }}% ({{ data_insights.title_distribution.medium_count }} videos)</span>
                     </div>
-                    <div class="title-stat">
-                        <span class="stat-label">Largos (>75%):</span>
-                        <span class="stat-value">{{ data_insights.title_distribution.long_percent }}% ({{ data_insights.title_distribution.long_count }} videos)</span>
+                    <div class="title-stat" style="display: flex; justify-content: space-between; padding: 0.25rem 0; font-size: 0.85rem;">
+                        <span class="stat-label" style="color: #666;">Largos (>75%):</span>
+                        <span class="stat-value" style="color: #333333; font-weight: 500;">{{ data_insights.title_distribution.long_percent }}% ({{ data_insights.title_distribution.long_count }} videos)</span>
                     </div>
                 </div>
             </div>
         </div>
         
         <!-- Keywords más usadas -->
-        <div class="insight-card full-width">
-            <div class="insight-icon">🔍</div>
-            <div class="insight-content">
-                <h4>Keywords más usadas</h4>
-                <div class="keywords-frequency">
+        <div class="insight-card full-width" style="background: #FFFFFF; border: 1px solid #e0e0e0; border-radius: 12px; padding: 1.5rem; display: flex; align-items: flex-start; gap: 1rem; border-left: 4px solid #FF0000; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); grid-column: 1 / -1;">
+            <div class="insight-icon" style="font-size: 2rem; flex-shrink: 0; margin-top: 0.25rem;">🔍</div>
+            <div class="insight-content" style="flex: 1;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #333333; font-size: 1rem; font-weight: 600;">Keywords más usadas</h4>
+                <div class="keywords-frequency" style="margin-top: 0.5rem; line-height: 1.6;">
                     {% for word, count in data_insights.keywords_mas_usadas %}
-                    <span class="keyword-item">{{ word }} ({{ count }})</span>{% if not loop.last %}, {% endif %}
+                    <span class="keyword-item" style="background: #f5f5f5; color: #333333; padding: 0.2rem 0.4rem; border-radius: 4px; font-size: 0.85rem; white-space: nowrap; display: inline-block; margin: 0.1rem;">{{ word }} ({{ count }})</span>{% if not loop.last %}, {% endif %}
                     {% endfor %}
                 </div>
-                <div class="insight-detail">Total palabras únicas: {{ data_insights.total_palabras_unicas }} | Total palabras: {{ data_insights.total_palabras }}</div>
+                <div class="insight-detail" style="color: #666; font-size: 0.85rem; margin-top: 0.5rem;">Total palabras únicas: {{ data_insights.total_palabras_unicas }} | Total palabras: {{ data_insights.total_palabras }}</div>
             </div>
         </div>
         
         <!-- Keywords combinadas -->
-        <div class="insight-card full-width">
-            <div class="insight-icon">🔗</div>
-            <div class="insight-content">
-                <h4>Keywords combinadas</h4>
-                <div class="keywords-frequency">
+        <div class="insight-card full-width" style="background: #FFFFFF; border: 1px solid #e0e0e0; border-radius: 12px; padding: 1.5rem; display: flex; align-items: flex-start; gap: 1rem; border-left: 4px solid #FF0000; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); grid-column: 1 / -1;">
+            <div class="insight-icon" style="font-size: 2rem; flex-shrink: 0; margin-top: 0.25rem;">🔗</div>
+            <div class="insight-content" style="flex: 1;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #333333; font-size: 1rem; font-weight: 600;">Keywords combinadas</h4>
+                <div class="keywords-frequency" style="margin-top: 0.5rem; line-height: 1.6;">
                     {% for phrase, count in data_insights.keywords_combinadas %}
-                    <span class="keyword-item">{{ phrase }} ({{ count }})</span>{% if not loop.last %}, {% endif %}
+                    <span class="keyword-item" style="background: #f5f5f5; color: #333333; padding: 0.2rem 0.4rem; border-radius: 4px; font-size: 0.85rem; white-space: nowrap; display: inline-block; margin: 0.1rem;">{{ phrase }} ({{ count }})</span>{% if not loop.last %}, {% endif %}
                     {% endfor %}
                 </div>
-                <div class="insight-detail">Patrones detectados: {{ data_insights.patrones_detectados }}</div>
+                <div class="insight-detail" style="color: #666; font-size: 0.85rem; margin-top: 0.5rem;">Patrones detectados: {{ data_insights.patrones_detectados }}</div>
             </div>
         </div>
     </div>
