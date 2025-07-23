@@ -71,7 +71,12 @@ def search_videos(keyword, max_results=20):
                     continue
                 
                 published_at = datetime.strptime(item['snippet']['publishedAt'], "%Y-%m-%dT%H:%M:%SZ")
-                day_of_week = published_at.strftime('%A')
+                # Mapeo de días en inglés a español
+                days_mapping = {
+                    'Monday': 'Lunes', 'Tuesday': 'Martes', 'Wednesday': 'Miércoles',
+                    'Thursday': 'Jueves', 'Friday': 'Viernes', 'Saturday': 'Sábado', 'Sunday': 'Domingo'
+                }
+                day_of_week = days_mapping.get(published_at.strftime('%A'), published_at.strftime('%A'))
                 
                 video_stats = video_item['statistics']
                 
