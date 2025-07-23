@@ -71,18 +71,27 @@ def search_videos(keyword, max_results=20):
                 
                 video_stats = video_item['statistics']
                 
+                views = int(video_stats.get('viewCount', 0))
+                likes = int(video_stats.get('likeCount', 0))
+                comments = int(video_stats.get('commentCount', 0))
+                
+                # Calcular engagement_rate
+                total_engagement = likes + comments
+                engagement_rate = (total_engagement / views * 100) if views > 0 else 0
+                
                 video_details = {
                     'title': item['snippet'].get('title', 'Sin título'),
                     'published_at': published_at,
                     'day_of_week': day_of_week,
-                    'views': int(video_stats.get('viewCount', 0)),
-                    'likes': int(video_stats.get('likeCount', 0)),
-                    'comments': int(video_stats.get('commentCount', 0)),
+                    'views': views,
+                    'likes': likes,
+                    'comments': comments,
                     'duration': duration,
                     'video_url': f"https://www.youtube.com/watch?v={video_id}",
                     'thumbnail_url': item['snippet'].get('thumbnails', {}).get('medium', {}).get('url', ''),
                     'category': get_video_category(video_item['snippet'].get('categoryId', '')),
-                    'channel_title': item['snippet'].get('channelTitle', 'Desconocido')
+                    'channel_title': item['snippet'].get('channelTitle', 'Desconocido'),
+                    'engagement_rate': engagement_rate
                 }
                 
                 videos.append(video_details)
