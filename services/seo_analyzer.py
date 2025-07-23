@@ -86,7 +86,7 @@ def search_videos(keyword, max_results=20):
                 video_details = {
                     'title': item['snippet'].get('title', 'Sin título'),
                     'published_at': published_at,
-                    'day_of_week': day_of_week,
+                    'weekday': day_of_week,
                     'views': views,
                     'likes': likes,
                     'comments': comments,
