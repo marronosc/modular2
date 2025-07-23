@@ -228,6 +228,104 @@
 </div>
 {% endif %}
 
+<!-- Análisis de Datos -->
+{% if data_insights %}
+<div class="section">
+    <h2 class="section-title">
+        <span class="section-icon">📊</span>
+        Análisis de Datos
+    </h2>
+    
+    <div class="insights-grid">
+        <!-- Mejor día para publicar -->
+        <div class="insight-card">
+            <div class="insight-icon">📅</div>
+            <div class="insight-content">
+                <h4>Mejor día para publicar</h4>
+                <div class="insight-highlight">{{ data_insights.best_day }}</div>
+                <div class="insight-subtitle">obtiene mejores resultados</div>
+                <div class="insight-detail">Promedio: {{ format_number(data_insights.best_day_avg_views) }} views</div>
+            </div>
+        </div>
+        
+        <!-- Duración óptima -->
+        <div class="insight-card">
+            <div class="insight-icon">⏱️</div>
+            <div class="insight-content">
+                <h4>Duración óptima</h4>
+                <div class="insight-highlight">Videos {{ data_insights.best_duration_category }}</div>
+                <div class="insight-subtitle">funcionan mejor</div>
+                <div class="insight-detail">Promedio: {{ format_number(data_insights.best_duration_avg_views) }} views</div>
+            </div>
+        </div>
+        
+        <!-- Keywords exitosas -->
+        <div class="insight-card">
+            <div class="insight-icon">📝</div>
+            <div class="insight-content">
+                <h4>Keywords exitosas</h4>
+                <div class="keywords-list">
+                    {% for keyword in data_insights.keywords_exitosas %}
+                    <span class="keyword-tag success">{{ keyword }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Estrategia de títulos -->
+        <div class="insight-card">
+            <div class="insight-icon">📏</div>
+            <div class="insight-content">
+                <h4>Estrategia de títulos</h4>
+                <div class="insight-highlight">Extensión media: {{ data_insights.avg_title_length }} caracteres</div>
+                <div class="title-stats">
+                    <div class="title-stat">
+                        <span class="stat-label">Cortos (≤50%):</span>
+                        <span class="stat-value">{{ data_insights.title_distribution.short_percent }}% ({{ data_insights.title_distribution.short_count }} videos)</span>
+                    </div>
+                    <div class="title-stat">
+                        <span class="stat-label">Medios (50-75%):</span>
+                        <span class="stat-value">{{ data_insights.title_distribution.medium_percent }}% ({{ data_insights.title_distribution.medium_count }} videos)</span>
+                    </div>
+                    <div class="title-stat">
+                        <span class="stat-label">Largos (>75%):</span>
+                        <span class="stat-value">{{ data_insights.title_distribution.long_percent }}% ({{ data_insights.title_distribution.long_count }} videos)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Keywords más usadas -->
+        <div class="insight-card full-width">
+            <div class="insight-icon">🔍</div>
+            <div class="insight-content">
+                <h4>Keywords más usadas</h4>
+                <div class="keywords-frequency">
+                    {% for word, count in data_insights.keywords_mas_usadas %}
+                    <span class="keyword-item">{{ word }} ({{ count }})</span>{% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                </div>
+                <div class="insight-detail">Total palabras únicas: {{ data_insights.total_palabras_unicas }} | Total palabras: {{ data_insights.total_palabras }}</div>
+            </div>
+        </div>
+        
+        <!-- Keywords combinadas -->
+        <div class="insight-card full-width">
+            <div class="insight-icon">🔗</div>
+            <div class="insight-content">
+                <h4>Keywords combinadas</h4>
+                <div class="keywords-frequency">
+                    {% for phrase, count in data_insights.keywords_combinadas %}
+                    <span class="keyword-item">{{ phrase }} ({{ count }})</span>{% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                </div>
+                <div class="insight-detail">Patrones detectados: {{ data_insights.patrones_detectados }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <!-- Análisis Temporal -->
 <div class="section">
     <h2 class="section-title">

@@ -182,3 +182,101 @@ def calculate_total_stats(videos):
         'total_likes': sum(video['likes'] for video in videos),
         'total_comments': sum(video['comments'] for video in videos)
     }
+
+def analyze_data_insights(videos):
+    """Genera análisis de datos para el informe SEO"""
+    if not videos:
+        return {}
+    
+    # Mejor día para publicar
+    weekday_stats = defaultdict(list)
+    for video in videos:
+        weekday_stats[video['weekday']].append(video['views'])
+    
+    best_day = max(weekday_stats.keys(), 
+                   key=lambda day: sum(weekday_stats[day]) / len(weekday_stats[day]) if weekday_stats[day] else 0)
+    best_day_avg = sum(weekday_stats[best_day]) / len(weekday_stats[best_day]) if weekday_stats[best_day] else 0
+    
+    # Duración óptima
+    duration_categories = {
+        'cortos': [v for v in videos if v['duration_seconds'] <= 300],  # 0-5min
+        'medios': [v for v in videos if 300 < v['duration_seconds'] <= 900],  # 5-15min
+        'largos': [v for v in videos if v['duration_seconds'] > 900]  # 15min+
+    }
+    
+    best_duration_category = max(duration_categories.keys(),
+                                key=lambda cat: sum(v['views'] for v in duration_categories[cat]) / len(duration_categories[cat]) if duration_categories[cat] else 0)
+    best_duration_avg = sum(v['views'] for v in duration_categories[best_duration_category]) / len(duration_categories[best_duration_category]) if duration_categories[best_duration_category] else 0
+    
+    # Keywords exitosas (palabras más comunes en títulos de videos con más views)
+    from collections import Counter
+    import re
+    
+    # Obtener los 5 videos con más views
+    top_videos = sorted(videos, key=lambda v: v['views'], reverse=True)[:5]
+    
+    # Extraer palabras de los títulos
+    all_words = []
+    for video in top_videos:
+        title = video['title'].lower()
+        words = re.findall(r'\b[a-záéíóúñü]{3,}\b', title)
+        all_words.extend(words)
+    
+    common_words = Counter(all_words)
+    keywords_exitosas = [word for word, count in common_words.most_common(5)]
+    
+    # Keywords más usadas (en todos los títulos)
+    all_titles_words = []
+    for video in videos:
+        title = video['title'].lower()
+        words = re.findall(r'\b[a-záéíóúñü]{2,}\b', title)
+        all_titles_words.extend(words)
+    
+    word_counts = Counter(all_titles_words)
+    keywords_mas_usadas = [(word, count) for word, count in word_counts.most_common(10)]
+    
+    # Keywords combinadas (frases de 2-3 palabras)
+    combined_keywords = []
+    for video in videos:
+        title = video['title'].lower()
+        words = re.findall(r'\b[a-záéíóúñü]+\b', title)
+        for i in range(len(words) - 1):
+            if len(words[i]) >= 2 and len(words[i+1]) >= 2:
+                combined_keywords.append(f'"{words[i]} {words[i+1]}"')
+            if i < len(words) - 2 and len(words[i+2]) >= 2:
+                combined_keywords.append(f'"{words[i]} {words[i+1]} {words[i+2]}"')
+    
+    combined_counts = Counter(combined_keywords)
+    keywords_combinadas = [(phrase, count) for phrase, count in combined_counts.most_common(10)]
+    
+    # Estrategia de títulos
+    title_lengths = [len(video['title']) for video in videos]
+    avg_title_length = sum(title_lengths) / len(title_lengths)
+    
+    short_titles = len([t for t in title_lengths if t <= 50])
+    medium_titles = len([t for t in title_lengths if 50 < t <= 75])
+    long_titles = len([t for t in title_lengths if t > 75])
+    
+    total_videos = len(videos)
+    
+    return {
+        'best_day': best_day,
+        'best_day_avg_views': int(best_day_avg),
+        'best_duration_category': best_duration_category,
+        'best_duration_avg_views': int(best_duration_avg),
+        'keywords_exitosas': keywords_exitosas,
+        'keywords_mas_usadas': keywords_mas_usadas,
+        'keywords_combinadas': keywords_combinadas,
+        'total_palabras_unicas': len(word_counts),
+        'total_palabras': len(all_titles_words),
+        'patrones_detectados': len(combined_counts),
+        'avg_title_length': round(avg_title_length, 1),
+        'title_distribution': {
+            'short_count': short_titles,
+            'medium_count': medium_titles,
+            'long_count': long_titles,
+            'short_percent': round((short_titles / total_videos) * 100, 1),
+            'medium_percent': round((medium_titles / total_videos) * 100, 1),
+            'long_percent': round((long_titles / total_videos) * 100, 1)
+        }
+    }

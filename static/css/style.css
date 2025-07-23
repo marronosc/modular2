@@ -1856,3 +1856,150 @@ input[type="text"]:focus {
         line-height: 1.4;
     }
 }
+
+/* Estilos para Análisis de Datos */
+.insights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.insight-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    transition: all 0.3s ease;
+    border-left: 4px solid #dc3545;
+}
+
+.insight-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.insight-card.full-width {
+    grid-column: 1 / -1;
+}
+
+.insight-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.insight-content {
+    flex: 1;
+}
+
+.insight-content h4 {
+    margin: 0 0 0.5rem 0;
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.insight-highlight {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #dc3545;
+    margin-bottom: 0.25rem;
+}
+
+.insight-subtitle {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.insight-detail {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+}
+
+.keywords-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.keyword-tag {
+    background: #e3f2fd;
+    color: #1976d2;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.keyword-tag.success {
+    background: #e8f5e8;
+    color: #2e7d32;
+}
+
+.keywords-frequency {
+    margin-top: 0.5rem;
+    line-height: 1.6;
+}
+
+.keyword-item {
+    background: #f5f5f5;
+    color: var(--text-primary);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    white-space: nowrap;
+}
+
+.title-stats {
+    margin-top: 0.75rem;
+}
+
+.title-stat {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.25rem 0;
+    border-bottom: 1px solid #eee;
+    font-size: 0.85rem;
+}
+
+.title-stat:last-child {
+    border-bottom: none;
+}
+
+.stat-label {
+    color: var(--text-secondary);
+}
+
+.stat-value {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+/* Responsivo para móviles */
+@media (max-width: 768px) {
+    .insights-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    
+    .insight-card {
+        padding: 1rem;
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .insight-icon {
+        align-self: center;
+        margin-bottom: 0.5rem;
+    }
+    
+    .keywords-list {
+        justify-content: center;
+    }
+}

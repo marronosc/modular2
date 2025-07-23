@@ -1,7 +1,7 @@
 from flask import Blueprint, request, render_template, redirect, url_for
 from services.seo_analyzer import search_videos, calculate_average_duration, count_unique_channels
 from services.seo_analyzer import get_channel_stats, categorize_videos_by_age, calculate_total_stats
-from services.seo_analyzer import format_number, format_date, format_duration
+from services.seo_analyzer import format_number, format_date, format_duration, analyze_data_insights
 from services.recent_videos import generate_chart_data
 
 seo_bp = Blueprint('seo', __name__, url_prefix='/seo')
@@ -29,6 +29,7 @@ def generate_report(keyword):
             last_6_months, last_year, older_than_year = categorize_videos_by_age(videos)
             total_stats = calculate_total_stats(videos)
             chart_data = generate_chart_data(videos)
+            data_insights = analyze_data_insights(videos)
         else:
             avg_views = avg_likes = avg_comments = 0
             avg_duration = None
@@ -37,6 +38,7 @@ def generate_report(keyword):
             last_6_months = last_year = older_than_year = []
             total_stats = {'total_views': 0, 'total_likes': 0, 'total_comments': 0}
             chart_data = {}
+            data_insights = {}
 
         return render_template('seo/report.html',
             keyword=keyword,
@@ -52,6 +54,7 @@ def generate_report(keyword):
             older_than_year=older_than_year,
             total_stats=total_stats,
             chart_data=chart_data,
+            data_insights=data_insights,
             format_number=format_number,
             format_date=format_date,
             format_duration=format_duration
